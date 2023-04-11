@@ -1,0 +1,40 @@
+[=] [NULL= ] [COMMENT=//] [ID=@] [SUB_ID=---]
+
+// DO NOT REMOVE THE LINE ABOVE
+// It corresponds to SYMBOLS or NAMES of PARAMETERS to be interpreted in this table, separated from their SYMBOLIC VALUE.
+// '[' and ']' respectively represent the beginning and end of their evaluation.
+// '=' represents a delimitor between the NAME and the SYMBOLIC VALUE.
+// ID is the general identifier (surrounders, operators, etc.) while SUB_ID give characteristics to current ID.
+// If you had PARAMETERS, append them on the right of the line above.
+
+@SURROUNDERS
+
+() [] {}
+
+---NAMES
+
+PARENTHESIS BRAKET ACCOLADE
+
+
+@OPERATORS
+
+~  ?  +   -   /   *   <  >  <= >= =  == <=> => V &  %%% -->
+
+---NAMES
+
+NOT MAYBE PLUS MINUS DIV TIMES LESS_THAN MORE_THAN LESS_EQ MORE_EQ EQUALS EQUIVALENT ISOMORPH IMPLIES OR AND TEST REWRITE_AS
+
+---OPERANDS
+
+R  L  LR  LR  LR  LR  LR LR LR LR LR LR LR LR LR LR RRR LR
+
+// EQUALS : same values (e.g 'dougy' = 'dougy') ;  EQUIVALENT : same class (e.g. STR == STR); ISOMORPH : same structure (e.g. STR + STR <=> ANY_STR + ANY_STR )
+
+
+@META
+
+_ $ ¤ #
+
+---NAMES
+
+ANY_STR OPERAND ANY_OP BLOCK

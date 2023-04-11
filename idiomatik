@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+
+# GOAL :
+#Model = { 'R0 : A = B <=> B = A (swap)', 'P0 : "a" = "b"', 'P1 : "b" = "c"' }
+#CHECK P1 : "a" = "c"
+
+import sys
+from read_table import *
+from lexer import *
+from parser import *
+from read_rules import *
+from rewriter import *
+from checker import *
+from displayer import *
+
+try:
+    proposition = sys.argv[1]
+except:
+    proposition = "(a) + (b) + X "
+    #print("ERROR: Need a STRING as input.")
+    #exit(0)
+
+
+print("------------------------------")
+print("     ",proposition)
+print("------------------------------")
+
+display_all_possible_rewritings(proposition)
+
+
+
+
+
+
+#for p in propositions:
+#    print("------------------------------")
+#    #if PARSE(TOKENIZE(p))[0] == False:
+#    #    print("Invalid proposition '{}'".format(p))
+#    print(NULL.join(map(str, [x[1] for x in TOKENIZE(p)])),"\n") # Tokenized and Parsed INPUT as string!
+#    #print([x[0] for x in TOKENIZE(p)],"\n") # Identifier of symbols
+#    #print([x[1] for x in TOKENIZE(p)],"\n") # Symbols themselves
+#    #print([x[2] for x in TOKENIZE(p)],"\n") # Index in given input
+#    #print([x[3] for x in TOKENIZE(p)],"\n") # Properties of symbols
+#    #a = NULL.join(map(str, [x[1] for x in PARSE(TOKENIZE(p))[1]]))
+#    #for j in range(0,2):
+#    #    print(PARSE(TOKENIZE(a)))
+#    #    b = NULL.join(map(str,[x[1] for x in PARSE(TOKENIZE(a))[1]]))
+#    #    print(a == b)
+#    #    print("a: {} <=> b: {}".format(a,b))
+#    #    a = b
+#    #print(PARSE(TOKENIZE(p)),"\n")
+#    print(CHECK(PARSE(TOKENIZE(p))),"\n")
+#
+#
+#    #print([x[1] for x in CHECK(PARSE(TOKENIZE(p)))[1]],"\n") # Symbols themselves
+#
+#    #print(PARSE(TOKENIZE(CHECK(PARSE(TOKENIZE(p))))))
+#
+#
+##print(SYMBOLS)
+##print(SYMBOLS['RULES'])
+
+
