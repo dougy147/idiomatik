@@ -2,6 +2,7 @@ Trying to build my first interpreter with Python.
 
 It will for sure be bloated, as this is rather a practice-oriented than a theoretically-driven learning process.
 
+| NOTE        |
 |:---------------------------|
 | _This might get verbose for a simple reason : if I need to come back here after a long period of time, I don't want to lose too much boot time to dive back in. Also, I don't have the vocabulary to be synthetic enough._ |
 
