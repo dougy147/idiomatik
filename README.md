@@ -1,30 +1,32 @@
-Trying to build my first interpreter (?) with Python.
-
-_This might get verbose for a simple reason : if I need to come back here after a long period of time, I don't want to lose too much boot time to dive back in. Also, I don't have the vocabulary to be synthetic enough._
+Trying to build my first interpreter with Python.
 
 It will for sure be bloated, as this is rather a practice-oriented than a theoretically-driven learning process.
 
+|:---------------------------|
+| _This might get verbose for a simple reason : if I need to come back here after a long period of time, I don't want to lose too much boot time to dive back in. Also, I don't have the vocabulary to be synthetic enough._ |
+
 ## What it does
 
-`idiomatik` receives input strings that are returned as tokens.
-A token is a chain of elements extracted from the input by the lexer.
-The lexer decomposes the input to match its characters (or sequence of characters) to predefined categories of symbols (in SYMBOL_TABLE).
-The construction of the token ends when all the elements of the input have been attributed an identity and been chained together.
+`idiomatik` receives input strings (e.g. "A + B = C") that are returned as *tokens*.
+A token is a chain of elements extracted from the input by the *lexer*.
+The lexer decomposes each input to match its elements (characters, or sequence of characters) to predefined categories of symbols (see `SYMBOL_TABLE`).
+When all the elements of an input have been attributed an identity, they are chained together and the construction of the token ends.
 
-Tokens are then sent to the parser, whose job is to assess the validity of their syntax (is the chain a well-formed expression?).
+Tokens are then sent to the *parser*, whose job is to assess if their *syntax* is valid (i.e. the chain of elements is a well-formed expression) or not.
 The parser returns a truth value depending on whether the token is syntactically correct or not.
+
 Syntax is immediately incorrect when one of those axioms is false :
 
-- every closing surrounder (`)`, `]`, `}`) matches its opening opposite at the same level of nestedness (an opening surrounder increments the level of nestedness by 1)
-- every operator has operands (correct amount and position)
+- every closing surrounder (`)`, `]`, `}`) matches an opening opposite at the same level of *nestedness* (an opening surrounder increments the level of nestedness by 1)
+- every *operator* has a correct amount of *operands* in proper position
 
-If the token is syntactically valid, then the input is too.
+If the token is syntactically valid, then the input is considered to be too.
 
-When an input is a valid expression, `idiomatik` can rewrite it as another valid expression given a set of arbitrarly predefined rules (in RULES).
+When an input is a valid expression, `idiomatik` can *rewrite* it as another valid expression given a set of arbitrarly predefined rules (i.e. *rewrite rules*; see `RULES`).
 (But for now, this is only true for simple rules. See example below)
 
-For the sake of brevity, I'm not mentionning how SYMBOLS and RULES tables' are parsed with `idiomatik`, but they are in a quite flexible way.
-I also pass for now on how n-arity checking for operators is implemented.
+For the sake of brevity, I'm not mentionning how `SYMBOLS` and `RULES` tables' are parsed with `idiomatik`, but they are in a quite flexible way.
+I also pass for now on how _n_-arity checking for operators is implemented.
 
 ### Verbose example...
 
@@ -45,7 +47,7 @@ This is a syntactically valid expression as no axiom is refuted :
 
 Let's now try to define an arbitrary rewrite rule, for example : `(_) --> _`
 
-If we define `_` and `-->` as two META symbols meaning respectively `ANY_STRING` and `REWRITE_AS`, the rewrite rule could be understood as "any string between parenthesis can be rewritten without it".
+If we define `_` and `-->` as two *meta* symbols meaning respectively _any string_ and _rewrite as_, the rewrite rule could be understood as "any string between parenthesis can be rewritten without it".
 
 
 The rewriting process starts by parsing the token and check whether any sequence of its elements matches the left side of the rewrite rule (here `(_)`).
@@ -57,13 +59,13 @@ Here is the output of `idiomatik` with this example's input and rule:
 ```bash
 ./idiomatik "(~a) + [(b) / c]"
 
-( ~ a ) + [ b / c ]
+1 possible rewritings:
 
-1 possible rewritings
+( ~ a ) + [ b / c ]
 ```
 
-Now we have different choices, either we check if the rewriting is also rewritable either we stop.
-This question maybe makes more sense when considering rules like `_ --> (_)` that could lead to never ending loops...
+Now we have different choices, either we check if the rewrited expression (here ` ( ~ a ) + [ b / c ] `) is also rewritable given the rewrite rules, either we stop.
+This question maybe makes more sense when considering rules like this one : `_ --> (_)`. Indeed, that could lead to never ending loops...
 
 For now `idiomatik` exhaustively recomputes every rewritings, given all rules (!) until nothing new can be rewritten (highly resource consuming and potentially never ending...), but I will add simpler behaviors.
 
@@ -99,11 +101,11 @@ String of symbols (from the input).
 Structure of a language.
 Syntax impacts semantics.
 
-### Gramma
+### Grammar
 
 Helps to express the structure of a language formally.
 
-### Semanti
+### Semantic
 
 Wrong syntax results in no meaning.
 Correct syntax could result in a meaningless thing (Colorless green ideas sleep furiously)
@@ -114,7 +116,7 @@ Base tokens of a language.
 Keywords, operators, other symbols...
 The characters that can be used in identifiers, numbers or other program elements.
 
-### Nonterminals / Nonterminals symbol
+### Nonterminal / Nonterminal symbol
 
 Used to represent pieces of the structure of the language.
 (noun, verb, sentence, etc.)
@@ -138,10 +140,20 @@ We usually separate grammars to handle these because grammars for both get very 
 Compilers and interpreters usually handle these separately.
 (For the moment that seems to be what I have naively done)
 
-### Parse trees
+### Parse trees (concrete syntax tree or derivation tree)
 
 Diagram of the structure of a language fragment, given a grammar.
 It's a way to demonstrate how a fragment of a language is structured given a grammar.
+
+A parse tree represents the syntactic structure of a language with nodes corresponding to the elements of that language (e.g. operators, strings...).
+It is different from AST because details such as identifiers, characters, etc. are not abstracted away.
+So parse trees usually contain all the informations about the input string being parsed and syntactically checked.
+
+### Abstract syntax tree (AST)
+
+Tree representation of the "abstract syntactic structure of text written in a formal language". 
+Abstract because some informations aren't necessary (e.g. surrounders). 
+An AST is usually derived and built from a parse tree (a "concrete syntax tree").
 
 ### Ambiguity
 
@@ -150,8 +162,6 @@ Multiple trees for a same expression.
 Check associativity : for most it is left to right. Right to left (assignment (a=b) and exponentiation (2^4))
 
 Check precedence : operators' priority
-
-## Formal description
 
 ### Backus-Naur Form
 
@@ -186,7 +196,7 @@ Idiomatik in BNF notation (might be wrong)...
 <digit> 	::= 0 | ... | 9
 ```
 
-### EBNF (Extended Backus Naur Form
+### EBNF (Extended Backus Naur Form)
 
 Allow it to be a little more compact.
 
@@ -212,3 +222,5 @@ But why not share a "work" in progress?
 - https://invidious.snopyta.org/watch?v=F25ez8s3AsQ
 - https://invidious.snopyta.org/watch?v=f9Mkzbxdjzc
 - https://invidious.snopyta.org/watch?v=_C5AHaS1mOA
+- https://en.wikipedia.org/wiki/Regular_expression
+- https://en.wikipedia.org/wiki/Abstract_syntax_tree
