@@ -16,9 +16,11 @@ from displayer import *
 try:
     proposition = sys.argv[1]
 except:
-    proposition = "(a) + (b) + X "
-    #print("ERROR: Need a STRING as input.")
-    #exit(0)
+    #print("Please provide an input (e.g. a + b = c)")
+
+    #proposition = "(a) + (b) + X "
+    print("ERROR: Need a STRING as input.")
+    exit(0)
 
 
 print("------------------------------")

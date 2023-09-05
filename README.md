@@ -6,6 +6,14 @@ It will for sure be bloated, as this is rather a practice-oriented than a theore
 |:---------------------------|
 | _This might get verbose for a simple reason : if I need to come back here after a long period of time, I don't want to lose too much boot time to dive back in. Also, I don't have the vocabulary to be synthetic enough._ |
 
+## Quick launch
+
+```bash
+git clone https://github.com/dougy147/idiomatik
+cd idiomatik
+./idiomatik "a + b = c"
+```
+
 ## What it does
 
 `idiomatik` receives input strings (e.g. "A + B = C") that are returned as *tokens*.
