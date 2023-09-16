@@ -35,6 +35,7 @@ def check_surrounders(TOKEN):
 
 def check_operators(TOKEN):
     OPS = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
+    #print(OPS)
     if len(OPS) == 0 : return True
     for OP in OPS:
         if not check_operands(OP,TOKEN): return False
@@ -50,9 +51,9 @@ def check_operands(OPERATOR,TOKEN):
             if operands_position[i] == operands_position[i-1]:
                 last_operand = get_operand(OPERATOR,TOKEN,operands_position[i-1],last_index)
                 if operands_position[i] == 'L':
-                    last_index   = last_operand[1][0][3]
+                    last_index = last_operand[1][0][3]
                 if operands_position[i] == 'R':
-                    last_index   = last_operand[1][len(last_operand[1])-1][3]
+                    last_index = last_operand[1][len(last_operand[1])-1][3]
             else :
                 last_index = op_index
         if not get_operand(OPERATOR,TOKEN,operands_position[i],last_index)[0] :

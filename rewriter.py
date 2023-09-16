@@ -20,63 +20,16 @@ but I want to be able to give a rule such as A + B --> B + A (swap)
 In this regard, META characters like _ should have properties, and those properties
 should be evaluated in the below functions.'''
 
-#def rewrite_token_given_all_rules(TOKEN):
-#    rewrite_rules, LEFT_PATTERNS, RIGHT_PATTERNS = split_rewrite() # Grab all PUBLIC REWRITE_RULES (left and right patterns)
-#    for i in range(len(rewrite_rules)):
-#        full_rewrite_token(TOKEN,LEFT_PATTERN[i],RIGHT_PATTERN[i])
-#
-#def full_rewrite_token(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=[]):
-#    '''Apply a RULE to ALL element of the token matching that specific RULE'''
-#    for i in range(INDEX,len(TOKEN)):
-#        CUR_RIGHT_PATTERN = [x for x in RIGHT_PATTERN]
-#        pattern_in_token = True
-#        rewritable_part_of_token = []
-#
-#        for j in range(len(LEFT_PATTERN)):
-#            if i+j >= len(TOKEN): break
-#            rest_of_proposition = NULL+NULL.join(map(str,[x[1] for x in TOKEN[i+j+1:]]))
-#            if LEFT_PATTERN[j][2][0] == 'ANY_STR' and TOKEN[i+j][0] == 'STR':
-#                rewritable_part_of_token.append(TOKEN[i+j])
-#                for k in range(len(RIGHT_PATTERN)):
-#                    if CUR_RIGHT_PATTERN[k][2][0] == 'ANY_STR':
-#                        CUR_RIGHT_PATTERN[k] = TOKEN[i+j]
-#                        break
-#                continue
-#            #print(TOKEN)
-#            if TOKEN[i+j][1] != LEFT_PATTERN[j][1]:
-#                pattern_in_token = False
-#                break
-#            rewritable_part_of_token.append(TOKEN[i+j])
-#
-#        if pattern_in_token :
-#            if "ANY_STR" in str(CUR_RIGHT_PATTERN) or "OPERAND" in str(CUR_RIGHT_PATTERN) :
-#                continue
-#                ##return [False, [TOKEN, LEFT_PATTERN, RIGHT_PATTERN] ]
-#                #return [False, [TOKEN] ]
-#            start_index = i
-#            end_index   = i+j
-#            rewritable_part = NULL+NULL.join(map(str,[x[1] for x in CUR_RIGHT_PATTERN]))
-#            beginning_of_proposition = NULL+NULL.join(map(str,[x[1] for x in TOKEN[0:i]]))
-#            NEW_TOKEN=beginning_of_proposition+rewritable_part+rest_of_proposition
-#            NEW_TOKEN = PARSE(TOKENIZE(NEW_TOKEN))
-#            if NEW_TOKEN[0]:
-#                new_token = NULL.join(map(str,[x[1] for x in NEW_TOKEN[1]]))
-#                if not new_token in REWRITES:
-#                    REWRITES.append(new_token)
-#                    rewrite_all(NEW_TOKEN[1],LEFT_PATTERN,RIGHT_PATTERN,INDEX=i+j,REWRITES=REWRITES)
-#    if INDEX != 0 : return
-#    VALID_REWRITES = []
-#    index = 0
-#    for rew in REWRITES:
-#        token = PARSE(TOKENIZE(rew))
-#        if token[0] and not token[1] in VALID_REWRITES :
-#            VALID_REWRITES.append(token[1])
-#        index+=1
-#    return [True, VALID_REWRITES ]
-#    pass
-#
-#def parts_rewrite_token(TOKEN,RULE):
-#    pass
+def silent_surrounding(TOKEN):
+    ''' Given precedence of OPERATORS, place "invisibile" parenthesis around
+    subexpressions to be solved first. Think first about taking into consideration
+    the nestedness (first solved what is inside the most nested parenthesis).'''
+    print("TODO") #1 ... #1
+    '''
+    See special cases :
+    - exponentiation => top-down (right to left)
+    - alone minus sign (solve it in parser)
+    '''
 
 def split_all_rewrite_rules():
     '''Given all current RULES, returns a list of the form :
@@ -197,8 +150,67 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=[
 
 
 
-a = "(((((((c))))))) + b => (~ a)"
-a = "~ (A) + (B) + (c) + (d)"
-#a = "p => q"
-#print("-----------------------")
-#print("PROP: {}\n".format(a))
+#a = "(((((((c))))))) + b => (~ a)"
+#a = "~ (A) + (B) + (c) + (d)"
+##a = "p => q"
+##print("-----------------------")
+##print("PROP: {}\n".format(a))
+
+
+#def rewrite_token_given_all_rules(TOKEN):
+#    rewrite_rules, LEFT_PATTERNS, RIGHT_PATTERNS = split_rewrite() # Grab all PUBLIC REWRITE_RULES (left and right patterns)
+#    for i in range(len(rewrite_rules)):
+#        full_rewrite_token(TOKEN,LEFT_PATTERN[i],RIGHT_PATTERN[i])
+#
+#def full_rewrite_token(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=[]):
+#    '''Apply a RULE to ALL element of the token matching that specific RULE'''
+#    for i in range(INDEX,len(TOKEN)):
+#        CUR_RIGHT_PATTERN = [x for x in RIGHT_PATTERN]
+#        pattern_in_token = True
+#        rewritable_part_of_token = []
+#
+#        for j in range(len(LEFT_PATTERN)):
+#            if i+j >= len(TOKEN): break
+#            rest_of_proposition = NULL+NULL.join(map(str,[x[1] for x in TOKEN[i+j+1:]]))
+#            if LEFT_PATTERN[j][2][0] == 'ANY_STR' and TOKEN[i+j][0] == 'STR':
+#                rewritable_part_of_token.append(TOKEN[i+j])
+#                for k in range(len(RIGHT_PATTERN)):
+#                    if CUR_RIGHT_PATTERN[k][2][0] == 'ANY_STR':
+#                        CUR_RIGHT_PATTERN[k] = TOKEN[i+j]
+#                        break
+#                continue
+#            #print(TOKEN)
+#            if TOKEN[i+j][1] != LEFT_PATTERN[j][1]:
+#                pattern_in_token = False
+#                break
+#            rewritable_part_of_token.append(TOKEN[i+j])
+#
+#        if pattern_in_token :
+#            if "ANY_STR" in str(CUR_RIGHT_PATTERN) or "OPERAND" in str(CUR_RIGHT_PATTERN) :
+#                continue
+#                ##return [False, [TOKEN, LEFT_PATTERN, RIGHT_PATTERN] ]
+#                #return [False, [TOKEN] ]
+#            start_index = i
+#            end_index   = i+j
+#            rewritable_part = NULL+NULL.join(map(str,[x[1] for x in CUR_RIGHT_PATTERN]))
+#            beginning_of_proposition = NULL+NULL.join(map(str,[x[1] for x in TOKEN[0:i]]))
+#            NEW_TOKEN=beginning_of_proposition+rewritable_part+rest_of_proposition
+#            NEW_TOKEN = PARSE(TOKENIZE(NEW_TOKEN))
+#            if NEW_TOKEN[0]:
+#                new_token = NULL.join(map(str,[x[1] for x in NEW_TOKEN[1]]))
+#                if not new_token in REWRITES:
+#                    REWRITES.append(new_token)
+#                    rewrite_all(NEW_TOKEN[1],LEFT_PATTERN,RIGHT_PATTERN,INDEX=i+j,REWRITES=REWRITES)
+#    if INDEX != 0 : return
+#    VALID_REWRITES = []
+#    index = 0
+#    for rew in REWRITES:
+#        token = PARSE(TOKENIZE(rew))
+#        if token[0] and not token[1] in VALID_REWRITES :
+#            VALID_REWRITES.append(token[1])
+#        index+=1
+#    return [True, VALID_REWRITES ]
+#    pass
+#
+#def parts_rewrite_token(TOKEN,RULE):
+#    pass

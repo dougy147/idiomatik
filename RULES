@@ -15,6 +15,7 @@
 // e.g. :    ~A
 
 ~A
+B = C
 
 // TRANSFORMATION RULES:
 // Transformation rules contain the REWRITE_AS operator
@@ -24,6 +25,7 @@
 
 (_) --> _
 
+(~ _) --> ~ _
 
 
 //_ => _ --> ~ _ V _

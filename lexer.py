@@ -17,7 +17,7 @@ def build_token(INPUT):
     Each list represents the place of each character
     in the input string'''
 
-    TOKEN = [[] for x in INPUT]
+    TOKEN = [[] for x in INPUT] # Captures a token of length-of-input []
 
     ''' If INPUT is empty, OR INPUT is empty when
     removing trailing NULLs and duplicate NULLs,
@@ -27,13 +27,16 @@ def build_token(INPUT):
     INPUT = remove_trailing_and_duplicate_null(INPUT)
     if INPUT == '' : return []
 
-    ''' Populate TOKEN with [identifier,symbol,index,properties]
+    ''' Populate TOKEN with [   identifier,     (e.g. 'STR')
+                                symbol,         (e.g. 'hello')
+                                [properties],   (e.g. ['immutable',5])
+                                index ]         (e.g. 1)
     at its appropriate place in that order :
         1. Surrounders : property 'open/close'
         2. Operators   : property ['n_ary','direction']
         ?? ... Int?, Meta?
-        3. Strings     : property 'len(string)'
-            |_> should always be last, as not in table
+        3. Strings     : property '[(im)mutable, len(string)]'
+            |_> should always be last, as not in table!
     '''
     for TOKEN_SUR in index_surrounders(INPUT)[1]:
         index = TOKEN_SUR[3]
@@ -90,7 +93,7 @@ def index_surrounders(INPUT):
     return indexes
 
 def index_operators(INPUT):
-    '''Returns ['OP','+', ['n_ary','LR'], index_in_token]'''
+    '''Returns ['OP','+', ['OP NAME','n_ary','LR','precedence'], index_in_token]'''
     indexes = [True, []]
     index = 0
     max_length_op = max(len(x) for x in SYMBOLS['OPERATORS'])
@@ -105,10 +108,11 @@ def index_operators(INPUT):
                 operator = INPUT[0:i+1]
                 operator_name = SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(operator)]
                 operand_direction = SYMBOLS['OPERATORS OPERANDS'][SYMBOLS['OPERATORS'].index(operator)]
+                precedence = SYMBOLS['OPERATORS PRECEDENCE'][SYMBOLS['OPERATORS'].index(operator)]
                 n_ary = len(operand_direction)
                 if n_ary == 1: n_ary = "unary"
                 if n_ary == 2: n_ary = "binary"
-                prop = [operator_name,n_ary,operand_direction]
+                prop = [operator_name,n_ary,operand_direction,precedence]
                 indexes[1].append(['OP',operator,prop,index])
                 for j in range(len(operator)-1):
                     indexes[1].append(['RESERVED',operator,prop,index+j+1])
@@ -122,7 +126,7 @@ def index_operators(INPUT):
     return indexes
 
 def index_strings(INPUT,indexes_to_avoid):
-    '''Returns ['STR','the_string', len(the_string), index_in_token]'''
+    '''Returns ['STR','the_string', [(im)mutable, len(the_string)], index_in_token]'''
     indexes = [True, []]
     index = 0
     while len(INPUT) > 0:

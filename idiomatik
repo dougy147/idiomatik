@@ -20,6 +20,7 @@ except:
 
     #proposition = "(a) + (b) + X "
     print("ERROR: Need a STRING as input.")
+    print("Example : ./idiomatik \"(a + b) = c\"")
     exit(0)
 
 
@@ -28,6 +29,8 @@ print("     ",proposition)
 print("------------------------------")
 
 display_all_possible_rewritings(proposition)
+
+#display_axioms_and_rules()
 
 
 

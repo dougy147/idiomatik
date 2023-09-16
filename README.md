@@ -14,6 +14,12 @@ cd idiomatik
 ./idiomatik "a + b = c"
 ```
 
+## TODO
+
+- Implement precedence for operators (also add parenthesis?) : precedence starts inside the most nested parenthesis (if any)
+- For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
+- Ensure precedence operators : A + B * C + D = A + (B * C) + D
+
 ## What it does
 
 `idiomatik` receives input strings (e.g. "A + B = C") that are returned as *tokens*.
@@ -228,8 +234,9 @@ But why not share a "work" in progress?
 - https://en.wikipedia.org/wiki/Lexical_analysis
 - https://stackoverflow.com/a/3614928
 - https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
-- https://invidious.snopyta.org/watch?v=F25ez8s3AsQ
-- https://invidious.snopyta.org/watch?v=f9Mkzbxdjzc
-- https://invidious.snopyta.org/watch?v=_C5AHaS1mOA
+- https://piped.video/watch?v=F25ez8s3AsQ
+- https://piped.video/watch?v=f9Mkzbxdjzc
+- https://piped.video/watch?v=_C5AHaS1mOA
 - https://en.wikipedia.org/wiki/Regular_expression
 - https://en.wikipedia.org/wiki/Abstract_syntax_tree
+- https://en.wikipedia.org/wiki/Order_of_operations

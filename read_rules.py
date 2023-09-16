@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Rules are imported from the file "RULES".
+# If a rule contains a '=>' (REWRITE_AS) symbol, it is immediately considered a REWRITE RULE.
+# Else it is considered an AXIOM.
+
 from read_table import *
 from lexer import *
 from parser import *
@@ -33,7 +37,3 @@ for i in range(len(STREAM)):
                 else           : RULES['REWRITE_RULES'].append(RULE[1])
             else:
                 print("WARNING: Invalid rule in file '{}': '{}'".format(RULES_FILE,I,i))
-
-#print(len(RULES['AXIOMS']), "axioms in RULES.")
-#print(len(RULES['REWRITE_RULES']), "transformation rules in RULES.\n")
-#print(RULES)
