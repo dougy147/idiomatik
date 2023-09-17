@@ -28,8 +28,14 @@ print("------------------------------")
 print("     ",proposition)
 print("------------------------------")
 
+print("\nPossible rewritings :")
 display_all_possible_rewritings(proposition)
+#print(silent_surrounding(TOKENIZE(proposition)))
 
+
+print("\nFirst look at the 'solving tree' :")
+solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(proposition))]))
+print(solving_surrounders)
 #display_axioms_and_rules()
 
 

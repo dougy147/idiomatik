@@ -41,10 +41,14 @@ def check_operators(TOKEN):
         if not check_operands(OP,TOKEN): return False
     return True
 
-def check_operands(OPERATOR,TOKEN):
+def check_operands(OPERATOR,TOKEN,EXTRACT_OPERAND = False):
+    ''' EXTRACT_OPERAND is here in case we need to extract an operator's operand(s)
+    for example in the "silent_surrounding()" function.
+    '''
     op_index          = OPERATOR[3]
     operands_position = OPERATOR[2][2]
     last_index        = op_index
+    operands          = []
     # LR
     for i in range(len(operands_position)):
         if i != 0:
@@ -57,9 +61,17 @@ def check_operands(OPERATOR,TOKEN):
             else :
                 last_index = op_index
         if not get_operand(OPERATOR,TOKEN,operands_position[i],last_index)[0] :
-            return False
+            if not EXTRACT_OPERAND: return False
+            else :                  return [False, []]
         #print(OPERATOR[1],get_operand(OPERATOR,TOKEN,operands_position[i],last_index))
-    return True
+        if EXTRACT_OPERAND :
+            operands.append(get_operand(OPERATOR,TOKEN,operands_position[i],last_index)[1])
+    if not EXTRACT_OPERAND:
+        return True
+    else :
+        #print(get_operand(OPERATOR,TOKEN,operands_position[i],last_index)[1])
+        return [True, operands]
+    #return True
 
 def get_operand(OPERATOR, TOKEN, DIRECTION, index):
     if DIRECTION == "L":

@@ -39,7 +39,7 @@ def display_all_possible_rewritings(INPUT):
             continue
         print(str_rewrite)
         counter+=1
-    print("\n{} possible rewritings".format(counter))
+    #print("\n{} possible rewritings".format(counter))
     if redundant > 0: print("{} redundancies...".format(redundant))
 
 def display_axioms_and_rules():

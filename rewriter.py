@@ -24,12 +24,68 @@ def silent_surrounding(TOKEN):
     ''' Given precedence of OPERATORS, place "invisibile" parenthesis around
     subexpressions to be solved first. Think first about taking into consideration
     the nestedness (first solved what is inside the most nested parenthesis).'''
-    print("TODO") #1 ... #1
     '''
     See special cases :
-    - exponentiation => top-down (right to left)
     - alone minus sign (solve it in parser)
+
+    IDEA : First parse OPERATORS in TOKEN
+     - Order operators with highest priority and from left to right index
+     - Get operands of those OPERATORS
+     - Put open parenthesis before the first operand and a close after the last
     '''
+    # Filter OP
+    #print("TOKEN:",TOKEN)
+    operators_in_token = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
+    #print(operators_in_token)
+    if operators_in_token == []:
+        print("No operator in TOKEN. Returning True.")
+        return [True, TOKEN]
+    #print("There are {} OPERATORS in this TOKEN. But this function is currently in implementation ! Please be patient.".format(len(operators_in_token)))
+
+    # Sort according to 2 parameters : priority (x[2][3]) and index in token (x[3]) :
+    sorted_operators = sorted(operators_in_token, key=lambda x: (x[2][3], x[3]) )
+    #print(sorted_operators)
+    indexes_of_operators_to_surround = []
+
+    # Go to index of the top priority operator and surround its operands.
+    for OP in sorted_operators :
+        #print("\n OPERATOR:",OP, "\nTOKEN:", TOKEN)
+        cur_operands = check_operands(OP,TOKEN,EXTRACT_OPERAND = True)[1]
+        #print("\n Current Operands:",cur_operands)
+        if cur_operands == [] : continue
+        lowest_index, highest_index = cur_operands[0][0][3], cur_operands[-1:][0][-1:][0][3]
+        #print("\n Lowest index:",lowest_index,"\n Highest index:",highest_index)
+        #print("Token before insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
+
+        # "Special case" for unary operators
+        if OP[2][1] == "unary":
+            # if unary right direction (~) : "(" before operator
+            # if unary left direction (?)  : ")" after operator
+            if OP[2][2] == "R":
+                TOKEN[lowest_index-1:lowest_index-1] = TOKENIZE("(")
+                TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
+            if OP[2][2] == "L":
+                TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
+                TOKEN[highest_index+1+1+1:highest_index+1+1+1] = TOKENIZE(")")
+        else :
+            TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
+            TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
+
+        TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
+        #print("Token after insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
+
+        for OPE in sorted_operators :
+            #print(OPE)
+            if OPE[3] < lowest_index: continue
+            if OPE[3] <= highest_index: OPE[3] += 1
+            if OPE[3] > highest_index: OPE[3] += 2
+        #print(TOKEN)
+    return TOKEN
+
+#a = "~~a + b? ^ c"
+#print(a)
+#print(silent_surrounding(TOKENIZE(a)))
+#exit(0)
 
 def split_all_rewrite_rules():
     '''Given all current RULES, returns a list of the form :

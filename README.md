@@ -20,6 +20,12 @@ cd idiomatik
 - For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
 - Ensure precedence operators : A + B * C + D = A + (B * C) + D
 
+## Future features
+
+- Allow on-the-fly inputs (interpreted as axioms or rewrite rules)
+- Propose rewritings when asked
+- Draw trees
+
 ## What it does
 
 `idiomatik` receives input strings (e.g. "A + B = C") that are returned as *tokens*.
@@ -91,6 +97,8 @@ Adding a META operator like `$`, meaning `ANY_OPERAND`, could be helpful.
 
 That's where `idiomatik` is for now.
 
+
+# Useful resources
 
 ## Vocabulary
 
