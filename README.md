@@ -16,6 +16,7 @@ cd idiomatik
 
 ## TODO
 
+- Implement a tweakable system of precedence for operators. Equality operators (e.g. `=`) should have the complete left part of an expression as first operand (except when there are multiple equal signs) and the complete right part as the second.
 - For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
 
 ## Future features
