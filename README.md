@@ -1,4 +1,4 @@
-Trying to build my first interpreter with Python.
+Building my first interpreter with Python.
 
 It will for sure be bloated, as this is rather a practice-oriented than a theoretically-driven learning process.
 
@@ -16,15 +16,13 @@ cd idiomatik
 
 ## TODO
 
-- Implement precedence for operators (also add parenthesis?) : precedence starts inside the most nested parenthesis (if any)
 - For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
-- Ensure precedence operators : A + B * C + D = A + (B * C) + D
 
 ## Future features
 
 - Allow on-the-fly inputs (interpreted as axioms or rewrite rules)
-- Propose rewritings when asked
-- Draw trees
+- Propose rewritings when asked by user (e.g. `:rewrite`)
+- Draw trees (on the right track to it)
 
 ## What it does
 
@@ -80,9 +78,9 @@ Here is the output of `idiomatik` with this example's input and rule:
 ```bash
 ./idiomatik "(~a) + [(b) / c]"
 
-1 possible rewritings:
+Rewrites as:
 
-( ~ a ) + [ b / c ]
+( ~ a ) + [ b / c ]  # given the rule ( _ ) --> _
 ```
 
 Now we have different choices, either we check if the rewrited expression (here ` ( ~ a ) + [ b / c ] `) is also rewritable given the rewrite rules, either we stop.
@@ -94,6 +92,10 @@ Also note that `(~a)` will not be rewritten in this example, because it does not
 To unwrap it, we could consider a rule like `(~_) --> ~_`.
 However, that could also lead to problems when we will consider solving expressions starting by the most nested sub-expressions. Indeed, we shouldn't unwrap an expression before solving what is inside (that obviously depends on the property we want for the language we build...).
 Adding a META operator like `$`, meaning `ANY_OPERAND`, could be helpful.
+
+Rewrite rules put aside, `idiomatik` is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "right" order, even when parenthesis are missing. This is by default but it is configurable thanks to a priority value given to operators in the `SYMBOL_TABLE` (the lowest, the highest in priority). Some special cases are not consensual when considering the "correct solving order", so choices are to be made, potentially compromising full control. For example, [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases) is hard coded in `idiomatik` to be solved left to right (i.e. $2^3^4 = (2^3)^4 = 4096$). One would probably need to assign a direction of precedence to each operator to allow flexibility.
+
+This process of desambiguation is of course of interest to solve expressions, but also to draw trees (a goal of a near future).
 
 That's where `idiomatik` is for now.
 
