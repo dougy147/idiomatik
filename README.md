@@ -14,16 +14,13 @@ cd idiomatik
 ./idiomatik "a + b = c"
 ```
 
-## TODO
+## Why?
 
-- Implement a tweakable system of precedence for operators. Equality operators (e.g. `=`) should have the complete left part of an expression as first operand (except when there are multiple equal signs) and the complete right part as the second.
-- For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
+I was initially writing a simple solving algorithm for the [Muddy Children Puzzle](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle). That led me to some questions about public/private knowledge, inference rules, well-formed formulas and other stuff I had never heard of, seriously thought of, or invested time in. What are those things? how to implement lexemes identification or evaluate syntax? why is model checking so hard?... those are things I'm interested in for now... until the fail ! lol.
 
-## Future features
-
-- Allow on-the-fly inputs (interpreted as axioms or rewrite rules)
-- Propose rewritings when asked by user (e.g. `:rewrite`)
-- Draw trees (on the right track to it)
+So, I'm not reinventing the wheel, and this will be far from original or quality work. Just disorganized trials and errors, and random notes and code.
+A lot of things here could be wrong or bad approximations, reflecting my ignorance in CS in general.
+But why not share a "work" in progress?
 
 ## What it does
 
@@ -94,7 +91,7 @@ To unwrap it, we could consider a rule like `(~_) --> ~_`.
 However, that could also lead to problems when we will consider solving expressions starting by the most nested sub-expressions. Indeed, we shouldn't unwrap an expression before solving what is inside (that obviously depends on the property we want for the language we build...).
 Adding a META operator like `$`, meaning `ANY_OPERAND`, could be helpful.
 
-Rewrite rules put aside, `idiomatik` is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "right" order, even when parenthesis are missing. This is by default but it is configurable thanks to a priority value given to operators in the `SYMBOL_TABLE` (the lowest, the highest in priority). Some special cases are not consensual when considering the "correct solving order", so choices are to be made, potentially compromising full control. For example, [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases) is hard coded in `idiomatik` to be solved left to right (i.e. $2^3^4 = (2^3)^4 = 4096$). One would probably need to assign a direction of precedence to each operator to allow flexibility.
+Rewrite rules put aside, `idiomatik` is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "correct" order, even when parenthesis are missing. This is by default but it is configurable thanks to a priority value given to operators in the `SYMBOL_TABLE`. Some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), so choices are to be made, potentially compromising full control. `idiomatik` allows users to chose the direction in which operators are going to be evaluated when solving an expression : in the `SYMBOL_TABLE` negative priority values goes from rigth to left, positive from left to right, while null separates an expression side by side. 
 
 This process of desambiguation is of course of interest to solve expressions, but also to draw trees (a goal of a near future).
 
@@ -231,16 +228,22 @@ Allow it to be a little more compact.
 Less compact.
 
 
-## Why?
 
-I was initially writing a simple solving algorithm for the [Muddy Children Puzzle](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle). That led me to some questions about public/private knowledge, inference rules, well-formed formulas and other stuff I had never heard of, seriously thought of, or invested time in. What are those things? how to implement lexemes identification or evaluate syntax? why is model checking so hard?... those are things I'm interested in for now... until the fail ! lol.
+# Future features
 
-So, I'm not reinventing the wheel, and this will be far from original or quality work. Just disorganized trials and errors, and random notes and code.
-A lot of things here could be wrong or bad approximations, reflecting my ignorance in CS in general.
-But why not share a "work" in progress?
+- Allow on-the-fly inputs (interpreted as axioms or rewrite rules)
+- Propose rewritings when asked by user (e.g. `:rewrite`)
+- Draw trees (on the right track to it)
+
+# TODO
+
+- Implement a tweakable system of precedence for operators. Equality operators (e.g. `=`) should have the complete left part of an expression as first operand (except when there are multiple equal signs) and the complete right part as the second.
+- For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
 
 
-### Useful resources
+
+
+# Resources
 
 - https://en.wikipedia.org/wiki/Lexical_analysis
 - https://stackoverflow.com/a/3614928
