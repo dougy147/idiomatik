@@ -1,10 +1,9 @@
-Building my first interpreter with Python.
+Building my first interpreter with Python. A bit idiotic, partially automatic, fully idiomatic.
 
-It will for sure be bloated, as this is rather a practice-oriented than a theoretically-driven learning process.
 
 | NOTE        |
 |:---------------------------|
-| _This might get verbose for a simple reason : if I need to come back here after a long period of time, I don't want to lose too much boot time to dive back in. Also, I don't have the vocabulary to be synthetic enough._ |
+| _This is rather a practice-oriented than a theoretically-driven learning project. The README is verbose for a simple reason : if I need to come back here after a long time, I don't want to lose too much boot time diving back in. Also, I don't have the vocabulary to be synthetic enough. I hope to keep the code clean and self-explanatory._ |
 
 ## Quick launch
 
