@@ -20,72 +20,188 @@ but I want to be able to give a rule such as A + B --> B + A (swap)
 In this regard, META characters like _ should have properties, and those properties
 should be evaluated in the below functions.'''
 
+#def silent_surrounding(TOKEN):
+#    ''' Given precedence of OPERATORS, place "invisibile" parenthesis around
+#    subexpressions to be solved first.
+#        TODO special cases :
+#    - alone minus sign (solve it in parser)
+#    '''
+#    # Filter OP
+#    #print("TOKEN:",TOKEN)
+#    operators_in_token = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
+#    #print(operators_in_token)
+#    if operators_in_token == []:
+#        #print("No operator in TOKEN. Returning True.")
+#        return [True, TOKEN]
+#    #print("There are {} OPERATORS in this TOKEN. But this function is currently in implementation ! Please be patient.".format(len(operators_in_token)))
+#
+#    # Sort according to 2 parameters : priority (x[2][3]) and index in token (x[3]) :
+#    sorted_operators = sorted(operators_in_token, key=lambda x: (x[2][3], x[3]) )
+#    print(sorted_operators)
+#    indexes_of_operators_to_surround = []
+#
+#    # Go to index of the top priority operator and surround its operands.
+#    for OP in sorted_operators :
+#        #print("\n OPERATOR:",OP, "\nTOKEN:", TOKEN)
+#        cur_operands = check_operands(OP,TOKEN,EXTRACT_OPERAND = True)[1]
+#        #print("\n Current Operands:",cur_operands)
+#        if cur_operands == [] : continue
+#        lowest_index, highest_index = cur_operands[0][0][3], cur_operands[-1:][0][-1:][0][3]
+#        #print("\n Lowest index:",lowest_index,"\n Highest index:",highest_index)
+#        #print("Token before insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
+#
+#        # "Special case" for unary operators
+#        if OP[2][1] == "unary":
+#            # if unary right direction (~) : "(" before operator
+#            # if unary left direction (?)  : ")" after operator
+#            if OP[2][2] == "R":
+#                TOKEN[lowest_index-1:lowest_index-1] = TOKENIZE("(")
+#                TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
+#            if OP[2][2] == "L":
+#                TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
+#                TOKEN[highest_index+1+1+1:highest_index+1+1+1] = TOKENIZE(")")
+#        else :
+#            TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
+#            TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
+#
+#        TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
+#        #print("Token after insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
+#
+#        for OPE in sorted_operators :
+#            #print(OPE)
+#            if OPE[3] < lowest_index: continue
+#            if OPE[3] <= highest_index: OPE[3] += 1
+#            if OPE[3] > highest_index: OPE[3] += 2
+#        #print(TOKEN)
+#    return TOKEN
+
 def silent_surrounding(TOKEN):
     ''' Given precedence of OPERATORS, place "invisibile" parenthesis around
-    subexpressions to be solved first. Think first about taking into consideration
-    the nestedness (first solved what is inside the most nested parenthesis).'''
-    '''
-    See special cases :
+    subexpressions to be solved first.
+        TODO special cases :
     - alone minus sign (solve it in parser)
-
-    IDEA : First parse OPERATORS in TOKEN
-     - Order operators with highest priority and from left to right index
-     - Get operands of those OPERATORS
-     - Put open parenthesis before the first operand and a close after the last
     '''
-    # Filter OP
-    #print("TOKEN:",TOKEN)
     operators_in_token = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
-    #print(operators_in_token)
     if operators_in_token == []:
-        print("No operator in TOKEN. Returning True.")
         return [True, TOKEN]
-    #print("There are {} OPERATORS in this TOKEN. But this function is currently in implementation ! Please be patient.".format(len(operators_in_token)))
 
-    # Sort according to 2 parameters : priority (x[2][3]) and index in token (x[3]) :
-    sorted_operators = sorted(operators_in_token, key=lambda x: (x[2][3], x[3]) )
-    #print(sorted_operators)
-    indexes_of_operators_to_surround = []
+    # First sort >=0 operators (priority asc, index asc)
+    # Then sort <0 operators (priority desc, index desc)
+    positive_sorted_operators = [x for x in filter(lambda y: y[2][3] >= 0, sorted(operators_in_token, key=lambda x: (x[2][3], x[3]) ) )]
+    negative_sorted_operators = [x for x in filter(lambda y: y[2][3] < 0, sorted(operators_in_token, key=lambda x: (x[2][3], x[3]), reverse=True ) )]
+
+    # Replace negative values by positive in negative_sorted_operators
+    for OP in negative_sorted_operators:
+        OP[2][3] = abs(OP[2][3])
+
+    concatenated_positive_negative = sorted(positive_sorted_operators + negative_sorted_operators, key=lambda x: x[2][3])
+    sorted_operators = concatenated_positive_negative
 
     # Go to index of the top priority operator and surround its operands.
     for OP in sorted_operators :
-        #print("\n OPERATOR:",OP, "\nTOKEN:", TOKEN)
-        cur_operands = check_operands(OP,TOKEN,EXTRACT_OPERAND = True)[1]
-        #print("\n Current Operands:",cur_operands)
-        if cur_operands == [] : continue
-        lowest_index, highest_index = cur_operands[0][0][3], cur_operands[-1:][0][-1:][0][3]
-        #print("\n Lowest index:",lowest_index,"\n Highest index:",highest_index)
-        #print("Token before insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
+        #print("Doing OPERATOR '{}'".format(OP))
+        #print("for TOKEN : {}".format(NULL.join(map(str, [x[1] for x in TOKEN]))))
+        index_op = OP[3]
+        surrounder_counter = 0
 
-        # "Special case" for unary operators
-        if OP[2][1] == "unary":
-            # if unary right direction (~) : "(" before operator
-            # if unary left direction (?)  : ")" after operator
-            if OP[2][2] == "R":
-                TOKEN[lowest_index-1:lowest_index-1] = TOKENIZE("(")
-                TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
-            if OP[2][2] == "L":
+        # If priority is NON-NULL, operators are surrounded WITH their operands, EXCEPT for 0 (=, ==, ===)
+        if OP[2][3] != 0 :
+            cur_operands = check_operands(OP,TOKEN,EXTRACT_OPERAND = True)[1]
+            if cur_operands == [] : continue
+            lowest_index, highest_index = cur_operands[0][0][3], cur_operands[-1:][0][-1:][0][3]
+            # "Special case" for unary operators :
+            if OP[2][1] == "unary":
+                if OP[2][2] == "R":
+                    TOKEN[lowest_index-1:lowest_index-1] = TOKENIZE("(")
+                    TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
+                if OP[2][2] == "L":
+                    TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
+                    TOKEN[highest_index+1+1+1:highest_index+1+1+1] = TOKENIZE(")")
+            else :
                 TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
-                TOKEN[highest_index+1+1+1:highest_index+1+1+1] = TOKENIZE(")")
+                TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
+            TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
+            #print("Token after insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
+            for OPE in sorted_operators :
+                #print(OPE)
+                if OPE[3] < lowest_index: continue
+                if OPE[3] <= highest_index: OPE[3] += 1
+                if OPE[3] > highest_index: OPE[3] += 2
+            #print(TOKEN)
         else :
-            TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
-            TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
+            #This is where things could get sketchy ...
+            #Here is how 0-priority operators (=, ==, <=>) are to be surrounded.
+            index_op = OP[3]
+            surrounder_counter = 0
 
-        TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
-        #print("Token after insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
+            # GOING LEFT
+            for i in reversed(range(index_op)):
+                if i == 0:
+                    TOKEN[index_op:index_op] = TOKENIZE(")")
+                    TOKEN[i:i] = TOKENIZE("(")
+                    TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
+                    for OPE in sorted_operators:
+                        if OPE[3] == index_op : OPE[3] += 2 # this is our current OPERATOR
+                        elif OPE[3] >  index_op : OPE[3] += 2 # above highest parenthesis +2
+                        elif OPE[3] >= i        : OPE[3] += 1 # above lowest parenthesis  +1
+                        # else : untouched
+                    break
 
-        for OPE in sorted_operators :
-            #print(OPE)
-            if OPE[3] < lowest_index: continue
-            if OPE[3] <= highest_index: OPE[3] += 1
-            if OPE[3] > highest_index: OPE[3] += 2
-        #print(TOKEN)
+                if TOKEN[i][0] == 'SUR':
+                    print("open")
+                    if   TOKEN[i][2][1] == 'close': surrounder_counter += 1
+                    elif TOKEN[i][2][1] == 'open':
+                        surrounder_counter -= 1
+                        print("open")
+                    if surrounder_counter == -1 :
+                        TOKEN[index_op:index_op] = TOKENIZE(")")
+                        TOKEN[i+1:i+1] = TOKENIZE("(")
+                        TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
+                        for OPE in sorted_operators:
+                            if OPE[3] == index_op : OPE[3] += 2 # this is our current OPERATOR
+                            elif OPE[3] >  index_op : OPE[3] += 2 # above highest parenthesis +2
+                            elif OPE[3] >= i+1      : OPE[3] += 1 # above lowest parenthesis  +1
+                        break
+                    continue
+
+                if TOKEN[i][0] == 'OP' and TOKEN[i][2][3] == 0 and surrounder_counter == 0 :
+                    TOKEN[index_op:index_op] = TOKENIZE(")")
+                    TOKEN[i+1:i+1] = TOKENIZE("(")
+                    TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
+                    for OPE in sorted_operators:
+                        if OPE[3] == index_op : OPE[3] += 2 # this is our current OPERATOR
+                        elif OPE[3] >  index_op : OPE[3] += 2 # above highest parenthesis +2
+                        elif OPE[3] >= i+1      : OPE[3] += 1 # above lowest parenthesis  +1
+                    break
+
+            # Reset surrounder_counter
+            surrounder_counter = 0
+            index_op = OP[3]
+
+            # If is the last equal sign : surround its right part
+            for OP_INDEXES in sorted_operators:
+                if OP_INDEXES[3] > index_op:
+                    is_last = False
+                    break
+                is_last = True
+            if is_last :
+                TOKEN[index_op+1:index_op+1] = TOKENIZE("(")
+                TOKEN[len(TOKEN):len(TOKEN)] = TOKENIZE(")")
+                TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
+                for OPE in sorted_operators:
+                    if OPE[3] >= index_op+1 : OPE[3] += 1 # above lowest parenthesis  +1
     return TOKEN
 
-#a = "~~a + b? ^ c"
+##a = "A + B = C + D"
+##a = "[A = (b + c)] = d"
+#a = "[ ~~a + b? + 2 ^ c ^ D == RESULT / a]"
+#a = "A + B / C = A"
+#a = "(A) = (B == c) <=> d = (e)"
+#a = "A = B / 4 $ 3 == C = A + b = A + B"
+#a = "B = C == D <=> E"
+#a = "a == a ^ b  + a = d + c = f +g "
 #print(a)
-#print(silent_surrounding(TOKENIZE(a)))
-#exit(0)
+#print(NULL.join(map(str,[x[1] for x in silent_surrounding(TOKENIZE(a))])))
 
 def split_all_rewrite_rules():
     '''Given all current RULES, returns a list of the form :
