@@ -108,7 +108,7 @@ def index_operators(INPUT):
                 operator = INPUT[0:i+1]
                 operator_name = SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(operator)]
                 operand_direction = SYMBOLS['OPERATORS OPERANDS'][SYMBOLS['OPERATORS'].index(operator)]
-                precedence = SYMBOLS['OPERATORS PRECEDENCE'][SYMBOLS['OPERATORS'].index(operator)]
+                precedence = int(SYMBOLS['OPERATORS PRECEDENCE'][SYMBOLS['OPERATORS'].index(operator)])
                 n_ary = len(operand_direction)
                 if n_ary == 1: n_ary = "unary"
                 if n_ary == 2: n_ary = "binary"
