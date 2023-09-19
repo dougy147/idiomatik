@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+# encoding=utf8
+
 # GOAL :
 #Model = { 'R0 : A = B <=> B = A (swap)', 'P0 : "a" = "b"', 'P1 : "b" = "c"' }
 #CHECK P1 : "a" = "c"
+
+#RULES['AXIOMS'].append(RULE[1])
+#RULES['REWRITE_RULES'].append(RULE[1])
 
 import sys
 from read_table import *
@@ -13,62 +18,70 @@ from rewriter import *
 from checker import *
 from displayer import *
 
-try:
-    proposition = sys.argv[1]
-except:
-    #print("Please provide an input (e.g. a + b = c)")
+global last_proposition
+global user_propositions
+user_propositions = []
 
-    #proposition = "(a) + (b) + X "
-    print("ERROR: Need a STRING as input.")
-    print("Example : ./idiomatik \"(a + b) = c\"")
-    exit(0)
+IDIOMATIK_PROMPT   = '> '
+IDIOMATIK_GREETING = '''
++----------------------------------------------------------------------------+
+|> Welcome to idiomatik! You can start writing expressions as inputs.        |
+|  Read the documentation (if any) to learn about commands.                  |
++----------------------------------------------------------------------------+
+'''
 
+def evaluate_proposition(PROP):
+    global last_proposition
+    if PROP[0:1] == ":":
+        match PROP:
+            case ":q":
+                exit(0)
+            case ":t" | ":token":
+                try:
+                    print(TOKENIZE(last_proposition))
+                except:
+                    print("ERROR: you need to give an expression first.")
+            case ":T" | ":tree":
+                try :
+                    render_tree(TOKENIZE(last_proposition))
+                except:
+                    print("ERROR: you need to give an expression first.")
+            case ":s":
+                try :
+                    solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
+                    print("Silent surrounding : {}".format(solving_surrounders))
+                except:
+                    print("ERROR: you need to give an expression first.")
+            case ":a" | ":axioms" | ":rules":
+                display_axioms_and_rules()
+                #print(user_propositions)
+            case ":r" | ":rewrite":
+                try :
+                    display_all_possible_rewritings(last_proposition)
+                except :
+                    print("ERROR: you need to give an expression first.")
+            case ":h" | ":help":
+                print("TODO: sorry, this help menu is not really helpful for now.")
+            case _:
+                print("ERROR: unknown command. See '{} --help' or ':help'.".format(sys.argv[0]))
 
-print("------------------------------")
-print("     ",proposition)
-print("------------------------------")
+    else :
+        cur_proposition = str(PROP)
+        if PARSE(TOKENIZE(cur_proposition))[0]:
+            last_proposition = cur_proposition
+            user_propositions.append(last_proposition)
+            REWRITE_SYMBOL = "-->"
+            if REWRITE_SYMBOL in cur_proposition : RULES['REWRITE_RULES'].append(TOKENIZE(cur_proposition))
+            else : RULES['AXIOMS'].append(TOKENIZE(cur_proposition))
+        else:
+            print("ERROR: invalid syntax. TODO : say more about error.")
 
-
-
-print("\nFirst look at the 'solving tree' :")
-solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(proposition))]))
-print(solving_surrounders)
-#display_axioms_and_rules()
-
-print("\nPossible rewritings :")
-display_all_possible_rewritings(proposition)
-#print(silent_surrounding(TOKENIZE(proposition)))
-
-
-
-
-
-#for p in propositions:
-#    print("------------------------------")
-#    #if PARSE(TOKENIZE(p))[0] == False:
-#    #    print("Invalid proposition '{}'".format(p))
-#    print(NULL.join(map(str, [x[1] for x in TOKENIZE(p)])),"\n") # Tokenized and Parsed INPUT as string!
-#    #print([x[0] for x in TOKENIZE(p)],"\n") # Identifier of symbols
-#    #print([x[1] for x in TOKENIZE(p)],"\n") # Symbols themselves
-#    #print([x[2] for x in TOKENIZE(p)],"\n") # Index in given input
-#    #print([x[3] for x in TOKENIZE(p)],"\n") # Properties of symbols
-#    #a = NULL.join(map(str, [x[1] for x in PARSE(TOKENIZE(p))[1]]))
-#    #for j in range(0,2):
-#    #    print(PARSE(TOKENIZE(a)))
-#    #    b = NULL.join(map(str,[x[1] for x in PARSE(TOKENIZE(a))[1]]))
-#    #    print(a == b)
-#    #    print("a: {} <=> b: {}".format(a,b))
-#    #    a = b
-#    #print(PARSE(TOKENIZE(p)),"\n")
-#    print(CHECK(PARSE(TOKENIZE(p))),"\n")
-#
-#
-#    #print([x[1] for x in CHECK(PARSE(TOKENIZE(p)))[1]],"\n") # Symbols themselves
-#
-#    #print(PARSE(TOKENIZE(CHECK(PARSE(TOKENIZE(p))))))
-#
-#
-##print(SYMBOLS)
-##print(SYMBOLS['RULES'])
-
-
+try :
+    if sys.argv[1] :
+        print("TODO: {} will soon accept receiving arguments.".format(sys.argv[0]))
+except: pass
+print(IDIOMATIK_GREETING)
+while True:
+    user_input = input(IDIOMATIK_PROMPT)
+    proposition=str(user_input)
+    evaluate_proposition(proposition)

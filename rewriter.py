@@ -20,61 +20,6 @@ but I want to be able to give a rule such as A + B --> B + A (swap)
 In this regard, META characters like _ should have properties, and those properties
 should be evaluated in the below functions.'''
 
-#def silent_surrounding(TOKEN):
-#    ''' Given precedence of OPERATORS, place "invisibile" parenthesis around
-#    subexpressions to be solved first.
-#        TODO special cases :
-#    - alone minus sign (solve it in parser)
-#    '''
-#    # Filter OP
-#    #print("TOKEN:",TOKEN)
-#    operators_in_token = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
-#    #print(operators_in_token)
-#    if operators_in_token == []:
-#        #print("No operator in TOKEN. Returning True.")
-#        return [True, TOKEN]
-#    #print("There are {} OPERATORS in this TOKEN. But this function is currently in implementation ! Please be patient.".format(len(operators_in_token)))
-#
-#    # Sort according to 2 parameters : priority (x[2][3]) and index in token (x[3]) :
-#    sorted_operators = sorted(operators_in_token, key=lambda x: (x[2][3], x[3]) )
-#    print(sorted_operators)
-#    indexes_of_operators_to_surround = []
-#
-#    # Go to index of the top priority operator and surround its operands.
-#    for OP in sorted_operators :
-#        #print("\n OPERATOR:",OP, "\nTOKEN:", TOKEN)
-#        cur_operands = check_operands(OP,TOKEN,EXTRACT_OPERAND = True)[1]
-#        #print("\n Current Operands:",cur_operands)
-#        if cur_operands == [] : continue
-#        lowest_index, highest_index = cur_operands[0][0][3], cur_operands[-1:][0][-1:][0][3]
-#        #print("\n Lowest index:",lowest_index,"\n Highest index:",highest_index)
-#        #print("Token before insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
-#
-#        # "Special case" for unary operators
-#        if OP[2][1] == "unary":
-#            # if unary right direction (~) : "(" before operator
-#            # if unary left direction (?)  : ")" after operator
-#            if OP[2][2] == "R":
-#                TOKEN[lowest_index-1:lowest_index-1] = TOKENIZE("(")
-#                TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
-#            if OP[2][2] == "L":
-#                TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
-#                TOKEN[highest_index+1+1+1:highest_index+1+1+1] = TOKENIZE(")")
-#        else :
-#            TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
-#            TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
-#
-#        TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
-#        #print("Token after insertion :", NULL.join(map(str, [x[1] for x in TOKEN])))
-#
-#        for OPE in sorted_operators :
-#            #print(OPE)
-#            if OPE[3] < lowest_index: continue
-#            if OPE[3] <= highest_index: OPE[3] += 1
-#            if OPE[3] > highest_index: OPE[3] += 2
-#        #print(TOKEN)
-#    return TOKEN
-
 def silent_surrounding(TOKEN):
     ''' Given precedence of OPERATORS, place "invisibile" parenthesis around
     subexpressions to be solved first.
@@ -83,7 +28,7 @@ def silent_surrounding(TOKEN):
     '''
     operators_in_token = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
     if operators_in_token == []:
-        return [True, TOKEN]
+        return TOKEN
 
     # First sort >=0 operators (priority asc, index asc)
     # Then sort <0 operators (priority desc, index desc)
@@ -148,11 +93,9 @@ def silent_surrounding(TOKEN):
                     break
 
                 if TOKEN[i][0] == 'SUR':
-                    print("open")
                     if   TOKEN[i][2][1] == 'close': surrounder_counter += 1
                     elif TOKEN[i][2][1] == 'open':
                         surrounder_counter -= 1
-                        print("open")
                     if surrounder_counter == -1 :
                         TOKEN[index_op:index_op] = TOKENIZE(")")
                         TOKEN[i+1:i+1] = TOKENIZE("(")
