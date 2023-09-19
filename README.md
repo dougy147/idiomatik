@@ -10,7 +10,7 @@ Building my first interpreter with Python. A bit idiotic, partially automatic, f
 ```bash
 git clone https://github.com/dougy147/idiomatik
 cd idiomatik
-./idiomatik "a + b = c"
+./idiomatik
 ```
 
 ## Why?
@@ -23,36 +23,98 @@ But why not share a "work" in progress?
 
 ## What it does
 
+### Lexing : Raw input to tokens
+
 `idiomatik` receives input strings (e.g. "A + B = C") that are returned as *tokens*.
 A token is a chain of elements extracted from the input by the *lexer*.
 The lexer decomposes each input to match its elements (characters, or sequence of characters) to predefined categories of symbols (see `SYMBOL_TABLE`).
 When all the elements of an input have been attributed an identity, they are chained together and the construction of the token ends.
 
-Tokens are then sent to the *parser*, whose job is to assess if their *syntax* is valid (i.e. the chain of elements is a well-formed expression) or not.
-The parser returns a truth value depending on whether the token is syntactically correct or not.
+### Parsing : checking syntax
+
+Tokens are then sent to the *parser* whose job is to assess *syntax* (i.e. is the chain of elements in the token a well-formed expression?).
+The parser returns a truth value depending on the token being syntactically correct or not.
 
 Syntax is immediately incorrect when one of those axioms is false :
 
-- every closing surrounder (`)`, `]`, `}`) matches an opening opposite at the same level of *nestedness* (an opening surrounder increments the level of nestedness by 1)
+- every closing surrounder (`)`, `]`, `}`) matches an opening opposite, at the same level of *nestedness* (opening a surrounder increments the level of nestedness by 1; closing decrements it)
 - every *operator* has a correct amount of *operands* in proper position
 
 If the token is syntactically valid, then the input is considered to be too.
 
-When an input is a valid expression, `idiomatik` can *rewrite* it as another valid expression given a set of arbitrarly predefined rules (i.e. *rewrite rules*; see `RULES`).
-(But for now, this is only true for simple rules. See example below)
+### Rewriting : transforming expressions
 
-For the sake of brevity, I'm not mentionning how `SYMBOLS` and `RULES` tables' are parsed with `idiomatik`, but they are in a quite flexible way.
-I also pass for now on how _n_-arity checking for operators is implemented.
+When an input is a valid expression, `idiomatik` can *rewrite* it as another valid expression.
+This transformation depends on a set of arbitrarly rules (i.e. *rewrite rules*) that the user can predefine (see `RULES`) or send on-the-fly :
 
-### Verbose example...
+```bash
+./idiomatik
+|> _ => _ --> ~_ V _
+|> p => q
+|> :rewrite
+~p V q
+```
 
-Giving the following string `(~a) + [(b) / c]` to the lexer will roughly return the following token (_identifiers and nestedness only in this example_) :
+Rewrite rules put aside, `idiomatik` is gonna be used to solve expressions (work in progress).
+It is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "correct" order, even when parenthesis are missing. 
+This is by default but it is configurable thanks to a precedence value given to operators in the `SYMBOL_TABLE`.
+If some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), `idiomatik` allows users to set the associative direction of operators as we stated above. In the `SYMBOL_TABLE` negative priority values give right-to-left associativity, positive left-to-right, while null oppose their operands by "splitting" expressions. 
 
+This process of desambiguation is of course of interest to solve expressions, but also to draw trees.
+
+### Visualizing : drawing trees
+
+`idiomatik` can draw basic trees (really basic trees) representing any given expression with `:tree`:
+
+```bash
+./idiomatik
+|> a + b * c / d
+|> :tree
+-+++----------+
+#0 |  +
+#1 | a    /
+#2 |    *  d
+#3 |   b c
+```
+
+## Control how `idiomatik` speaks and think
+
+The file `SYMBOL_TABLE` contains a list of special characters and operators that play a role in `idiomatik`.
+You can modify this file and add your own symbols, operators, and set their properties.
+
+Operators' n-arity is set by signaling the position of their operands in `SYMBOL_TABLE`.
+For example, giving an operator the `LR` option tells `idiomatik` that it is a binary operator that, when parsing an expression, necessarily needs a left and a right operands. (You can build as many operators you want with as many operands you want.)
+
+Determining the solving order of an expression depends on surrounders and operators' precedence. Precedence is set in `SYMBOL_TABLE` with relative values. To the exception of `0`, the lowest the |absolute value| of precedence, the highest the priority. Operators with a precedence of `1` or `-1` are the first to be evaluated when solving an expression. Positive values represent left-to-right associativity (e.g. operator `+` with precedence `3` : `a + b + c` = `((a + b) + c)`), while negative right-to-left (e.g. `^` and `-2` : `a ^ b ^ c` = `(a ^ (b ^ c))`). Null values are for special cases, like comparative operators (`=`, `==`, `<`, etc.). I'm not sure what to do with them for now.
+
+## Try it yourself
+
+Give the following string `(~a) + [(b) / c]` to the lexer, and check the token with the command `:token`:
+
+```bash
+./idiomatik
+|> (~a) + [(b) / c]
+|> :token
+    [['SUR', '(', ['PARENTHESIS', 'open', 1], 0], \
+    ['OP', '~', ['NOT', 'unary', 'R', 1], 1], \
+    ['STR', 'a', ['immutable', 1], 2], \
+    ['SUR', ')', ['PARENTHESIS', 'close', 1], 3], \
+    ['OP', '+', ['PLUS', 'binary', 'LR', 4], 4], \
+    ['SUR', '[', ['BRAKET', 'open', 1], 5], \
+    ['SUR', '(', ['PARENTHESIS', 'open', 2], 6], \
+    ['STR', 'b', ['immutable', 1], 7], \
+    ['SUR', ')', ['PARENTHESIS', 'close', 2], 8], \
+    ['OP', '/', ['DIV', 'binary', 'LR', 3], 9], \
+    ['STR', 'c', ['immutable', 1], 10], \
+    ['SUR', ']', ['BRAKET', 'close', 1], 11]]
+```
+<!--
 ```
 [PAR_open_1][OP_not][STR][PAR_close_1][OP_plus][BRA_open_1][PAR_open_2][STR][PAR_close_2][OP_div][STR][BRA_close_1]
 ```
+-->
 
-This is a syntactically valid expression as no axiom is refuted :
+Tokens are hard to read for humans, but as `idiomatik` does not return an error, we can conclude this is a syntactically valid expression. This is because none of our axioms is refuted :
 
 - `~a` is nested at level 1 in matching parenthesis
 - `(b) / c` is nested at level 1 in matching brakets
@@ -61,43 +123,62 @@ This is a syntactically valid expression as no axiom is refuted :
 - `+` defined as left-right binary operator has its left `(~a)` and right `[(b) / c]` operands
 - `/` defined as left-right binary operator has its left `(b)` and right `c` operands
 
-Let's now try to define an arbitrary rewrite rule, for example : `(_) --> _`
+Let's now define an arbitrary rewrite rule, for example : `(_) --> _`, by feeding it to our program :
 
-If we define `_` and `-->` as two *meta* symbols meaning respectively _any string_ and _rewrite as_, the rewrite rule could be understood as "any string between parenthesis can be rewritten without it".
+```bash
+|> (_) --> _
+|> :R
++----- RULES ------+
+    (R0)     ( _ ) --> _
+```
 
+`_` and `-->` are two *meta* symbols, meaning respectively _any string_ and _rewrite as_. This rewrite rule could be understood as "any string between parenthesis can be rewritten without it".
+(See that you can see which rules `idiomatik` will consider for rewrites with the command `:R`).
 
 The rewriting process starts by parsing the token and check whether any sequence of its elements matches the left side of the rewrite rule (here `(_)`).
 Note that the rewrite rule left side is tokenized too (in fact, rules are valid expressions that can be tokenized too). So we check if the input token contains a sequence matching the pattern `[PAR_open][STR][PAR_close]`.
 As it is the case for `(b)`, our input `(~a) + [(b) / c]` can be rewritten as `(~a) + [b / c]` (which we can feed back to the lexer to check if it is a valid expression).
 
-Here is the output of `idiomatik` with this example's input and rule:
+Now ask `idiomatik` to try to match our rule with our proposition and eventually rewrite it :
 
 ```bash
-./idiomatik "(~a) + [(b) / c]"
-
-Rewrites as:
-
-( ~ a ) + [ b / c ]  # given the rule ( _ ) --> _
+|> :rewrite
+( ~ a ) + [ b / c ]  
 ```
 
-Now we have different choices, either we check if the rewrited expression (here ` ( ~ a ) + [ b / c ] `) is also rewritable given the rewrite rules, either we stop.
-This question maybe makes more sense when considering rules like this one : `_ --> (_)`. Indeed, that could lead to never ending loops...
+That's it! `(b)` became `b`, and that's all we wanted to do in this example.
+Now try adding rules and try them on different expressions.
 
-For now `idiomatik` exhaustively recomputes every rewritings, given all rules (!) until nothing new can be rewritten (highly resource consuming and potentially never ending...), but I will add simpler behaviors.
+### Meta characters
 
-Also note that `(~a)` will not be rewritten in this example, because it does not match the pattern.
+Note that `(~a)` is not rewritten in this example, because it does not match the pattern.
 To unwrap it, we could consider a rule like `(~_) --> ~_`.
-However, that could also lead to problems when we will consider solving expressions starting by the most nested sub-expressions. Indeed, we shouldn't unwrap an expression before solving what is inside (that obviously depends on the property we want for the language we build...).
-Adding a META operator like `$`, meaning `ANY_OPERAND`, could be helpful.
+Adding a meta operator like `$`, symbolizing any couple operator-operand(s), could be helpful : `($) --> $`.
+Other meta symbols are to be implemented (e.g. any surrounder, rules, etc.).
 
-Rewrite rules put aside, `idiomatik` is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "correct" order, even when parenthesis are missing. This is by default but it is configurable thanks to a priority value given to operators in the `SYMBOL_TABLE`. Some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), so choices are to be made, potentially compromising full control. `idiomatik` allows users to chose the direction in which operators are going to be evaluated when solving an expression : in the `SYMBOL_TABLE` negative priority values goes from rigth to left, positive from left to right, while null separates an expression side by side. 
+### Troubles with rewrite rules
 
-This process of desambiguation is of course of interest to solve expressions, but also to draw trees (a goal of a near future).
+We have various choices when applying transformation rules to an expression. For example checking if the rewrited expression (here ` ( ~ a ) + [ b / c ] `) is also rewritable given our rules, or stopping.
+This is not trivial when considering rules leading to never ending loops (e.g. `_ --> (_)`).
+There is no optimal choice for now in `idiomatik` as it exhaustively recomputes every rewritings, given all rules (!) until nothing new can be rewritten (highly resource consuming and potentially never ending...), but I will add simpler behaviors (forbid infinite use of expanding rules?).
+
+### Solving
+
+Rewrite rules put aside, `idiomatik` is gonna be used to solve expressions (work in progress).
+It is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "correct" order, even when parenthesis are missing. 
+This is by default but it is configurable thanks to a precedence value given to operators in the `SYMBOL_TABLE`.
+If some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), `idiomatik` allows users to set the associative direction of operators as we stated above. In the `SYMBOL_TABLE` negative priority values give right-to-left associativity, positive left-to-right, while null oppose their operands by "splitting" expressions. 
+
+This process of desambiguation is of course of interest to solve expressions, but also to draw trees.
+
+### More to come?
 
 That's where `idiomatik` is for now.
 
 
 # Useful resources
+
+Raw pasting of resources.
 
 ## Vocabulary
 

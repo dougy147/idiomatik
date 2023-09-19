@@ -14,29 +14,18 @@
 // Axioms are RULES without any TRANSFORMATION needed.
 // e.g. :    ~A
 
-~A
-B = C
+//~A
+//B = C
 
 // TRANSFORMATION RULES:
 // Transformation rules contain the REWRITE_AS operator
 // There structure is PATTERN_TO_BE_MATCHED <=> REWRITTEN_PATTERN
 // In the future, there could be multiple rewrite symbols with different directions
 
-
-(_) --> _
-
-(~ _) --> ~ _
-
-
+// Example rules
+//(_) --> _
+//(~ _) --> ~ _
 //_ => _ --> ~ _ V _
-
-
-//// Modus ponens
-//((p => q) & p) => q
-//
-//// Modus tollens
-//((p => q) & ~q) => ~p
-
 
 
 // Shitty rules

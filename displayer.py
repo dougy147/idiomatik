@@ -122,6 +122,9 @@ def render_tree(TOKEN):
                 LAST_MATRICE[i+1] = ''.join(map(str,list_next_line)) + (max_length - len(list_next_line)) * NULL
             index+=1
         FINAL_MATRICE.append(list(LAST_MATRICE[i]))
+    #for line in FINAL_MATRICE:
+    #    print(line)
+    #print("-----------------------")
 
     # Remove cells that are empty on same index for every row (remove empty columns)
     columns_to_ignore = []

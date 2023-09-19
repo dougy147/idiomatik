@@ -22,7 +22,7 @@ global last_proposition
 global user_propositions
 user_propositions = []
 
-IDIOMATIK_PROMPT   = '> '
+IDIOMATIK_PROMPT   = '|> '
 IDIOMATIK_GREETING = '''
 +----------------------------------------------------------------------------+
 |> Welcome to idiomatik! You can start writing expressions as inputs.        |
@@ -52,7 +52,7 @@ def evaluate_proposition(PROP):
                     print("Silent surrounding : {}".format(solving_surrounders))
                 except:
                     print("ERROR: you need to give an expression first.")
-            case ":a" | ":axioms" | ":rules":
+            case ":R" | ":A" | ":axioms" | ":rules":
                 display_axioms_and_rules()
                 #print(user_propositions)
             case ":r" | ":rewrite":
