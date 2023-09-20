@@ -131,6 +131,7 @@ def render_tree(TOKEN):
     for i in range(len(FINAL_MATRICE[0])):  # number of columns
         are_all_empty = True
         for j in range(len(FINAL_MATRICE)): # number of raws
+            if i >= len(FINAL_MATRICE[j]):continue
             if FINAL_MATRICE[j][i] != NULL :
                 are_all_empty = False
                 break
@@ -162,48 +163,51 @@ def display_all_possible_rewritings(INPUT):
     '''Temporary function to show ALL possible rewrites
      for an INPUT (proposition) given the set of RULES'''
     token = TOKENIZE(INPUT)
-    #print(token)
     parse = PARSE(token)
     if not parse[0] :
         print("Invalid proposition")
-        exit(0)
-    #check = CHECK(parse)
+        return
     check = combine_all_possible_rewrites(token)
     if not check[0] :
-        print("No matching rewritings rule for '{}'".format(NULL.join(map(str,[x[1] for x in token]))))
-    #for y in [x for x in check[1]] :
-    #    print(y[0])
-    REWRITES = [y[0] for y in [x for x in check[1]]] # Storing tokens of possible rewritings
+        print("No matching pattern.")
+        return
+    #else :
+    #    nb_to_pass[0] = len(check[1]) - 1
+    #    print("As there is a problem with functions, we will remove the first {} values in REWRITES next time".format(nb_to_pass[0]))
+    #REWRITES = [y[0] for y in [x for x in check[1]]] # Storing tokens of possible rewritings
+    REWRITES = check[1] # Storing tokens of possible rewritings
     counter = 0
     redundant = 0
     STR_REWRITES = []
-    #print("REWRITES:",REWRITES)
     for rew in REWRITES:
-        str_rewrite = NULL.join(map(str,[x[1] for x in rew])) # Transform tokens to human readable string
+        #str_rewrite = NULL.join(map(str,[x[1] for x in rew])) # Transform tokens to human readable string
+        str_rewrite = rew
         if not str_rewrite in STR_REWRITES :
             STR_REWRITES.append(rew)
         else :
             redundant+=1
+            #nb_to_pass[1] -= 1 # TODO
             continue
         print(str_rewrite)
         counter+=1
-    #print("\n{} possible rewritings".format(counter))
-    if redundant > 0: print("{} redundancies...".format(redundant))
+    ##print("\n{} possible rewritings".format(counter))
+    #if redundant > 0: print("{} redundancies...".format(redundant))
 
-def display_axioms_and_rules():
-    #print(len(RULES['AXIOMS']), "axioms in RULES:\n")
-    print("+----- AXIOMS -----+")
-    index = 0
-    for axioms in RULES['AXIOMS']:
-        print("\t(A{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in axioms]))))
-        index += 1
-    print("\n")
-    index = 0
-    #print(len(RULES['REWRITE_RULES']), "transformation rules in RULES:\n")
-    print("+----- RULES ------+")
-    for rules in RULES['REWRITE_RULES']:
-        print("\t(R{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in rules]))))
-        index += 1
+def display_axioms_and_rules(choice=False):
+    if choice == False or choice == "axioms":
+        print("+----- AXIOMS -----+")
+        index = 0
+        for axioms in RULES['AXIOMS']:
+            print("\t(A{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in axioms]))))
+            index += 1
+        #print("\n")
+    if choice == False or choice == "rules":
+        index = 0
+        #print(len(RULES['REWRITE_RULES']), "transformation rules in RULES:\n")
+        print("+----- RULES ------+")
+        for rules in RULES['REWRITE_RULES']:
+            print("\t(R{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in rules]))))
+            index += 1
 
 
 

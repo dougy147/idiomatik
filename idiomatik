@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# encoding=utf8
-
 # GOAL :
 #Model = { 'R0 : A = B <=> B = A (swap)', 'P0 : "a" = "b"', 'P1 : "b" = "c"' }
 #CHECK P1 : "a" = "c"
@@ -14,9 +12,9 @@ from read_table import *
 from lexer import *
 from parser import *
 from read_rules import *
-from rewriter import *
 from checker import *
 from displayer import *
+from rewriter import *
 
 global last_proposition
 global user_propositions
@@ -33,7 +31,8 @@ IDIOMATIK_GREETING = '''
 def evaluate_proposition(PROP):
     global last_proposition
     if PROP[0:1] == ":":
-        match PROP:
+        PROP = PROP.split(' ')
+        match PROP[0]:
             case ":q":
                 exit(0)
             case ":t" | ":token":
@@ -42,26 +41,44 @@ def evaluate_proposition(PROP):
                 except:
                     print("ERROR: you need to give an expression first.")
             case ":T" | ":tree":
-                try :
-                    render_tree(TOKENIZE(last_proposition))
-                except:
-                    print("ERROR: you need to give an expression first.")
+                #try :
+                render_tree(TOKENIZE(last_proposition))
+                #except:
+                #    print("ERROR: you need to give an expression first.")
             case ":s":
                 try :
                     solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
                     print("Silent surrounding : {}".format(solving_surrounders))
                 except:
                     print("ERROR: you need to give an expression first.")
-            case ":R" | ":A" | ":axioms" | ":rules":
-                display_axioms_and_rules()
-                #print(user_propositions)
+            case ":A" | ":axioms":
+                display_axioms_and_rules("axioms")
+            case ":R" | ":rules":
+                display_axioms_and_rules("rules")
             case ":r" | ":rewrite":
-                try :
-                    display_all_possible_rewritings(last_proposition)
-                except :
-                    print("ERROR: you need to give an expression first.")
+                #try :
+                display_all_possible_rewritings(last_proposition)
+                #rewrite_token(last_proposition)
+                #except :
+                #    print("ERROR: you need to give an expression first.")
             case ":h" | ":help":
                 print("TODO: sorry, this help menu is not really helpful for now.")
+            case ":add" :
+                if len(PROP) == 1 or len(PROP) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
+                else :
+                    match PROP[1]:
+                        case "axiom" | "a" :
+                            if TOKENIZE(last_proposition) in RULES['AXIOMS'] : print("Axiom already stored!")
+                            else : RULES['AXIOMS'].append(TOKENIZE(last_proposition))
+                        case "rule" | "r":
+                            REWRITE_SYMBOL = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")]
+                            if REWRITE_SYMBOL in last_proposition :
+                                if TOKENIZE(last_proposition) in RULES['REWRITE_RULES'] : print("Rule already stored!")
+                                else : RULES['REWRITE_RULES'].append(TOKENIZE(last_proposition))
+                            else :
+                                print("ERROR: rules need the rewrite symbol.")
+                        case "prop" | "p" | "proposition":
+                            print("TODO")
             case _:
                 print("ERROR: unknown command. See '{} --help' or ':help'.".format(sys.argv[0]))
 
@@ -70,17 +87,24 @@ def evaluate_proposition(PROP):
         if PARSE(TOKENIZE(cur_proposition))[0]:
             last_proposition = cur_proposition
             user_propositions.append(last_proposition)
-            REWRITE_SYMBOL = "-->"
-            if REWRITE_SYMBOL in cur_proposition : RULES['REWRITE_RULES'].append(TOKENIZE(cur_proposition))
-            else : RULES['AXIOMS'].append(TOKENIZE(cur_proposition))
+            #REWRITE_SYMBOL = "-->"
+            #if REWRITE_SYMBOL in cur_proposition :
+            #    if TOKENIZE(cur_proposition) in RULES['REWRITE_RULES'] : print("Rule already stored!")
+            #    else : RULES['REWRITE_RULES'].append(TOKENIZE(cur_proposition))
+            #else :
+            #    if TOKENIZE(cur_proposition) in RULES['AXIOMS'] : print("Axiom already stored!")
+            #    else : RULES['AXIOMS'].append(TOKENIZE(cur_proposition))
         else:
             print("ERROR: invalid syntax. TODO : say more about error.")
 
 try :
     if sys.argv[1] :
-        print("TODO: {} will soon accept receiving arguments.".format(sys.argv[0]))
-except: pass
+        print("TODO: {} will soon accept receiving arguments.\n".format(sys.argv[0]))
+except:
+    pass
+
 print(IDIOMATIK_GREETING)
+
 while True:
     user_input = input(IDIOMATIK_PROMPT)
     proposition=str(user_input)

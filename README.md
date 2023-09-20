@@ -15,7 +15,7 @@ cd idiomatik
 
 ## Why?
 
-I was initially writing a simple solving algorithm for the [Muddy Children Puzzle](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle). That led me to some questions about public/private knowledge, inference rules, well-formed formulas and other stuff I had never heard of, seriously thought of, or invested time in. What are those things? how to implement lexemes identification or evaluate syntax? why is model checking so hard?... those are things I'm interested in for now... until the fail ! lol.
+I initially wanted to write a solving algorithm for the [Muddy Children Puzzle](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle). That led me to some questions about public/private knowledge, inference rules, well-formed formulas and other stuff I had never heard of, seriously thought of, or invested time in. What are those things? how to implement lexemes identification or evaluate syntax? why is model checking so hard?... those are things I'm interested in for now... until the fail ! lol.
 
 So, I'm not reinventing the wheel, and this will be far from original or quality work. Just disorganized trials and errors, and random notes and code.
 A lot of things here could be wrong or bad approximations, reflecting my ignorance in CS in general.
@@ -311,16 +311,16 @@ Less compact.
 
 # Future features
 
-- Allow on-the-fly inputs (interpreted as axioms or rewrite rules)
+- Allow on-the-fly inputs (interpreted as propositions, axioms or rewrite rules)
 - Propose rewritings when asked by user (e.g. `:rewrite`)
-- Draw trees (on the right track to it)
+- Draw better trees
 
 # TODO
 
-- Implement a tweakable system of precedence for operators. Equality operators (e.g. `=`) should have the complete left part of an expression as first operand (except when there are multiple equal signs) and the complete right part as the second.
 - For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
 - Move back in history when pressing up/down arrows
 - Commands with arguments
+- "Clean" POSSIBLE_REWRITES when changing proposition to be rewrited
 
 
 
