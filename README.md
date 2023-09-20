@@ -50,6 +50,7 @@ This transformation depends on a set of arbitrarly rules (i.e. *rewrite rules*) 
 ```bash
 ./idiomatik
 |> _ => _ --> ~_ V _
+|> :add rule
 |> p => q
 |> :rewrite
 ~p V q
@@ -336,3 +337,4 @@ Less compact.
 - https://en.wikipedia.org/wiki/Regular_expression
 - https://en.wikipedia.org/wiki/Abstract_syntax_tree
 - https://en.wikipedia.org/wiki/Order_of_operations
+- https://plato.stanford.edu/entries/dynamic-epistemic/appendix-B-solutions.html#muddy
