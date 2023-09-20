@@ -120,17 +120,6 @@ def silent_surrounding(TOKEN):
                     if OPE[3] >= index_op+1 : OPE[3] += 1 # above lowest parenthesis  +1
     return TOKEN
 
-##a = "A + B = C + D"
-##a = "[A = (b + c)] = d"
-#a = "[ ~~a + b? + 2 ^ c ^ D == RESULT / a]"
-#a = "A + B / C = A"
-#a = "(A) = (B == c) <=> d = (e)"
-#a = "A = B / 4 $ 3 == C = A + b = A + B"
-#a = "B = C == D <=> E"
-#a = "a == a ^ b  + a = d + c = f +g "
-#print(a)
-#print(NULL.join(map(str,[x[1] for x in silent_surrounding(TOKENIZE(a))])))
-
 def split_all_rewrite_rules():
     '''Given all current RULES, returns a list of the form :
     [ [RULE1,LEFT_PATTERN1,RIGHT_PATTERN1], [RULE2,...] ]'''
@@ -170,25 +159,6 @@ def split_rewrite_rule(rewrite_rule):
         index+=1
     return (left_pattern,right_pattern)
 
-#def combine_token_rewrites(TOKEN):
-#    '''Returns ALL possible rewrites for ONE TOKEN given ALL rules'''
-#    ''' POSSIBLE_REWRITES : [True/False, [ [TOKEN0, LEFT, RIGHT, RULE_X], [TOKEN1, LEFT, RIGHT,RULE_Y],... ]]'''
-#    REWR = [False, []]
-#    SPLITTED_RULES = split_all_rewrite_rules() # Grab all PUBLIC REWRITE_RULES (left and right patterns)
-#    for splitted in SPLITTED_RULES:
-#        R  = splitted[0] # rule
-#        LP = splitted[1] # left pattern
-#        RP = splitted[2] # right pattern
-#        REWRITTEN = token_full_rewrites_list(TOKEN,LP,RP,REWRITES = [])
-#        if not REWRITTEN[0] or REWRITTEN[1] == []: continue
-#        for TRANSFORMATION in REWRITTEN[1]:
-#            if NULL.join(map(str,[x[1] for x in TRANSFORMATION])) in REWR[1] : continue
-#            else :
-#                REWR.append(NULL.join(map(str,[x[1] for x in TRANSFORMATION])))
-#                REWR[0] = True
-#                REWR[1].append([TRANSFORMATION,LP,RP,R])
-#    return REWR
-
 '''WARNING : functions below allow to recursively check if a rule can be subrewritten.
 They might never stop, and I found no way to contourn this issue for the moment (dumb)'''
 
@@ -211,33 +181,21 @@ def combine_all_possible_rewrites(TOKEN,POSSIBLE_REWRITES = None,REWRITES=None,f
         #else :
         #    REWRITTEN = token_full_rewrites_list(TOKEN,LP,RP,REWRITES=REWRITES)
         REWRITTEN = token_full_rewrites_list(TOKEN,LP,RP)
-        #print("REWRITTEN:",REWRITTEN)
         if not REWRITTEN[0]: continue
 
         for TRANSFORMATION in REWRITTEN[1]:
             if NULL.join(map(str,[x[1] for x in TRANSFORMATION])) in REWRITES:
-                #print("{} in REWRITES already.".format(NULL.join(map(str,[x[1] for x in TRANSFORMATION]))))
-                #print("This is REWRITES:",REWRITES)
                 continue
             else :
                 REWRITES.append(NULL.join(map(str,[x[1] for x in TRANSFORMATION])))
-                #print("Appending {} in REWRITE.".format(NULL.join(map(str,[x[1] for x in TRANSFORMATION]))))
                 POSSIBLE_REWRITES[0] = True
                 POSSIBLE_REWRITES[1].append([TRANSFORMATION,LP,RP,R])
-                # print("POSSIBLE_REWRITES", POSSIBLE_REWRITES[1])
             combine_all_possible_rewrites(TRANSFORMATION,REWRITES=REWRITES,first_time=False)
-    #print("POSSIBLE_REWRITES", POSSIBLE_REWRITES[1])
-    #for elem in POSSIBLE_REWRITES:
-    #    print("> in POSSIBLE_REWRITES:",elem)
-    #return POSSIBLE_REWRITES
-    #print("FINAL REWRITES:",REWRITES)
-    #print("LAST POSSIBLE_REWRITES", POSSIBLE_REWRITES)
     return [ POSSIBLE_REWRITES[0], REWRITES ]
 
 def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=None,first_time=True):
     '''Returns ALL possibilities for a TOKEN given a SINGLE REWRITE_RULE LEFT and RIGHT PATTERNS'''
     if REWRITES is None: REWRITES = []
-    #print("REWRITES:",REWRITES)
     for i in range(INDEX,len(TOKEN)):
         CUR_RIGHT_PATTERN = [x for x in RIGHT_PATTERN]
         pattern_in_token = True
@@ -264,8 +222,6 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
         if pattern_in_token :
             if "ANY_STR" in str(CUR_RIGHT_PATTERN) or "OPERAND" in str(CUR_RIGHT_PATTERN) :
                 continue
-                ##return [False, [TOKEN, LEFT_PATTERN, RIGHT_PATTERN] ]
-                #return [False, [TOKEN] ]
             start_index = i
             end_index   = i+j
             rewritable_part = NULL+NULL.join(map(str,[x[1] for x in CUR_RIGHT_PATTERN]))
@@ -276,7 +232,6 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                 new_token = NULL.join(map(str,[x[1] for x in NEW_TOKEN[1]]))
                 if not new_token in REWRITES:
                     REWRITES.append(new_token)
-                    #print("Appended '{}' to REWRITES.".format(new_token))
                     token_full_rewrites_list(NEW_TOKEN[1],LEFT_PATTERN,RIGHT_PATTERN,INDEX=i+j,REWRITES=REWRITES)
     if INDEX != 0 : return
     VALID_REWRITES = [] # VALID_REWRITES are TOKENS
@@ -285,8 +240,5 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
         token = PARSE(TOKENIZE(rew))
         if token[0] and not token[1] in VALID_REWRITES :
             VALID_REWRITES.append(token[1])
-            #print("valid",token[1])
         index+=1
-        #print(NULL.join(map(str,[x[1] for x in token[1]])))
-    #print("VALID REWRITES:",VALID_REWRITES)
     return [True, VALID_REWRITES ]
