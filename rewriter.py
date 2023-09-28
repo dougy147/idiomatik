@@ -6,7 +6,6 @@ from parser import *
 from read_rules import *
 #from checker import *
 
-
 ''' The REWRITER job is to rewrite PROPOSITIONS to another PROPOSITION given a RULE.
 PROPOSITIONS are valid TOKENS.
 '''
@@ -30,10 +29,15 @@ def silent_surrounding(TOKEN):
     operators_in_token = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
     if operators_in_token == []:
         return TOKEN
-    # First sort >=0 operators (priority asc, index asc)
-    # Then sort <0 operators (priority desc, index desc)
+    '''Sorting OPERATORS in 2 major steps :
+        - OPERATORS with POSITIVE or NULL precedence are sorted :
+            * in ASCENDING order for precedence, THEN in ASCENDING order for index (meaning left to right associativity)
+        - OPERATORS with NEGATIVE precedence are sorted :
+            * in DESCENDING order for precedence, THEN in DESCENDING order for index (meaning right to left associativity)
+    '''
     positive_sorted_operators = [x for x in filter(lambda y: y[2][3] >= 0, sorted(operators_in_token, key=lambda x: (x[2][3], x[3]) ) )]
     negative_sorted_operators = [x for x in filter(lambda y: y[2][3] < 0, sorted(operators_in_token, key=lambda x: (x[2][3], x[3]), reverse=True ) )]
+
     # Replace negative values by positive in negative_sorted_operators
     for OP in negative_sorted_operators:
         OP[2][3] = abs(OP[2][3])
@@ -43,7 +47,7 @@ def silent_surrounding(TOKEN):
     for OP in sorted_operators :
         index_op = OP[3]
         surrounder_counter = 0
-        # If priority is NON-NULL, operators are surrounded WITH their operands, EXCEPT for 0 (=, ==, ===)
+        # If priority is NON-NULL, operators are surrounded WITH their operands, (so, EXCEPTION for 0 (=, ==, ===))
         if OP[2][3] != 0 :
             cur_operands = check_operands(OP,TOKEN,EXTRACT_OPERAND = True)[1]
             if cur_operands == [] : continue
@@ -51,12 +55,39 @@ def silent_surrounding(TOKEN):
             # "Special case" for unary operators :
             if OP[2][1] == "unary":
                 if OP[2][2] == "R":
+                    # Ignore if already surrounded!
+                    #print("Current operands:",cur_operands,lowest_index,highest_index)
+                    if lowest_index > 0 and highest_index < len(TOKEN) - 1:
+                        if  TOKEN[lowest_index-1-1][0] == 'SUR'        and \
+                                TOKEN[lowest_index-1-1][2][1] == 'open' and \
+                                TOKEN[highest_index+1][0] == 'SUR'       and \
+                                TOKEN[highest_index+1][2][1] == 'close' :
+                                    #print("Already surrounded :)")
+                                    continue
                     TOKEN[lowest_index-1:lowest_index-1] = TOKENIZE("(")
                     TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
                 if OP[2][2] == "L":
+                    # Ignore if already surrounded!
+                    #print("Current operands:",cur_operands,lowest_index,highest_index)
+                    if lowest_index > 0 and highest_index < len(TOKEN) - 1:
+                        if  TOKEN[lowest_index-1][0] == 'SUR'        and \
+                                TOKEN[lowest_index-1][2][1] == 'open' and \
+                                TOKEN[highest_index+1+1][0] == 'SUR'   and \
+                                TOKEN[highest_index+1+1][2][1] == 'close' :
+                                    #print("Already surrounded :)")
+                                    continue
                     TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
                     TOKEN[highest_index+1+1+1:highest_index+1+1+1] = TOKENIZE(")")
             else :
+                # Ignore if already surrounded!
+                #print("Current operands:",cur_operands,lowest_index,highest_index)
+                if lowest_index > 0 and highest_index < len(TOKEN) - 1:
+                    if  TOKEN[lowest_index-1][0] == 'SUR'        and \
+                            TOKEN[lowest_index-1][2][1] == 'open' and \
+                            TOKEN[highest_index+1][0] == 'SUR'     and \
+                            TOKEN[highest_index+1][2][1] == 'close' :
+                                #print("Already surrounded :)")
+                                continue
                 TOKEN[lowest_index:lowest_index] = TOKENIZE("(")
                 TOKEN[highest_index+1+1:highest_index+1+1] = TOKENIZE(")")
             TOKEN = PARSE(TOKENIZE(NULL.join(map(str, [x[1] for x in TOKEN]))))[1]
