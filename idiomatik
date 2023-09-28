@@ -15,40 +15,69 @@ from read_rules import *
 from checker import *
 from displayer import *
 from rewriter import *
+import readline # allow left/right arrow while inputing
+
+sys.setrecursionlimit(10**6)
+
+# https://stackoverflow.com/a/287944
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    #ERASE_LINE = '\r\033[0K'
+    #ERASE_UP= '\r\033\[1A'
+# print(bcolors.WARNING + "Warning: No active frommets remain. Continue?" + bcolors.ENDC)
+
 
 global last_proposition
 global user_propositions
 user_propositions = []
 
-IDIOMATIK_PROMPT   = '|> '
-IDIOMATIK_GREETING = '''
+#IDIOMATIK_PROMPT   = '|> '
+#IDIOMATIK_GREETING = '''
+#+----------------------------------------------------------------------------+
+#|> Welcome to idiomatik! You can start writing expressions as inputs.        |
+#|  Read the documentation (if any) to learn about commands.                  |
+#+----------------------------------------------------------------------------+
+#'''
+IDIOMATIK_PROMPT   = bcolors.OKGREEN + '|> ' + bcolors.ENDC
+IDIOMATIK_GREETING = bcolors.OKCYAN + '''
 +----------------------------------------------------------------------------+
 |> Welcome to idiomatik! You can start writing expressions as inputs.        |
 |  Read the documentation (if any) to learn about commands.                  |
 +----------------------------------------------------------------------------+
-'''
+''' + bcolors.ENDC
 
 def evaluate_proposition(PROP):
     global last_proposition
+    '''
+    If PROP starts with ':' then it is a COMMAND
+    '''
     if PROP[0:1] == ":":
         PROP = PROP.split(' ')
         match PROP[0]:
-            case ":q":
+            case ":q" | ":quit" | ":exit" :
                 exit(0)
             case ":t" | ":token":
                 try:
                     print(TOKENIZE(last_proposition))
                 except:
-                    print("ERROR: you need to give an expression first.")
+                    print(bcolors.FAIL + "ERROR: you need to give an expression first." + bcolors.ENDC)
             case ":T" | ":tree":
-                #try :
-                render_tree(TOKENIZE(last_proposition))
-                #except:
-                #    print("ERROR: you need to give an expression first.")
-            case ":s":
+                try :
+                    render_tree(TOKENIZE(last_proposition))
+                except:
+                    print("ERROR: why no tree? TODO")
+            case ":s" | ":surrounding" :
                 try :
                     solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
-                    print("Silent surrounding : {}".format(solving_surrounders))
+                    print("Background surrounding : {}".format(solving_surrounders))
                 except:
                     print("ERROR: you need to give an expression first.")
             case ":A" | ":axioms":
@@ -106,6 +135,10 @@ except:
 print(IDIOMATIK_GREETING)
 
 while True:
-    user_input = input(IDIOMATIK_PROMPT)
+    try :
+        user_input = input(IDIOMATIK_PROMPT)
+    except:
+        print("Error decoding input. Invalid characters might have went by. Please type again!")
+        continue
     proposition=str(user_input)
     evaluate_proposition(proposition)

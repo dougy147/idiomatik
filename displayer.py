@@ -149,12 +149,12 @@ def render_tree(TOKEN):
             STRING += FINAL_MATRICE[i][j]
         if STRING.replace(' ','') != "" : ULTIMATE_MATRICE.append(STRING)
 
-    #print("+------------ tree of {}".format([x[1] for x in TOKEN]))
-    print("-+++----------- tree -----------+")
-    index = 0
+    #print("-+++----------- tree -----------+")
+    index = len(FINAL_MATRICE)-1
     for line in ULTIMATE_MATRICE:
-        print("#{} | {}".format(index,line))
-        index+=1
+        #print("#{} | {}".format(index,line))
+        print("{} | {}".format(index,line))
+        index-=1
     print("\n")
 
 

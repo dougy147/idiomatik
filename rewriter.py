@@ -6,6 +6,7 @@ from parser import *
 from read_rules import *
 #from checker import *
 
+
 ''' The REWRITER job is to rewrite PROPOSITIONS to another PROPOSITION given a RULE.
 PROPOSITIONS are valid TOKENS.
 '''
@@ -120,6 +121,18 @@ def silent_surrounding(TOKEN):
                     if OPE[3] >= index_op+1 : OPE[3] += 1 # above lowest parenthesis  +1
     return TOKEN
 
+
+#def simplify_surrounding(TOKEN):
+#    ''' If 2 or more consecutive opening surrounders correspond to the same number of
+#    consecutive closing surrounders : overuse of surrounders => simplify by removing
+#    total number of surrounders - 1.
+#    '''
+#    SUR = [x for x in filter(lambda y: y[0] == 'SUR',TOKEN)]
+#    if len(SUR) == 0: return TOKEN
+#    for i in range(len(TOKEN)):
+#        if i >= len(TOKEN) - 1 : break
+#        if TOKEN[i][2][1] == 'open' and TOKEN[i+1][2][1] == 'open' :
+
 def split_all_rewrite_rules():
     '''Given all current RULES, returns a list of the form :
     [ [RULE1,LEFT_PATTERN1,RIGHT_PATTERN1], [RULE2,...] ]'''
@@ -162,10 +175,18 @@ def split_rewrite_rule(rewrite_rule):
 '''WARNING : functions below allow to recursively check if a rule can be subrewritten.
 They might never stop, and I found no way to contourn this issue for the moment (dumb)'''
 
-def combine_all_possible_rewrites(TOKEN,POSSIBLE_REWRITES = None,REWRITES=None,first_time=True):
+def combine_all_possible_rewrites(TOKEN,POSSIBLE_REWRITES = None,REWRITES=None,first_time=True,RECURSION=0,RECURSION_EXCEEDED=False):
     '''Returns ALL possible rewrites for ALL TOKENS given ALL rules'''
     '''WARNING : VERY SLOW WITH LOTS OF RULES, AND MIGHT NOT STOP'''
     ''' POSSIBLE_REWRITES : [True/False, [ [TOKEN0, LEFT, RIGHT, RULE_X], [TOKEN1, LEFT, RIGHT,RULE_Y],... ]]'''
+    RECURSION_LIMIT=30
+    #if RECURSION_EXCEEDED :
+    #    print("Recursion limit ({}) exceeded!".format(RECURSION_LIMIT))
+    #    return [ POSSIBLE_REWRITES[0], REWRITES ]
+    if RECURSION >= RECURSION_LIMIT:
+        print("Recursion limit ({}) exceeded in 'combine_all_possible_rewrites()'!".format(RECURSION_LIMIT))
+        RECURSION_EXCEEDED = True
+        return
     SPLITTED_RULES = split_all_rewrite_rules() # Grab all PUBLIC REWRITE_RULES (left and right patterns)
     #print("SPLITTED RULES:",SPLITTED_RULES)
 
@@ -180,6 +201,8 @@ def combine_all_possible_rewrites(TOKEN,POSSIBLE_REWRITES = None,REWRITES=None,f
         #    REWRITTEN = token_full_rewrites_list(TOKEN,LP,RP,REWRITES=None)
         #else :
         #    REWRITTEN = token_full_rewrites_list(TOKEN,LP,RP,REWRITES=REWRITES)
+        #if len(TOKEN) < len(LP) : continue # New : avoid "Rule a + b ::= c" rewrite "Token a" as "c"
+        #else:
         REWRITTEN = token_full_rewrites_list(TOKEN,LP,RP)
         if not REWRITTEN[0]: continue
 
@@ -190,13 +213,21 @@ def combine_all_possible_rewrites(TOKEN,POSSIBLE_REWRITES = None,REWRITES=None,f
                 REWRITES.append(NULL.join(map(str,[x[1] for x in TRANSFORMATION])))
                 POSSIBLE_REWRITES[0] = True
                 POSSIBLE_REWRITES[1].append([TRANSFORMATION,LP,RP,R])
-            combine_all_possible_rewrites(TRANSFORMATION,REWRITES=REWRITES,first_time=False)
+            combine_all_possible_rewrites(TRANSFORMATION,REWRITES=REWRITES,first_time=False,RECURSION=RECURSION+1)
     return [ POSSIBLE_REWRITES[0], REWRITES ]
 
-def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=None,first_time=True):
+def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=None,first_time=True,RECURSION=0,RECURSION_EXCEEDED=False):
     '''Returns ALL possibilities for a TOKEN given a SINGLE REWRITE_RULE LEFT and RIGHT PATTERNS'''
+    RECURSION_LIMIT=20
+    #if RECURSION_EXCEEDED :
+    #    print("Recursion limit ({}) exceeded in 'token_full_rewrites_list()' !".format(RECURSION_LIMIT))
+    #    return
+    if RECURSION >= RECURSION_LIMIT:
+        RECURSION_EXCEEDED = True
+        return
     if REWRITES is None: REWRITES = []
     for i in range(INDEX,len(TOKEN)):
+        if len(TOKEN) - i < len(LEFT_PATTERN) : continue # New : avoid "Rule a + b ::= c" rewrite "Token a" as "c"
         CUR_RIGHT_PATTERN = [x for x in RIGHT_PATTERN]
         pattern_in_token = True
         rewritable_part_of_token = []
@@ -209,9 +240,10 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
             if LEFT_PATTERN[j][2][0] == 'ANY_STR' and TOKEN[i+j][0] == 'STR':
                 rewritable_part_of_token.append(TOKEN[i+j])
                 for k in range(len(RIGHT_PATTERN)):
-                    if CUR_RIGHT_PATTERN[k][2][0] == 'ANY_STR':
+                    #if CUR_RIGHT_PATTERN[k][2][0] == 'ANY_STR' :
+                    if CUR_RIGHT_PATTERN[k][2][0] == 'ANY_STR' and CUR_RIGHT_PATTERN[k][1] == LEFT_PATTERN[j][1] :
                         CUR_RIGHT_PATTERN[k] = TOKEN[i+j]
-                        break
+                        continue
                 continue
             #print(TOKEN)
             if TOKEN[i+j][1] != LEFT_PATTERN[j][1]:
@@ -232,7 +264,7 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                 new_token = NULL.join(map(str,[x[1] for x in NEW_TOKEN[1]]))
                 if not new_token in REWRITES:
                     REWRITES.append(new_token)
-                    token_full_rewrites_list(NEW_TOKEN[1],LEFT_PATTERN,RIGHT_PATTERN,INDEX=i+j,REWRITES=REWRITES)
+                    token_full_rewrites_list(NEW_TOKEN[1],LEFT_PATTERN,RIGHT_PATTERN,INDEX=i+j,REWRITES=REWRITES,RECURSION=RECURSION+1,RECURSION_EXCEEDED=RECURSION_EXCEEDED)
     if INDEX != 0 : return
     VALID_REWRITES = [] # VALID_REWRITES are TOKENS
     index = 0

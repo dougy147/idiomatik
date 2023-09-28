@@ -128,6 +128,7 @@ Let's now define an arbitrary rewrite rule, for example : `(_) --> _`, by feedin
 
 ```bash
 |> (_) --> _
+|> :add r
 |> :R
 +----- RULES ------+
     (R0)     ( _ ) --> _
@@ -289,13 +290,13 @@ Idiomatik in BNF notation (might be wrong)...
 <Rule> 		::= <Axiom> | <Rewrite rule>
 <Axiom>         ::= <Proposition>
 <Rewrite rule> 	::= <Token> --> <Token>
-<Proposition> 	::= <Symbol> | <Proposition> <Symbol>
+<Proposition> 	::= <Symbol> | <Symbol> <Proposition>
 <Symbol> 	::= <Str> | <Surr> | <Op> | <Meta> | <Number>
-<Str> 		::= <char> | <Str> <char>
+<Str> 		::= <char> | <char> <Str>
 <Surr> 		::= ( | ) | [ | ] | { | }
 <Op> 		::= + | ... | -->
 <Meta> 		::= _ | $
-<Number> 	::= <digit> | <Number> <digit>
+<Number> 	::= <digit> | <digit> <Number>
 <char> 		::= a | ... | Z
 <digit> 	::= 0 | ... | 9
 ```
@@ -307,6 +308,12 @@ Allow it to be a little more compact.
 ### Syntax diagram
 
 Less compact.
+
+### Left/Right recursive
+
+In BNF notation `<exp> ::= <exp> <term> | <term>` is an example of left-recursion (so left associativity) because `... ::= <exp> <term> | ...` sees `<exp>` on the left side, meaning recursion will happen on the left side.
+To the contrary `<exp> ::= <term> <exp> | <term>` would be right recursive, therefore right associative.
+See [this video](https://piped.video/JO_0e9mPofY?t=1115).
 
 
 
@@ -330,6 +337,7 @@ Less compact.
 
 - https://en.wikipedia.org/wiki/Lexical_analysis
 - https://stackoverflow.com/a/3614928
+- https://en.wikipedia.org/wiki/Chomsky_hierarchy
 - https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
 - https://piped.video/watch?v=F25ez8s3AsQ
 - https://piped.video/watch?v=f9Mkzbxdjzc
@@ -338,3 +346,4 @@ Less compact.
 - https://en.wikipedia.org/wiki/Abstract_syntax_tree
 - https://en.wikipedia.org/wiki/Order_of_operations
 - https://plato.stanford.edu/entries/dynamic-epistemic/appendix-B-solutions.html#muddy
+- https://piped.video/JO_0e9mPofY
