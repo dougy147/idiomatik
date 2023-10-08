@@ -7,6 +7,17 @@ from read_rules import *
 from checker import *
 from rewriter import *
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 '''The DISPLAYER is just a script that combines functions from IDIOMATIK
 to output "proper" results to the user, given the INPUT.
 '''
@@ -157,6 +168,54 @@ def render_tree(TOKEN):
         index-=1
     print("\n")
 
+def display_rewritable_parts(INPUT):
+    '''Temporary function to show ALL possible rewritable
+     parts of a token '''
+    token = TOKENIZE(INPUT)
+    parse = PARSE(token)
+    if not parse[0] :
+        print("Invalid proposition")
+        return
+    REWRITES = token_all_rewritable_parts(token)
+    if len(REWRITES) == 0 :
+        print("No matching pattern.")
+        return
+    #REWRITES = check[1] # Storing tokens of possible rewritings
+    counter = 0
+    redundant = 0
+    STR_REWRITES = []
+    for rew in REWRITES:
+        #str_rewrite = NULL.join(map(str,[x[1] for x in rew])) # Transform tokens to human readable string
+        str_rewrite = rew
+        if not str_rewrite in STR_REWRITES :
+            STR_REWRITES.append(rew)
+        else :
+            redundant+=1
+            #nb_to_pass[1] -= 1 # TODO
+            continue
+        indexes_in_part = []
+        for i in range(len(rew)):
+            indexes_in_part.append(rew[i][3])
+        #print(indexes_in_part)
+        beautiful_rewrite = ""
+        for i in range(len(parse[1])):
+            if parse[1][i][3] in indexes_in_part :
+                if parse[1][i][3] == indexes_in_part[len(indexes_in_part)-1]:
+                    if indexes_in_part[0] == 0 :
+                        beautiful_rewrite = bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
+                    else :
+                        beautiful_rewrite = beautiful_rewrite + NULL + bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
+            else :
+                if i == 0:
+                    beautiful_rewrite = str(parse[1][i][1])
+                else :
+                    beautiful_rewrite = beautiful_rewrite + NULL + str(parse[1][i][1])
+
+        #print(bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC)
+        print(beautiful_rewrite)
+        counter+=1
+    ##print("\n{} possible rewritings".format(counter))
+    #if redundant > 0: print("{} redundancies...".format(redundant))
 
 
 def display_all_possible_rewritings(INPUT):
@@ -209,7 +268,8 @@ def display_axioms_and_rules(choice=False):
             print("\t(R{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in rules]))))
             index += 1
 
-
+def human_readable(TOKEN):
+    return NULL.join(map(str,[x[1] for x in TOKEN]))
 
 #a = "(((((((c))))))) + b => (~ a)"
 #a = "~ (A) + (B) + (c) + (d)"

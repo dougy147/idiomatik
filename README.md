@@ -178,6 +178,40 @@ This process of desambiguation is of course of interest to solve expressions, bu
 That's where `idiomatik` is for now.
 
 
+# Future features
+
+- Allow on-the-fly inputs (interpreted as propositions, axioms or rewrite rules)
+- Propose rewritings when asked by user (e.g. `:rewrite`)
+- Draw better trees
+
+# TODO
+
+- For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
+- Move back in history when pressing up/down arrows
+- Commands with arguments
+- "Clean" POSSIBLE_REWRITES when changing proposition to be rewrited
+
+
+
+
+# Resources
+
+- https://en.wikipedia.org/wiki/Lexical_analysis
+- https://stackoverflow.com/a/3614928
+- https://en.wikipedia.org/wiki/Chomsky_hierarchy
+- https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
+- https://yewtu.be/watch?v=F25ez8s3AsQ
+- https://yewtu.be/watch?v=f9Mkzbxdjzc
+- https://yewtu.be/watch?v=_C5AHaS1mOA
+- https://en.wikipedia.org/wiki/Regular_expression
+- https://en.wikipedia.org/wiki/Abstract_syntax_tree
+- https://en.wikipedia.org/wiki/Order_of_operations
+- https://plato.stanford.edu/entries/dynamic-epistemic/appendix-B-solutions.html#muddy
+- https://yewtu.be/JO_0e9mPofY
+- https://en.wikipedia.org/wiki/Computer_algebra_system
+
+
+
 # Useful resources
 
 Raw pasting of resources.
@@ -316,34 +350,3 @@ To the contrary `<exp> ::= <term> <exp> | <term>` would be right recursive, ther
 See [this video](https://piped.video/JO_0e9mPofY?t=1115).
 
 
-
-# Future features
-
-- Allow on-the-fly inputs (interpreted as propositions, axioms or rewrite rules)
-- Propose rewritings when asked by user (e.g. `:rewrite`)
-- Draw better trees
-
-# TODO
-
-- For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
-- Move back in history when pressing up/down arrows
-- Commands with arguments
-- "Clean" POSSIBLE_REWRITES when changing proposition to be rewrited
-
-
-
-
-# Resources
-
-- https://en.wikipedia.org/wiki/Lexical_analysis
-- https://stackoverflow.com/a/3614928
-- https://en.wikipedia.org/wiki/Chomsky_hierarchy
-- https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
-- https://piped.video/watch?v=F25ez8s3AsQ
-- https://piped.video/watch?v=f9Mkzbxdjzc
-- https://piped.video/watch?v=_C5AHaS1mOA
-- https://en.wikipedia.org/wiki/Regular_expression
-- https://en.wikipedia.org/wiki/Abstract_syntax_tree
-- https://en.wikipedia.org/wiki/Order_of_operations
-- https://plato.stanford.edu/entries/dynamic-epistemic/appendix-B-solutions.html#muddy
-- https://piped.video/JO_0e9mPofY

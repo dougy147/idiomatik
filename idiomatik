@@ -47,7 +47,7 @@ user_propositions = []
 #+----------------------------------------------------------------------------+
 #'''
 IDIOMATIK_PROMPT   = bcolors.OKGREEN + '|> ' + bcolors.ENDC
-IDIOMATIK_GREETING = bcolors.OKCYAN + '''
+IDIOMATIK_GREETING = bcolors.OKBLUE + '''
 +----------------------------------------------------------------------------+
 |> Welcome to idiomatik! You can start writing expressions as inputs.        |
 |  Read the documentation (if any) to learn about commands.                  |
@@ -90,6 +90,10 @@ def evaluate_proposition(PROP):
                 #rewrite_token(last_proposition)
                 #except :
                 #    print("ERROR: you need to give an expression first.")
+            case ":p" | ":parts": # rewritable parts of the token
+                display_rewritable_parts(last_proposition)
+                #print(TOKENIZE(last_proposition))
+                #print(human_readable(token_all_rewritable_parts(TOKENIZE(last_proposition))))
             case ":h" | ":help":
                 print("TODO: sorry, this help menu is not really helpful for now.")
             case ":add" :

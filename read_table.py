@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 STREAM = []
-TABLE_FILE = "SYMBOL_TABLE"
+TABLE_FILE = "SYMBOLS"
 with open(TABLE_FILE) as table:
     for line in table.readlines():
         if not line == '\n':
