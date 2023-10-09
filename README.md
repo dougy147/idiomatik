@@ -50,9 +50,9 @@ This transformation depends on a set of arbitrarly rules (i.e. *rewrite rules*) 
 ```bash
 ./idiomatik
 |> A => B --> ~A V B
-|> :add rule
+|> add rule
 |> p => q
-|> :rewrite
+|> rewrite full
 ~p V q
 ```
 
@@ -65,12 +65,12 @@ This process of desambiguation is of course of interest to solve expressions, bu
 
 ### Visualizing : drawing trees
 
-`idiomatik` can draw basic trees (really basic trees) representing any given expression with `:tree`:
+`idiomatik` can draw basic trees (really basic trees) representing any given expression with `tree` or `draw`:
 
 ```bash
 ./idiomatik
 |> a + b * c / d
-|> :tree
+|> draw
 -+++----------+
 #0 |  +
 #1 | a    /
@@ -90,12 +90,12 @@ Determining the solving order of an expression depends on surrounders and operat
 
 ## Try it yourself
 
-Give the following string `(~a) + [(b) / c]` to the lexer, and check the token with the command `:token`:
+Give the following string `(~a) + [(b) / c]` to the lexer, and check the token with the command `token`:
 
 ```bash
 ./idiomatik
 |> (~a) + [(b) / c]
-|> :token
+|> token
     [['SUR', '(', ['PARENTHESIS', 'open', 1], 0], \
     ['OP', '~', ['NOT', 'unary', 'R', 1], 1], \
     ['STR', 'a', ['immutable', 1], 2], \
@@ -128,14 +128,13 @@ Let's now define an arbitrary rewrite rule, for example : `(_) --> _`, by feedin
 
 ```bash
 |> (_) --> _
-|> :add r
-|> :R
-+----- RULES ------+
+|> add r
+|> rules
     (R0)     ( _ ) --> _
 ```
 
 `_` and `-->` are two *meta* symbols, meaning respectively _any string_ and _rewrite as_. This rewrite rule could be understood as "any string between parenthesis can be rewritten without it".
-(See that you can see which rules `idiomatik` will consider for rewrites with the command `:R`).
+(See that you can see which rules `idiomatik` will consider for rewrites with the command `rules`).
 
 The rewriting process starts by parsing the token and check whether any sequence of its elements matches the left side of the rewrite rule (here `(_)`).
 Note that the rewrite rule left side is tokenized too (in fact, rules are valid expressions that can be tokenized too). So we check if the input token contains a sequence matching the pattern `[PAR_open][STR][PAR_close]`.
@@ -144,7 +143,7 @@ As it is the case for `(b)`, our input `(~a) + [(b) / c]` can be rewritten as `(
 Now ask `idiomatik` to try to match our rule with our proposition and eventually rewrite it :
 
 ```bash
-|> :rewrite
+|> rewrite full
 ( ~ a ) + [ b / c ]  
 ```
 
@@ -158,7 +157,7 @@ To unwrap it, we could consider a rule like `(~_) --> ~_`.
 Adding a meta operator like `$`, symbolizing any couple operator-operand(s), could be helpful : `($) --> $`.
 Other meta symbols are to be implemented (e.g. any surrounder, rules, etc.).
 
-Upper case letters (A...Z) are the same as but allow flexibility in the assignement of which variable in the left hand side of the rewrite rule (the pattern to match) corresponds to which variable in the right hand side. 
+Upper case letters (`A`...`Z`) are the same as but allow flexibility in the assignement of which variable in the left hand side of the rewrite rule (the pattern to match) corresponds to which variable in the right hand side. 
 To illustrate this, consider a rule like : `A (B + C) --> A * B + B * C`.
 When applied to the expression `2 ( 3 + 4 )` it will match `A` to `2`, `B` to `3` and `C` to `4`, ending in this rewrite : `2 * 3 + 2 * 4`.
 
@@ -189,23 +188,18 @@ a + 1 = s ( 0 )
 That's where `idiomatik` is for now.
 
 
-# Future features
-
-- Allow on-the-fly inputs (interpreted as propositions, axioms or rewrite rules)
-- Propose rewritings when asked by user (e.g. `:rewrite`)
-- Draw better trees
-
 # TODO
 
-- For each rewrite rule, if left and right side are equal, consider it a tautology and ignore (?).
-- Move back in history when pressing up/down arrows
-- Commands with arguments
-- "Clean" POSSIBLE_REWRITES when changing proposition to be rewrited
-
-
-
+- Draw better trees
+- Meta character for ANY_OPERAND
+- Specify rules' names
+- Undo command
+- Save logs/transformation
+- Display rules combined in full rewrites
 
 # Resources
+
+## Links
 
 - https://en.wikipedia.org/wiki/Lexical_analysis
 - https://stackoverflow.com/a/3614928
@@ -221,13 +215,7 @@ That's where `idiomatik` is for now.
 - https://yewtu.be/JO_0e9mPofY
 - https://en.wikipedia.org/wiki/Computer_algebra_system
 
-
-
-# Useful resources
-
-Raw pasting of resources.
-
-## Vocabulary
+## Raw pasting
 
 ### Lexer/Tokenizer 
 
@@ -319,6 +307,7 @@ It is a metasyntax notation for context-free grammars. A context-free grammar pr
 That might not be my case (for example if `$` represents `any operand`), but the notation is relatively straightforward to be humanly understandable.
 
 `<Xxxxx>` : non terminal
+
 `|` : alternative
 
 * Example : 
@@ -359,5 +348,3 @@ Less compact.
 In BNF notation `<exp> ::= <exp> <term> | <term>` is an example of left-recursion (so left associativity) because `... ::= <exp> <term> | ...` sees `<exp>` on the left side, meaning recursion will happen on the left side.
 To the contrary `<exp> ::= <term> <exp> | <term>` would be right recursive, therefore right associative.
 See [this video](https://piped.video/JO_0e9mPofY?t=1115).
-
-
