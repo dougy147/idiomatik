@@ -26,10 +26,10 @@
 //(~ _) --> ~ _
 //A => B --> ~ A V B
 
-// Peano's axioms for addition
-A + 0 --> A
-A + s(B) --> s(A + B)
-
-// Peano's axioms for multiplication
-A . 0 --> 0
-A . s(B) --> A + (A . B)
+//// Peano's definition of addition
+//A + 0 --> A
+//A + s(B) --> s(A + B)
+//
+//// Peano's definition of multiplication
+//A . 0 --> 0
+//A . s(B) --> A + (A . B)

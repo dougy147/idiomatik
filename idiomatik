@@ -16,26 +16,12 @@ from checker import *
 from displayer import *
 from rewriter import *
 import readline # allow left/right arrow while inputing
+from colors import *
 
 sys.setrecursionlimit(10**6)
 
-# https://stackoverflow.com/a/287944
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    #ERASE_LINE = '\r\033[0K'
-    #ERASE_UP= '\r\033\[1A'
-# print(bcolors.WARNING + "Warning: No active frommets remain. Continue?" + bcolors.ENDC)
-
-
 global last_proposition
+last_proposition = ""
 global user_propositions
 user_propositions = []
 
@@ -54,85 +40,120 @@ IDIOMATIK_GREETING = bcolors.OKBLUE + '''
 +----------------------------------------------------------------------------+
 ''' + bcolors.ENDC
 
+def add_rule(multiple=False,added_rules_number=0,last_proposition=last_proposition):
+    if multiple == True:
+        try :
+            last_proposition = input("    > ")
+        except:
+            print(bcolors.FAIL + "ERROR: Invalid characters in input." + bcolors.ENDC)
+        if last_proposition == "" or last_proposition == ":q" :
+            print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
+            #print(bcolors.ERASE_LINE + bcolors.ERASE_UP +bcolors.ERASE_LINE)
+            #s="s"
+            #if added_rules_number == 0 : added_rules_number,s = "No",""
+            #elif added_rules_number == 1 : s = ""
+            #print(bcolors.OKBLUE + "{} rule{} added.".format(added_rules_number,s) + bcolors.ENDC)
+            #print(bcolors.ERASE_LINE) # Erase empty prompt
+            return
+    REWRITE_SYMBOL = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")]
+    #print(last_proposition)
+    if REWRITE_SYMBOL in last_proposition :
+        if TOKENIZE(last_proposition) in RULES['REWRITE_RULES'] :
+            print(bcolors.WARNING + "Rule already stored!" + bcolors.ENDC)
+            if added_rules_number > 0 : added_rules_number-=1
+        else : RULES['REWRITE_RULES'].append(TOKENIZE(last_proposition))
+    else :
+        print(bcolors.FAIL + "Rules need the rewrite symbol '" + str(REWRITE_SYMBOL) + "'." + bcolors.ENDC)
+        if added_rules_number > 0 : added_rules_number-=1
+    if multiple :
+        add_rule(multiple=True,added_rules_number=added_rules_number+1)
+
 def evaluate_proposition(PROP):
     global last_proposition
     '''
-    If PROP starts with ':' then it is a COMMAND
+    If PROP starts with ':' then it is a COMMAND?
     '''
-    if PROP[0:1] == ":":
-        PROP = PROP.split(' ')
-        match PROP[0]:
-            case ":q" | ":quit" | ":exit" :
-                exit(0)
-            case ":t" | ":token":
-                try:
-                    print(TOKENIZE(last_proposition))
-                except:
-                    print(bcolors.FAIL + "ERROR: you need to give an expression first." + bcolors.ENDC)
-            case ":T" | ":tree":
-                try :
-                    render_tree(TOKENIZE(last_proposition))
-                except:
-                    print("ERROR: why no tree? TODO")
-            case ":s" | ":surrounding" :
-                try :
-                    solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
-                    print("Background surrounding : {}".format(solving_surrounders))
-                except:
-                    print("ERROR: you need to give an expression first.")
-            case ":A" | ":axioms":
-                display_axioms_and_rules("axioms")
-            case ":R" | ":rules":
-                display_axioms_and_rules("rules")
-            case ":r" | ":rewrite":
-                #try :
-                display_all_possible_rewritings(last_proposition)
-                #rewrite_token(last_proposition)
-                #except :
-                #    print("ERROR: you need to give an expression first.")
-            case ":p" | ":parts": # rewritable parts of the token
-                display_rewritable_parts(last_proposition)
-                #print(TOKENIZE(last_proposition))
-                #print(human_readable(token_all_rewritable_parts(TOKENIZE(last_proposition))))
-            case ":h" | ":help":
-                print("TODO: sorry, this help menu is not really helpful for now.")
-            case ":add" :
-                if len(PROP) == 1 or len(PROP) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
-                else :
-                    match PROP[1]:
-                        case "axiom" | "a" :
-                            if TOKENIZE(last_proposition) in RULES['AXIOMS'] : print("Axiom already stored!")
-                            else : RULES['AXIOMS'].append(TOKENIZE(last_proposition))
-                        case "rule" | "r":
-                            REWRITE_SYMBOL = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")]
-                            if REWRITE_SYMBOL in last_proposition :
-                                if TOKENIZE(last_proposition) in RULES['REWRITE_RULES'] : print("Rule already stored!")
-                                else : RULES['REWRITE_RULES'].append(TOKENIZE(last_proposition))
-                            else :
-                                print("ERROR: rules need the rewrite symbol.")
-                        case "prop" | "p" | "proposition":
-                            print("TODO")
-            case _:
-                print("ERROR: unknown command. See '{} --help' or ':help'.".format(sys.argv[0]))
-
-    else :
-        cur_proposition = str(PROP)
-        if PARSE(TOKENIZE(cur_proposition))[0]:
-            last_proposition = cur_proposition
-            user_propositions.append(last_proposition)
-            #REWRITE_SYMBOL = "-->"
-            #if REWRITE_SYMBOL in cur_proposition :
-            #    if TOKENIZE(cur_proposition) in RULES['REWRITE_RULES'] : print("Rule already stored!")
-            #    else : RULES['REWRITE_RULES'].append(TOKENIZE(cur_proposition))
-            #else :
-            #    if TOKENIZE(cur_proposition) in RULES['AXIOMS'] : print("Axiom already stored!")
-            #    else : RULES['AXIOMS'].append(TOKENIZE(cur_proposition))
-        else:
-            print("ERROR: invalid syntax. TODO : say more about error.")
+    #if PROP[0:1] == ":":
+    #PROP = PROP.split(' ')
+    match PROP.split(' ')[0]:
+        case ":q" | "quit" | "exit" :
+            exit(0)
+        case "prop" | "proposition": # displays current proposition under scrutiny
+            print(human_readable(TOKENIZE(last_proposition)))
+        case "tok" | "token":
+            try:
+                print(TOKENIZE(last_proposition))
+            except:
+                print(bcolors.FAIL + "ERROR: you need to give an expression first." + bcolors.ENDC)
+        case "tree" | "draw" :
+            try :
+                render_tree(TOKENIZE(last_proposition))
+            except:
+                print("ERROR: why no tree? TODO")
+        case "surr" | "surrounding" :
+            try :
+                #solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
+                solving_surrounders = human_readable(silent_surrounding(TOKENIZE(last_proposition)))
+                print("Background surrounding : {}".format(solving_surrounders))
+            except:
+                print("ERROR: you need to give an expression first.")
+        case "axioms":
+            display_axioms_and_rules("axioms")
+        case "rules":
+            display_axioms_and_rules("rules")
+        case "rewrite":
+            if len(PROP.split(' ')) < 2 :
+                    print(bcolors.WARNING + "Please provide a name or number for rewriting rule.\n Or use 'full' to combine them all." + bcolors.ENDC)
+            else :
+                match PROP.split(' ')[1]:
+                    case "full" | "f" :
+                        display_all_possible_rewritings(last_proposition)
+                    case _ :
+                        print(bcolors.WARNING + "TODO: something else than full rewrite" + bcolors.ENDC)
+        case "match": # highlight rewritable parts of the token
+            display_rewritable_parts(last_proposition)
+        case "help":
+            print("TODO: sorry, this help menu is not really helpful for now.")
+        case "del" | "delete":
+            if len(PROP.split(' ')) == 1 :
+                print("INFO: Use 'delete x' or 'delete Rx' to delete a rule.")
+                for i in range(len(RULES['REWRITE_RULES'])) :
+                    print(bcolors.OKBLUE + "\t(R{}) {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+            elif len(PROP.split(' ')) > 2 :
+                print("ERROR: 'delete' needs precisely one rule number")
+            else :
+                for i in range(len(RULES['REWRITE_RULES'])) :
+                    if "R"+str(i) == PROP.split(' ')[1] or \
+                        "r"+str(i) == PROP.split(' ')[1] or \
+                        str(i) == PROP.split(' ')[1] :
+                            #print(RULES['REWRITE_RULES'])
+                            print(bcolors.OKBLUE + "Deleted (R{}) {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                            RULES['REWRITE_RULES'].pop(i)
+        case "add" :
+            if len(PROP.split(' ')) == 1 or len(PROP.split(' ')) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
+            else :
+                match PROP.split(' ')[1]:
+                    case "axiom" | "a" :
+                        if TOKENIZE(last_proposition) in RULES['AXIOMS'] : print("Axiom already stored!")
+                        else : RULES['AXIOMS'].append(TOKENIZE(last_proposition))
+                    case "rule" | "r":
+                        add_rule(multiple=False,last_proposition=last_proposition)
+                    case "rules" | "rs":
+                        add_rule(multiple=True)
+                    case "prop" | "p" | "proposition":
+                        print("TODO")
+        case _:
+            #print(bcolors.FAIL + "ERROR: unknown command. See '{} --help' or ':help'.".format(sys.argv[0]) + bcolors.ENDC)
+            cur_proposition = str(PROP)
+            if PARSE(TOKENIZE(cur_proposition))[0]:
+                last_proposition = cur_proposition
+                user_propositions.append(last_proposition)
+            else:
+                print(bcolors.FAIL + "ERROR: invalid syntax. TODO : say more about error." + bcolors.ENDC)
 
 try :
     if sys.argv[1] :
-        print("TODO: {} will soon accept receiving arguments.\n".format(sys.argv[0]))
+        print(bcolors.OKBLUE + "TODO: {} will soon accept receiving arguments.".format(sys.argv[0]) + bcolors.ENDC)
 except:
     pass
 
@@ -142,7 +163,7 @@ while True:
     try :
         user_input = input(IDIOMATIK_PROMPT)
     except:
-        print("Error decoding input. Invalid characters might have went by. Please type again!")
+        print(bcolors.FAIL + "ERROR: Invalid characters in input." + bcolors.ENDC)
         continue
     proposition=str(user_input)
     evaluate_proposition(proposition)

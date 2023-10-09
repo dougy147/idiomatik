@@ -25,10 +25,10 @@ But why not share a "work" in progress?
 
 ### Lexing : Raw input to tokens
 
-`idiomatik` receives input strings (e.g. "A + B = C") that are returned as *tokens*.
+`idiomatik` receives input strings (e.g. `a + b = c`) that are returned as *tokens*.
 A token is a chain of elements extracted from the input by the *lexer*.
-The lexer decomposes each input to match its elements (characters, or sequence of characters) to predefined categories of symbols (see `SYMBOL_TABLE`).
-When all the elements of an input have been attributed an identity, they are chained together and the construction of the token ends.
+The lexer then decomposes the input into individual elements (characters, or sequences of characters) corresponding to predefined categories (strings, operators, surrounders, etc.). (These *atomic* categories and their elements are defined in the `SYMBOLS` table.)
+When all the elements of an input have been attributed an identity (to what category they belong and eventually what are their properties), they are chained together and the construction of the token ends.
 
 ### Parsing : checking syntax
 
@@ -49,7 +49,7 @@ This transformation depends on a set of arbitrarly rules (i.e. *rewrite rules*) 
 
 ```bash
 ./idiomatik
-|> _ => _ --> ~_ V _
+|> A => B --> ~A V B
 |> :add rule
 |> p => q
 |> :rewrite
@@ -58,8 +58,8 @@ This transformation depends on a set of arbitrarly rules (i.e. *rewrite rules*) 
 
 Rewrite rules put aside, `idiomatik` is gonna be used to solve expressions (work in progress).
 It is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "correct" order, even when parenthesis are missing. 
-This is by default but it is configurable thanks to a precedence value given to operators in the `SYMBOL_TABLE`.
-If some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), `idiomatik` allows users to set the associative direction of operators as we stated above. In the `SYMBOL_TABLE` negative priority values give right-to-left associativity, positive left-to-right, while null oppose their operands by "splitting" expressions. 
+This is by default but it is configurable thanks to a precedence value given to operators in the `SYMBOLS` table.
+If some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), `idiomatik` allows users to set the associative direction of operators as we stated above. In the `SYMBOLS` table negative priority values give right-to-left associativity, positive left-to-right, while null oppose their operands by "splitting" expressions. 
 
 This process of desambiguation is of course of interest to solve expressions, but also to draw trees.
 
@@ -80,13 +80,13 @@ This process of desambiguation is of course of interest to solve expressions, bu
 
 ## Control how `idiomatik` speaks and think
 
-The file `SYMBOL_TABLE` contains a list of special characters and operators that play a role in `idiomatik`.
+The file `SYMBOLS` table contains a list of special characters and operators that play a role in `idiomatik`.
 You can modify this file and add your own symbols, operators, and set their properties.
 
-Operators' n-arity is set by signaling the position of their operands in `SYMBOL_TABLE`.
+Operators' n-arity is set by signaling the position of their operands in `SYMBOLS` table.
 For example, giving an operator the `LR` option tells `idiomatik` that it is a binary operator that, when parsing an expression, necessarily needs a left and a right operands. (You can build as many operators you want with as many operands you want.)
 
-Determining the solving order of an expression depends on surrounders and operators' precedence. Precedence is set in `SYMBOL_TABLE` with relative values. To the exception of `0`, the lowest the |absolute value| of precedence, the highest the priority. Operators with a precedence of `1` or `-1` are the first to be evaluated when solving an expression. Positive values represent left-to-right associativity (e.g. operator `+` with precedence `3` : `a + b + c` = `((a + b) + c)`), while negative right-to-left (e.g. `^` and `-2` : `a ^ b ^ c` = `(a ^ (b ^ c))`). Null values are for special cases, like comparative operators (`=`, `==`, `<`, etc.). I'm not sure what to do with them for now.
+Determining the solving order of an expression depends on surrounders and operators' precedence. Precedence is set in `SYMBOLS` table with relative values. To the exception of `0`, the lowest the |absolute value| of precedence, the highest the priority. Operators with a precedence of `1` or `-1` are the first to be evaluated when solving an expression. Positive values represent left-to-right associativity (e.g. operator `+` with precedence `3` : `a + b + c` = `((a + b) + c)`), while negative right-to-left (e.g. `^` and `-2` : `a ^ b ^ c` = `(a ^ (b ^ c))`). Null values are for special cases, like comparative operators (`=`, `==`, `<`, etc.). I'm not sure what to do with them for now.
 
 ## Try it yourself
 
@@ -158,20 +158,31 @@ To unwrap it, we could consider a rule like `(~_) --> ~_`.
 Adding a meta operator like `$`, symbolizing any couple operator-operand(s), could be helpful : `($) --> $`.
 Other meta symbols are to be implemented (e.g. any surrounder, rules, etc.).
 
+Upper case letters (A...Z) are the same as but allow flexibility in the assignement of which variable in the left hand side of the rewrite rule (the pattern to match) corresponds to which variable in the right hand side. 
+To illustrate this, consider a rule like : `A (B + C) --> A * B + B * C`.
+When applied to the expression `2 ( 3 + 4 )` it will match `A` to `2`, `B` to `3` and `C` to `4`, ending in this rewrite : `2 * 3 + 2 * 4`.
+
 ### Troubles with rewrite rules
 
 We have various choices when applying transformation rules to an expression. For example checking if the rewrited expression (here ` ( ~ a ) + [ b / c ] `) is also rewritable given our rules, or stopping.
 This is not trivial when considering rules leading to never ending loops (e.g. `_ --> (_)`).
 There is no optimal choice for now in `idiomatik` as it exhaustively recomputes every rewritings, given all rules (!) until nothing new can be rewritten (highly resource consuming and potentially never ending...), but I will add simpler behaviors (forbid infinite use of expanding rules?).
 
-### Solving
+### Derivating
 
-Rewrite rules put aside, `idiomatik` is gonna be used to solve expressions (work in progress).
-It is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "correct" order, even when parenthesis are missing. 
-This is by default but it is configurable thanks to a precedence value given to operators in the `SYMBOL_TABLE`.
-If some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), `idiomatik` allows users to set the associative direction of operators as we stated above. In the `SYMBOL_TABLE` negative priority values give right-to-left associativity, positive left-to-right, while null oppose their operands by "splitting" expressions. 
+`idiomatik` can/will be used to derive *true* propositions from axioms and rewrite rules.
+Here is an example with [Peano's definition of addition](https://en.wikipedia.org/wiki/Peano_axioms#Addition):
 
-This process of desambiguation is of course of interest to solve expressions, but also to draw trees.
+```bash
+|> add rules
+    > A + 0 --> 0
+    > A + s(B) = s(A + B)
+    
+|> a + 1 = a + s(0)
+|> rewrite full
+a + 1 = s ( a + 0 )
+a + 1 = s ( 0 )
+```
 
 ### More to come?
 

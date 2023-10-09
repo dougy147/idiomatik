@@ -223,6 +223,7 @@ def token_rewritable_parts(TOKEN,LEFT_PATTERN):
             rewritable_part_of_token.append(TOKEN[i+j])
         if pattern_in_token:
             REWRITABLE_PARTS.append(rewritable_part_of_token)
+    #print(REWRITABLE_PARTS)
     return REWRITABLE_PARTS
 
 ##print(TOKENIZE("1 + 2 = 3"))
@@ -252,7 +253,9 @@ def token_all_rewritable_parts(TOKEN):
                     break
                 rewritable_part_of_token.append(TOKEN[i+j])
             if pattern_in_token:
-                REWRITABLE_PARTS.append(rewritable_part_of_token)
+                #REWRITABLE_PARTS.append(rewritable_part_of_token)
+                REWRITABLE_PARTS.append([rewritable_part_of_token,R])
+    #print(REWRITABLE_PARTS)
     return REWRITABLE_PARTS
 
 ###print(TOKENIZE("1 + 2 = 3"))

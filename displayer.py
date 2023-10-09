@@ -6,17 +6,7 @@ from parser import *
 from read_rules import *
 from checker import *
 from rewriter import *
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+from colors import *
 
 '''The DISPLAYER is just a script that combines functions from IDIOMATIK
 to output "proper" results to the user, given the INPUT.
@@ -185,7 +175,10 @@ def display_rewritable_parts(INPUT):
     redundant = 0
     STR_REWRITES = []
     for rew in REWRITES:
-        #str_rewrite = NULL.join(map(str,[x[1] for x in rew])) # Transform tokens to human readable string
+        # ...
+        rule_name = rew[1]
+        rew = rew[0]
+        # ...
         str_rewrite = rew
         if not str_rewrite in STR_REWRITES :
             STR_REWRITES.append(rew)
@@ -212,7 +205,13 @@ def display_rewritable_parts(INPUT):
                     beautiful_rewrite = beautiful_rewrite + NULL + str(parse[1][i][1])
 
         #print(bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC)
-        print(beautiful_rewrite)
+        for i in range(len(RULES['REWRITE_RULES'])):
+            if rule_name == RULES['REWRITE_RULES'][i]:
+                rule_name = "R"+str(i)
+                break
+        #print(beautiful_rewrite + "\t" + str(human_readable(rule_name)))
+        #print(beautiful_rewrite + "\t" + bcolors.DARKCYAN + "(" + rule_name + ")" + bcolors.ENDC)
+        print(beautiful_rewrite + "\t" + "(" + rule_name + ")")
         counter+=1
     ##print("\n{} possible rewritings".format(counter))
     #if redundant > 0: print("{} redundancies...".format(redundant))
@@ -255,7 +254,7 @@ def display_all_possible_rewritings(INPUT):
 
 def display_axioms_and_rules(choice=False):
     if choice == False or choice == "axioms":
-        print("+----- AXIOMS -----+")
+        #print("+----- AXIOMS -----+")
         index = 0
         for axioms in RULES['AXIOMS']:
             print("\t(A{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in axioms]))))
@@ -264,7 +263,7 @@ def display_axioms_and_rules(choice=False):
     if choice == False or choice == "rules":
         index = 0
         #print(len(RULES['REWRITE_RULES']), "transformation rules in RULES:\n")
-        print("+----- RULES ------+")
+        #print("+----- RULES ------+")
         for rules in RULES['REWRITE_RULES']:
             print("\t(R{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in rules]))))
             index += 1
