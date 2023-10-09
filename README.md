@@ -27,7 +27,7 @@ But why not share a "work" in progress?
 
 `idiomatik` receives input strings (e.g. `a + b = c`) that are returned as *tokens*.
 A token is a chain of elements extracted from the input by the *lexer*.
-The lexer then decomposes the input into individual elements (characters, or sequences of characters) corresponding to predefined categories (strings, operators, surrounders, etc.). (These *atomic* categories and their elements are defined in the `SYMBOLS` table.)
+The lexer decomposes the input into individual elements (characters, or sequences of characters) corresponding to predefined categories (strings, operators, surrounders, etc.). (These *atomistic* categories and their elements are defined in the `SYMBOLS` table.)
 When all the elements of an input have been attributed an identity (to what category they belong and eventually what are their properties), they are chained together and the construction of the token ends.
 
 ### Parsing : checking syntax
@@ -80,13 +80,16 @@ This process of desambiguation is of course of interest to solve expressions, bu
 
 ## Control how `idiomatik` speaks and think
 
-The file `SYMBOLS` table contains a list of special characters and operators that play a role in `idiomatik`.
+The file `SYMBOLS` contains a list of special characters and operators that play a role in `idiomatik`.
 You can modify this file and add your own symbols, operators, and set their properties.
 
-Operators' n-arity is set by signaling the position of their operands in `SYMBOLS` table.
-For example, giving an operator the `LR` option tells `idiomatik` that it is a binary operator that, when parsing an expression, necessarily needs a left and a right operands. (You can build as many operators you want with as many operands you want.)
+Operators' n-arity is set by signaling the position of their operands.
+For example, giving an operator the `LR` property for it operands makes `idiomatik` consider it a binary operator. 
+When parsing an expression it will be known that this specific operator requires one left and one right operands (without them, syntax would be invalid). 
+(You can build as many operators you want with as many operands you want.)
 
-Determining the solving order of an expression depends on surrounders and operators' precedence. Precedence is set in `SYMBOLS` table with relative values. To the exception of `0`, the lowest the |absolute value| of precedence, the highest the priority. Operators with a precedence of `1` or `-1` are the first to be evaluated when solving an expression. Positive values represent left-to-right associativity (e.g. operator `+` with precedence `3` : `a + b + c` = `((a + b) + c)`), while negative right-to-left (e.g. `^` and `-2` : `a ^ b ^ c` = `(a ^ (b ^ c))`). Null values are for special cases, like comparative operators (`=`, `==`, `<`, etc.). I'm not sure what to do with them for now.
+Determining the solving order of an expression depends on surrounders and operators' precedence.
+Precedence is set with relative values. To the exception of `0`, the lowest the |absolute value| of precedence, the highest the priority. Operators with a precedence of `1` or `-1` are the first to be evaluated when solving an expression. Positive values represent left-to-right associativity (e.g. operator `+` with precedence `3` : `a + b + c` = `((a + b) + c)`), while negative right-to-left (e.g. `^` and `-2` : `a ^ b ^ c` = `(a ^ (b ^ c))`). Null values are for special cases, like comparative operators (`=`, `==`, `<`, etc.). I'm not sure what to do with them for now.
 
 ## Try it yourself
 
@@ -134,11 +137,11 @@ Let's now define an arbitrary rewrite rule, for example : `(_) --> _`, by feedin
 ```
 
 `_` and `-->` are two *meta* symbols, meaning respectively _any string_ and _rewrite as_. This rewrite rule could be understood as "any string between parenthesis can be rewritten without it".
-(See that you can see which rules `idiomatik` will consider for rewrites with the command `rules`).
+(Note that you can see which rules `idiomatik` will consider for rewrites with the command `rules`).
 
 The rewriting process starts by parsing the token and check whether any sequence of its elements matches the left side of the rewrite rule (here `(_)`).
 Note that the rewrite rule left side is tokenized too (in fact, rules are valid expressions that can be tokenized too). So we check if the input token contains a sequence matching the pattern `[PAR_open][STR][PAR_close]`.
-As it is the case for `(b)`, our input `(~a) + [(b) / c]` can be rewritten as `(~a) + [b / c]` (which we can feed back to the lexer to check if it is a valid expression).
+As it is the case for `(b)`, our input `(~a) + [(b) / c]` can be rewritten as `(~a) + [b / c]` (which we can feed back to the lexer and the parser to check if it is a valid expression).
 
 Now ask `idiomatik` to try to match our rule with our proposition and eventually rewrite it :
 
@@ -157,7 +160,7 @@ To unwrap it, we could consider a rule like `(~_) --> ~_`.
 Adding a meta operator like `$`, symbolizing any couple operator-operand(s), could be helpful : `($) --> $`.
 Other meta symbols are to be implemented (e.g. any surrounder, rules, etc.).
 
-Upper case letters (`A`...`Z`) are the same as but allow flexibility in the assignement of which variable in the left hand side of the rewrite rule (the pattern to match) corresponds to which variable in the right hand side. 
+Upper case letters (`A`...`Z`) are the same as `_`, they represent *any string* but allow flexibility in the assignement of which variable in the left hand side of the rewrite rule (the pattern to match) corresponds to which variable in the right hand side. 
 To illustrate this, consider a rule like : `A (B + C) --> A * B + B * C`.
 When applied to the expression `2 ( 3 + 4 )` it will match `A` to `2`, `B` to `3` and `C` to `4`, ending in this rewrite : `2 * 3 + 2 * 4`.
 
@@ -169,13 +172,13 @@ There is no optimal choice for now in `idiomatik` as it exhaustively recomputes 
 
 ### Derivating
 
-`idiomatik` can/will be used to derive *true* propositions from axioms and rewrite rules.
+`idiomatik` can be used to derive *true* propositions from axioms and rewrite rules.
 Here is an example with [Peano's definition of addition](https://en.wikipedia.org/wiki/Peano_axioms#Addition):
 
 ```bash
 |> add rules
     > A + 0 --> 0
-    > A + s(B) = s(A + B)
+    > A + s(B) --> s(A + B)
     
 |> a + 1 = a + s(0)
 |> rewrite full
