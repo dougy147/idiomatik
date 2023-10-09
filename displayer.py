@@ -227,6 +227,7 @@ def display_all_possible_rewritings(INPUT):
         print("Invalid proposition")
         return
     check = combine_all_possible_rewrites(token)
+    #print(check)
     if not check[0] :
         print("No matching pattern.")
         return

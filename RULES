@@ -12,21 +12,24 @@
 
 // AXIOMS:
 // Axioms are RULES without any TRANSFORMATION needed.
-// e.g. :    ~A
-
-//~A
-//B = C
+// Examples:
+//~a
+//b = c
 
 // TRANSFORMATION RULES:
 // Transformation rules contain the REWRITE_AS operator
 // There structure is PATTERN_TO_BE_MATCHED <=> REWRITTEN_PATTERN
 // In the future, there could be multiple rewrite symbols with different directions
-
-// Example rules
+// Examples :
 //(_) --> _
+//((_)) --> (_)
 //(~ _) --> ~ _
-//_ => _ --> ~ _ V _
+//A => B --> ~ A V B
 
+// Peano's axioms for addition
+A + 0 --> A
+A + s(B) --> s(A + B)
 
-// Shitty rules
-// ~ _ --> (~ _)
+// Peano's axioms for multiplication
+A . 0 --> 0
+A . s(B) --> A + (A . B)

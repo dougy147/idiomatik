@@ -302,6 +302,7 @@ def combine_all_possible_rewrites(TOKEN,POSSIBLE_REWRITES = None,REWRITES=None,f
                 POSSIBLE_REWRITES[0] = True
                 POSSIBLE_REWRITES[1].append([TRANSFORMATION,LP,RP,R])
             combine_all_possible_rewrites(TRANSFORMATION,REWRITES=REWRITES,first_time=False,RECURSION=RECURSION+1)
+    #print("rewritings : ",POSSIBLE_REWRITES)
     return [ POSSIBLE_REWRITES[0], REWRITES ]
 
 def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=None,first_time=True,RECURSION=0,RECURSION_EXCEEDED=False):
