@@ -41,25 +41,47 @@ def add_rule(multiple=False,added_rules_number=0,last_proposition=last_propositi
             print(bcolors.FAIL + "ERROR: Invalid characters in input." + bcolors.ENDC)
         if last_proposition == "" or last_proposition == ":q" :
             print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
-            #print(bcolors.ERASE_LINE + bcolors.ERASE_UP +bcolors.ERASE_LINE)
-            #s="s"
-            #if added_rules_number == 0 : added_rules_number,s = "No",""
-            #elif added_rules_number == 1 : s = ""
-            #print(bcolors.OKBLUE + "{} rule{} added.".format(added_rules_number,s) + bcolors.ENDC)
-            #print(bcolors.ERASE_LINE) # Erase empty prompt
             return
-    REWRITE_SYMBOL = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")]
-    #print(last_proposition)
-    if REWRITE_SYMBOL in last_proposition :
-        if TOKENIZE(last_proposition) in RULES['REWRITE_RULES'] :
-            print(bcolors.WARNING + "Rule already stored!" + bcolors.ENDC)
-            if added_rules_number > 0 : added_rules_number-=1
-        else : RULES['REWRITE_RULES'].append(TOKENIZE(last_proposition))
-    else :
-        print(bcolors.FAIL + "Rules need the rewrite symbol '" + str(REWRITE_SYMBOL) + "'." + bcolors.ENDC)
-        if added_rules_number > 0 : added_rules_number-=1
+    #REWRITE_SYMBOL = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")]
+    #if last_proposition.count(REWRITE_SYMBOL) > 1 :
+    #    print(bcolors.FAIL + "Too much rewrite symbols '" + str(REWRITE_SYMBOL) + "' in expression." + bcolors.ENDC)
+    #    if added_rules_number > 0 : added_rules_number-=1
+    #elif REWRITE_SYMBOL in last_proposition :
+    #    if TOKENIZE(last_proposition) in RULES['REWRITE_RULES'] :
+    #        print(bcolors.WARNING + "Rule already stored!" + bcolors.ENDC)
+    #        if added_rules_number > 0 : added_rules_number-=1
+    #    else : RULES['REWRITE_RULES'].append(TOKENIZE(last_proposition))
+    #else :
+    #    print(bcolors.FAIL + "Rules need the rewrite symbol '" + str(REWRITE_SYMBOL) + "'." + bcolors.ENDC)
+    #    if added_rules_number > 0 : added_rules_number-=1
+    READ_RULES([last_proposition],add_axioms=False)
     if multiple :
         add_rule(multiple=True,added_rules_number=added_rules_number+1)
+
+def del_rule(user_value):
+    # user_value = PROP.split(' ')[1]
+    found = False
+    for i in range(len(RULES['REWRITE_RULES'])) :
+        if "R"+str(i) == user_value or \
+            "r"+str(i) == user_value or \
+            str(i) == user_value :
+                found = True
+                name = RULES['REWRITE_RULES_NAMES'][i]
+                if name == "" : name = "empty name"
+                print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                RULES['REWRITE_RULES'].pop(i)
+                RULES['REWRITE_RULES_NAMES'].pop(i)
+                break
+    if found: return
+    for i in range(len(RULES['REWRITE_RULES_NAMES'])) :
+        if user_value == RULES['REWRITE_RULES_NAMES'][i] :
+                name = RULES['REWRITE_RULES_NAMES'][i]
+                if name == "" : name = "empty name"
+                print(bcolors.OKBLUE + "Deleted '{}' (R{}) {}".format(name,i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                RULES['REWRITE_RULES_NAMES'].pop(i)
+                RULES['REWRITE_RULES'].pop(i)
+                break
+
 
 def evaluate_proposition(PROP):
     global last_proposition
@@ -71,18 +93,22 @@ def evaluate_proposition(PROP):
     match PROP.split(' ')[0]:
         case ":q" | "quit" | "exit" :
             exit(0)
+
         case "prop" | "proposition": # displays current proposition under scrutiny
             print(human_readable(TOKENIZE(last_proposition)))
+
         case "tok" | "token":
             try:
                 print(TOKENIZE(last_proposition))
             except:
                 print(bcolors.FAIL + "ERROR: you need to give an expression first." + bcolors.ENDC)
+
         case "tree" | "draw" :
             try :
                 render_tree(TOKENIZE(last_proposition))
             except:
                 print("ERROR: why no tree? TODO")
+
         case "surr" | "surrounding" :
             try :
                 #solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
@@ -90,10 +116,13 @@ def evaluate_proposition(PROP):
                 print("Background surrounding : {}".format(solving_surrounders))
             except:
                 print("ERROR: you need to give an expression first.")
+
         case "axioms":
             display_axioms_and_rules("axioms")
+
         case "rules":
             display_axioms_and_rules("rules")
+
         case "rewrite":
             if len(PROP.split(' ')) < 2 :
                     print(bcolors.WARNING + "Please provide a name or number for rewriting rule.\n Or use 'full' to combine them all." + bcolors.ENDC)
@@ -103,14 +132,17 @@ def evaluate_proposition(PROP):
                         display_all_possible_rewritings(last_proposition)
                     case _ :
                         print(bcolors.WARNING + "TODO: something else than full rewrite" + bcolors.ENDC)
-        case "match": # highlight rewritable parts of the token
+
+        case "match" | "matches": # highlight rewritable parts of the token
             if len(PROP.split(' ')) == 2 :
                 rule_index = PROP.split(' ')[1].replace('r','').replace('R','')
                 display_single_rewritable_parts(last_proposition,RULE_INDEX=rule_index)
             else :
                 display_rewritable_parts(last_proposition)
+
         case "help":
             print("TODO: sorry, this help menu is not really helpful for now.")
+
         case "debug" :
             if len(PROP.split(' ')) != 2 :
                 print("Need one thing to debug. For example : debug rules")
@@ -119,6 +151,7 @@ def evaluate_proposition(PROP):
                     case "rules" : print(RULES)
                     case "rewrite" : print(RULES['REWRITE_RULES'])
                     case "axioms" : print(RULES['AXIOMS'])
+
         case "del" | "delete":
             if len(PROP.split(' ')) == 1 :
                 print("INFO: Use 'delete x' or 'delete Rx' to delete a rule.")
@@ -127,13 +160,8 @@ def evaluate_proposition(PROP):
             elif len(PROP.split(' ')) > 2 :
                 print("ERROR: 'delete' needs precisely one rule number")
             else :
-                for i in range(len(RULES['REWRITE_RULES'])) :
-                    if "R"+str(i) == PROP.split(' ')[1] or \
-                        "r"+str(i) == PROP.split(' ')[1] or \
-                        str(i) == PROP.split(' ')[1] :
-                            #print(RULES['REWRITE_RULES'])
-                            print(bcolors.OKBLUE + "Deleted (R{}) {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
-                            RULES['REWRITE_RULES'].pop(i)
+                del_rule(PROP.split(' ')[1])
+
         case "add" :
             if len(PROP.split(' ')) == 1 or len(PROP.split(' ')) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
             else :
