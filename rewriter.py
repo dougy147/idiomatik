@@ -204,7 +204,7 @@ def split_rewrite_rule(rewrite_rule):
         index+=1
     return (left_pattern,right_pattern)
 
-def token_rewritable_parts(TOKEN,RULE_INDEX=None):
+def token_rewritable_parts(TOKEN,RULE_INDEX=None,TOKEN_MIN_INDEX=None,TOKEN_MAX_INDEX=None):
     '''Returns parts of the token that can be rewritten given ONE rule'''
     REWRITABLE_PARTS = []
     if RULE_INDEX == None :
@@ -229,7 +229,9 @@ def token_rewritable_parts(TOKEN,RULE_INDEX=None):
     #    return REWRITABLE_PARTS # return False..
     # if RULE == name of the rule # TODO
     LEFT_PATTERN = split_rewrite_rule(R)[0]
-    for i in range(0,len(TOKEN)):
+    if TOKEN_MIN_INDEX == None : TOKEN_MIN_INDEX = 0
+    if TOKEN_MAX_INDEX == None : TOKEN_MAX_INDEX = len(TOKEN)
+    for i in range(TOKEN_MIN_INDEX,TOKEN_MAX_INDEX):
         if len(TOKEN) - i < len(LEFT_PATTERN) : continue # New : avoid "Rule a + b --> c" rewrite "Token a" as "c"
         pattern_in_token = True
         rewritable_part_of_token = []

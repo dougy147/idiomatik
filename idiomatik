@@ -138,12 +138,13 @@ def evaluate_proposition(PROP):
                 print("ERROR: why no tree? TODO")
 
         case "surr" | "surrounding" :
-            try :
-                #solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
-                solving_surrounders = human_readable(silent_surrounding(TOKENIZE(last_proposition)))
-                print("Background surrounding : {}".format(solving_surrounders))
-            except:
-                print("ERROR: you need to give an expression first.")
+            #try :
+            #solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
+            solving_surrounders = human_readable(silent_surrounding(TOKENIZE(last_proposition)))
+            #print("Background surrounding : {}".format(solving_surrounders))
+            print("{}".format(solving_surrounders))
+            #except:
+            #    print("ERROR: you need to give an expression first.")
 
         case "axioms":
             display_axioms_and_rules("axioms")
@@ -163,7 +164,8 @@ def evaluate_proposition(PROP):
 
         case "match" | "matches": # highlight rewritable parts of the token
             if len(PROP.split(' ')) == 2 :
-                rule_index = PROP.split(' ')[1].replace('r','').replace('R','')
+                #rule_index = PROP.split(' ')[1].replace('r','').replace('R','')
+                rule_index = PROP.split(' ')[1]
                 display_single_rewritable_parts(last_proposition,RULE_INDEX=rule_index)
             else :
                 display_rewritable_parts(last_proposition)

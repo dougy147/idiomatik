@@ -161,6 +161,14 @@ def render_tree(TOKEN):
 def display_single_rewritable_parts(INPUT,RULE_INDEX):
     '''Temporary function to show ALL possible rewritable
      parts of a token for A SINGLE RULE '''
+    found_name = False
+    for i in range(len(RULES['REWRITE_RULES_NAMES'])):
+        if RULE_INDEX == RULES['REWRITE_RULES_NAMES'][i] :
+            found_name = True
+            RULE_INDEX = i
+            break
+    if found_name == False:
+        RULE_INDEX = RULE_INDEX.replace('R','').replace('r','')
     token = TOKENIZE(INPUT)
     parse = PARSE(token)
     if not parse[0] :
@@ -182,8 +190,8 @@ def display_single_rewritable_parts(INPUT,RULE_INDEX):
         rew = rew[0]
         # ...
         str_rewrite = rew
-        if not str_rewrite in STR_REWRITES :
-            STR_REWRITES.append(rew)
+        if not (str_rewrite,rule_name_general) in STR_REWRITES :
+            STR_REWRITES.append((rew,rule_name_general))
         else :
             redundant+=1
             continue
@@ -236,16 +244,14 @@ def display_rewritable_parts(INPUT):
         rew = rew[0]
         # ...
         str_rewrite = rew
-        if not str_rewrite in STR_REWRITES :
-            STR_REWRITES.append(rew)
+        if not (str_rewrite,rule_name_general) in STR_REWRITES :
+            STR_REWRITES.append((rew,rule_name_general))
         else :
             redundant+=1
-            #nb_to_pass[1] -= 1 # TODO
             continue
         indexes_in_part = []
         for i in range(len(rew)):
             indexes_in_part.append(rew[i][3])
-        #print(indexes_in_part)
         beautiful_rewrite = ""
         for i in range(len(parse[1])):
             if parse[1][i][3] in indexes_in_part :
