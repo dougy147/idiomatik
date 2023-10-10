@@ -204,9 +204,31 @@ def split_rewrite_rule(rewrite_rule):
         index+=1
     return (left_pattern,right_pattern)
 
-def token_rewritable_parts(TOKEN,LEFT_PATTERN):
-    '''Returns parts of the token that can be rewritten given ONE rule LEFT_PATTERN'''
+def token_rewritable_parts(TOKEN,RULE_INDEX=None):
+    '''Returns parts of the token that can be rewritten given ONE rule'''
     REWRITABLE_PARTS = []
+    if RULE_INDEX == None :
+        print("Please provide a rule to check token rewritable parts.")
+        return [False, REWRITABLE_PARTS]
+    #if not int(RULE_INDEX) and RULE_INDEX != "0" :
+    #    print("Rule index should be an integer.")
+    #    return REWRITABLE_PARTS # return False..
+    found_rule = False
+    for i in range(len(RULES['REWRITE_RULES'])):
+        #if int(RULE_INDEX) == i :
+        if str(RULE_INDEX) == str(i) :
+            R = RULES['REWRITE_RULES'][i]
+            found_rule = True
+            #print("The rule is {}".format(RULE))
+            break
+    if not found_rule :
+        print("No rule with index '{}'.".format(RULE_INDEX))
+        return [False, REWRITABLE_PARTS] # return False...
+    #else:
+    #    print("Rule index should be an integer.")
+    #    return REWRITABLE_PARTS # return False..
+    # if RULE == name of the rule # TODO
+    LEFT_PATTERN = split_rewrite_rule(R)[0]
     for i in range(0,len(TOKEN)):
         if len(TOKEN) - i < len(LEFT_PATTERN) : continue # New : avoid "Rule a + b --> c" rewrite "Token a" as "c"
         pattern_in_token = True
@@ -222,9 +244,8 @@ def token_rewritable_parts(TOKEN,LEFT_PATTERN):
                 break
             rewritable_part_of_token.append(TOKEN[i+j])
         if pattern_in_token:
-            REWRITABLE_PARTS.append(rewritable_part_of_token)
-    #print(REWRITABLE_PARTS)
-    return REWRITABLE_PARTS
+            REWRITABLE_PARTS.append([rewritable_part_of_token,R])
+    return [True, REWRITABLE_PARTS]
 
 ##print(TOKENIZE("1 + 2 = 3"))
 #print(token_rewritable_parts(TOKENIZE("1 + 2 + 2 + 3 + 2= 3 + 2"), TOKENIZE("_ + 2")))
@@ -237,7 +258,6 @@ def token_all_rewritable_parts(TOKEN):
     for splitted in SPLITTED_RULES:
         R  = splitted[0] # rule
         LEFT_PATTERN = splitted[1] # left pattern
-        if REWRITABLE_PARTS is None: REWRITABLE_PARTS = []
         for i in range(0,len(TOKEN)):
             if len(TOKEN) - i < len(LEFT_PATTERN) : continue # New : avoid "Rule a + b --> c" rewrite "Token a" as "c"
             pattern_in_token = True

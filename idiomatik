@@ -25,13 +25,6 @@ last_proposition = ""
 global user_propositions
 user_propositions = []
 
-#IDIOMATIK_PROMPT   = '|> '
-#IDIOMATIK_GREETING = '''
-#+----------------------------------------------------------------------------+
-#|> Welcome to idiomatik! You can start writing expressions as inputs.        |
-#|  Read the documentation (if any) to learn about commands.                  |
-#+----------------------------------------------------------------------------+
-#'''
 IDIOMATIK_PROMPT   = bcolors.OKGREEN + '|> ' + bcolors.ENDC
 IDIOMATIK_GREETING = bcolors.OKBLUE + '''
 +----------------------------------------------------------------------------+
@@ -111,9 +104,21 @@ def evaluate_proposition(PROP):
                     case _ :
                         print(bcolors.WARNING + "TODO: something else than full rewrite" + bcolors.ENDC)
         case "match": # highlight rewritable parts of the token
-            display_rewritable_parts(last_proposition)
+            if len(PROP.split(' ')) == 2 :
+                rule_index = PROP.split(' ')[1].replace('r','').replace('R','')
+                display_single_rewritable_parts(last_proposition,RULE_INDEX=rule_index)
+            else :
+                display_rewritable_parts(last_proposition)
         case "help":
             print("TODO: sorry, this help menu is not really helpful for now.")
+        case "debug" :
+            if len(PROP.split(' ')) != 2 :
+                print("Need one thing to debug. For example : debug rules")
+            else :
+                match PROP.split(' ')[1] :
+                    case "rules" : print(RULES)
+                    case "rewrite" : print(RULES['REWRITE_RULES'])
+                    case "axioms" : print(RULES['AXIOMS'])
         case "del" | "delete":
             if len(PROP.split(' ')) == 1 :
                 print("INFO: Use 'delete x' or 'delete Rx' to delete a rule.")

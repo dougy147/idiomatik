@@ -193,8 +193,10 @@ That's where `idiomatik` is for now.
 
 # TODO
 
-- Draw better trees
+- For some commands (match, etc.) do not reset last_proposition
+- Do not allow empty axioms
 - Meta character for ANY_OPERAND
+- Draw better trees
 - Specify rules' names
 - Undo command
 - Save logs/transformation

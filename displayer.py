@@ -158,9 +158,61 @@ def render_tree(TOKEN):
         index-=1
     print("\n")
 
+def display_single_rewritable_parts(INPUT,RULE_INDEX):
+    '''Temporary function to show ALL possible rewritable
+     parts of a token for A SINGLE RULE '''
+    token = TOKENIZE(INPUT)
+    parse = PARSE(token)
+    if not parse[0] :
+        print("Invalid proposition")
+        return
+    REWRITES = token_rewritable_parts(token,RULE_INDEX=RULE_INDEX)
+    if not REWRITES[0]: return
+    REWRITES = REWRITES[1]
+    if len(REWRITES) == 0 :
+        print("No matching pattern.")
+        return
+    #REWRITES = check[1] # Storing tokens of possible rewritings
+    counter = 0
+    redundant = 0
+    STR_REWRITES = []
+    for rew in REWRITES:
+        # ...
+        rule_name = rew[1]
+        rew = rew[0]
+        # ...
+        str_rewrite = rew
+        if not str_rewrite in STR_REWRITES :
+            STR_REWRITES.append(rew)
+        else :
+            redundant+=1
+            continue
+        indexes_in_part = []
+        for i in range(len(rew)):
+            indexes_in_part.append(rew[i][3])
+        beautiful_rewrite = ""
+        for i in range(len(parse[1])):
+            if parse[1][i][3] in indexes_in_part :
+                if parse[1][i][3] == indexes_in_part[len(indexes_in_part)-1]:
+                    if indexes_in_part[0] == 0 :
+                        beautiful_rewrite = bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
+                    else :
+                        beautiful_rewrite = beautiful_rewrite + NULL + bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
+            else :
+                if i == 0:
+                    beautiful_rewrite = str(parse[1][i][1])
+                else :
+                    beautiful_rewrite = beautiful_rewrite + NULL + str(parse[1][i][1])
+        for i in range(len(RULES['REWRITE_RULES'])):
+            if rule_name == RULES['REWRITE_RULES'][i]:
+                rule_name = "R"+str(i)
+                break
+        print(beautiful_rewrite + "\t" + "(" + rule_name + ")")
+        counter+=1
+
 def display_rewritable_parts(INPUT):
     '''Temporary function to show ALL possible rewritable
-     parts of a token '''
+     parts of a token for ALL RULES '''
     token = TOKENIZE(INPUT)
     parse = PARSE(token)
     if not parse[0] :
