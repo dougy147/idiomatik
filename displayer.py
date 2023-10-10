@@ -153,10 +153,10 @@ def render_tree(TOKEN):
     #print("-+++----------- tree -----------+")
     index = len(FINAL_MATRICE)-1
     for line in ULTIMATE_MATRICE:
-        #print("#{} | {}".format(index,line))
-        print("{} | {}".format(index,line))
+        #print("{} | {}".format(index,line))
+        print("{} |".format(index) + bcolors.OKGREEN + " {}".format(line) + bcolors.ENDC)
         index-=1
-    print("\n")
+    #print("\n")
 
 def display_single_rewritable_parts(INPUT,RULE_INDEX):
     '''Temporary function to show ALL possible rewritable
@@ -178,7 +178,7 @@ def display_single_rewritable_parts(INPUT,RULE_INDEX):
     STR_REWRITES = []
     for rew in REWRITES:
         # ...
-        rule_name = rew[1]
+        rule_name_general = rew[1]
         rew = rew[0]
         # ...
         str_rewrite = rew
@@ -204,10 +204,14 @@ def display_single_rewritable_parts(INPUT,RULE_INDEX):
                 else :
                     beautiful_rewrite = beautiful_rewrite + NULL + str(parse[1][i][1])
         for i in range(len(RULES['REWRITE_RULES'])):
-            if rule_name == RULES['REWRITE_RULES'][i]:
-                rule_name = "R"+str(i)
+            if rule_name_general == RULES['REWRITE_RULES'][i]:
+                rule_name_general = "R"+str(i)
+                rule_name = RULES['REWRITE_RULES_NAMES'][i]
                 break
-        print(beautiful_rewrite + "\t" + "(" + rule_name + ")")
+        if rule_name == "" :
+            print(beautiful_rewrite + "\t" + "(" + rule_name_general + ")")
+        else :
+            print(beautiful_rewrite + "\t" + "(" + rule_name_general + " :: " + rule_name + ")")
         counter+=1
 
 def display_rewritable_parts(INPUT):
@@ -228,7 +232,7 @@ def display_rewritable_parts(INPUT):
     STR_REWRITES = []
     for rew in REWRITES:
         # ...
-        rule_name = rew[1]
+        rule_name_general = rew[1]
         rew = rew[0]
         # ...
         str_rewrite = rew
@@ -256,17 +260,16 @@ def display_rewritable_parts(INPUT):
                 else :
                     beautiful_rewrite = beautiful_rewrite + NULL + str(parse[1][i][1])
 
-        #print(bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC)
         for i in range(len(RULES['REWRITE_RULES'])):
-            if rule_name == RULES['REWRITE_RULES'][i]:
-                rule_name = "R"+str(i)
+            if rule_name_general == RULES['REWRITE_RULES'][i]:
+                rule_name_general = "R"+str(i)
+                rule_name = RULES['REWRITE_RULES_NAMES'][i]
                 break
-        #print(beautiful_rewrite + "\t" + str(human_readable(rule_name)))
-        #print(beautiful_rewrite + "\t" + bcolors.DARKCYAN + "(" + rule_name + ")" + bcolors.ENDC)
-        print(beautiful_rewrite + "\t" + "(" + rule_name + ")")
+        if rule_name == "" :
+            print(beautiful_rewrite + "\t" + "(" + rule_name_general + ")")
+        else :
+            print(beautiful_rewrite + "\t" + "(" + rule_name_general + " :: " + rule_name + ")")
         counter+=1
-    ##print("\n{} possible rewritings".format(counter))
-    #if redundant > 0: print("{} redundancies...".format(redundant))
 
 
 def display_all_possible_rewritings(INPUT):
@@ -306,18 +309,35 @@ def display_all_possible_rewritings(INPUT):
 
 def display_axioms_and_rules(choice=False):
     if choice == False or choice == "axioms":
-        #print("+----- AXIOMS -----+")
         index = 0
-        for axioms in RULES['AXIOMS']:
-            print("\t(A{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in axioms]))))
+        #for axioms in RULES['AXIOMS']:
+        for i in range(len(RULES['AXIOMS'])):
+            axiom_name = RULES['AXIOMS_NAMES'][i]
+            max_axiom_name_length = max(map(int,(len(x) for x in RULES['AXIOMS_NAMES'])))
+            cur_axiom_name_length = len(axiom_name)
+            axiom = NULL.join(map(str,[x[1] for x in RULES['AXIOMS'][i]]))
+            if axiom_name == "" :
+                #print("\t(A{}) \t {}".format(index,axiom))
+                print("\t(A{})".format(index) + NULL * max_axiom_name_length + "\t {}".format(axiom))
+            else :
+                #print("\t(A{} :: {}) \t {}".format(index,axiom_name,axiom))
+                print("\t(A{} :: {})".format(index,axiom_name) + NULL * (max_axiom_name_length - cur_axiom_name_length) + "\t {}".format(axiom))
             index += 1
-        #print("\n")
     if choice == False or choice == "rules":
         index = 0
-        #print(len(RULES['REWRITE_RULES']), "transformation rules in RULES:\n")
-        #print("+----- RULES ------+")
-        for rules in RULES['REWRITE_RULES']:
-            print("\t(R{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in rules]))))
+        #for rules in RULES['REWRITE_RULES']:
+        for i in range(len(RULES['REWRITE_RULES'])):
+            rule_name = RULES['REWRITE_RULES_NAMES'][i]
+            #print(max(map(int,(len(x) for x in RULES['REWRITE_RULES_NAMES']))))
+            max_rule_name_length = max(map(int,(len(x) for x in RULES['REWRITE_RULES_NAMES'])))
+            cur_rule_name_length = len(rule_name)
+            rule = NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))
+            if rule_name == "" :
+                #print("\t(R{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))))
+                print("\t(R{})".format(index) + NULL * max_rule_name_length + "\t {}".format(rule))
+            else :
+                #print("\t(R{} :: {}) \t {}".format(index,rule_name,NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))))
+                print("\t(R{} :: {})".format(index,rule_name) + NULL * (max_rule_name_length - cur_rule_name_length) + "\t {}".format(rule))
             index += 1
 
 def human_readable(TOKEN):

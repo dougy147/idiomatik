@@ -25,15 +25,15 @@ last_proposition = ""
 global user_propositions
 user_propositions = []
 
-IDIOMATIK_PROMPT   = bcolors.OKGREEN + '|> ' + bcolors.ENDC
+IDIOMATIK_PROMPT   = bcolors.OKGREEN + '\n|> ' + bcolors.ENDC
 IDIOMATIK_GREETING = bcolors.OKBLUE + '''
-+----------------------------------------------------------------------------+
-|> Welcome to idiomatik! You can start writing expressions as inputs.        |
-|  Read the documentation (if any) to learn about commands.                  |
-+----------------------------------------------------------------------------+
++---------------------------------------------------------------------+
+|> Welcome to idiomatik! You can start writing expressions as inputs. |
+|            Read the documentation (if any) to learn about commands. |
++---------------------------------------------------------------------+
 ''' + bcolors.ENDC
 
-def add_rule(multiple=False,added_rules_number=0,last_proposition=last_proposition):
+def add_rule(multiple=False,last_proposition=last_proposition):
     if multiple == True:
         try :
             last_proposition = input("    > ")
@@ -42,23 +42,31 @@ def add_rule(multiple=False,added_rules_number=0,last_proposition=last_propositi
         if last_proposition == "" or last_proposition == ":q" :
             print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
             return
-    #REWRITE_SYMBOL = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")]
-    #if last_proposition.count(REWRITE_SYMBOL) > 1 :
-    #    print(bcolors.FAIL + "Too much rewrite symbols '" + str(REWRITE_SYMBOL) + "' in expression." + bcolors.ENDC)
-    #    if added_rules_number > 0 : added_rules_number-=1
-    #elif REWRITE_SYMBOL in last_proposition :
-    #    if TOKENIZE(last_proposition) in RULES['REWRITE_RULES'] :
-    #        print(bcolors.WARNING + "Rule already stored!" + bcolors.ENDC)
-    #        if added_rules_number > 0 : added_rules_number-=1
-    #    else : RULES['REWRITE_RULES'].append(TOKENIZE(last_proposition))
-    #else :
-    #    print(bcolors.FAIL + "Rules need the rewrite symbol '" + str(REWRITE_SYMBOL) + "'." + bcolors.ENDC)
-    #    if added_rules_number > 0 : added_rules_number-=1
+    elif last_proposition.replace(NULL,'') == "" :
+        print("ERROR: empty proposition")
+        return
     READ_RULES([last_proposition],add_axioms=False)
     if multiple :
-        add_rule(multiple=True,added_rules_number=added_rules_number+1)
+        add_rule(multiple=True)
 
-def del_rule(user_value):
+def add_axiom(multiple=False,last_proposition=last_proposition):
+    if multiple == True:
+        try :
+            last_proposition = input("    > ")
+        except:
+            print(bcolors.FAIL + "ERROR: Invalid characters in input." + bcolors.ENDC)
+        if last_proposition == "" or last_proposition == ":q" :
+            print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
+            return
+    elif last_proposition.replace(NULL,'') == "" :
+        print("ERROR: empty proposition")
+        return
+    READ_RULES([last_proposition],add_rules=False)
+    if multiple :
+        add_axiom(multiple=True)
+
+
+def del_rule_or_axiom(user_value):
     # user_value = PROP.split(' ')[1]
     found = False
     for i in range(len(RULES['REWRITE_RULES'])) :
@@ -81,7 +89,27 @@ def del_rule(user_value):
                 RULES['REWRITE_RULES_NAMES'].pop(i)
                 RULES['REWRITE_RULES'].pop(i)
                 break
-
+    if found: return
+    for i in range(len(RULES['AXIOMS'])) :
+        if "A"+str(i) == user_value or \
+            "a"+str(i) == user_value or \
+            str(i) == user_value :
+                found = True
+                name = RULES['AXIOMS_NAMES'][i]
+                if name == "" : name = "empty name"
+                print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                RULES['AXIOMS'].pop(i)
+                RULES['AXIOMS_NAMES'].pop(i)
+                break
+    if found: return
+    for i in range(len(RULES['AXIOMS_NAMES'])) :
+        if user_value == RULES['AXIOMS_NAMES'][i] :
+                name = RULES['AXIOMS_NAMES'][i]
+                if name == "" : name = "empty name"
+                print(bcolors.OKBLUE + "Deleted '{}' (A{}) {}".format(name,i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                RULES['AXIOMS_NAMES'].pop(i)
+                RULES['AXIOMS'].pop(i)
+                break
 
 def evaluate_proposition(PROP):
     global last_proposition
@@ -125,7 +153,7 @@ def evaluate_proposition(PROP):
 
         case "rewrite":
             if len(PROP.split(' ')) < 2 :
-                    print(bcolors.WARNING + "Please provide a name or number for rewriting rule.\n Or use 'full' to combine them all." + bcolors.ENDC)
+                    print(bcolors.WARNING + "Please provide a name or number for rewriting rule.\nOr use 'full' to combine them all." + bcolors.ENDC)
             else :
                 match PROP.split(' ')[1]:
                     case "full" | "f" :
@@ -140,9 +168,6 @@ def evaluate_proposition(PROP):
             else :
                 display_rewritable_parts(last_proposition)
 
-        case "help":
-            print("TODO: sorry, this help menu is not really helpful for now.")
-
         case "debug" :
             if len(PROP.split(' ')) != 2 :
                 print("Need one thing to debug. For example : debug rules")
@@ -156,33 +181,67 @@ def evaluate_proposition(PROP):
             if len(PROP.split(' ')) == 1 :
                 print("INFO: Use 'delete x' or 'delete Rx' to delete a rule.")
                 for i in range(len(RULES['REWRITE_RULES'])) :
-                    print(bcolors.OKBLUE + "\t(R{}) {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                    print(bcolors.OKBLUE + "\t(R{}) \t{}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
             elif len(PROP.split(' ')) > 2 :
                 print("ERROR: 'delete' needs precisely one rule number")
             else :
-                del_rule(PROP.split(' ')[1])
+                del_rule_or_axiom(PROP.split(' ')[1])
 
         case "add" :
             if len(PROP.split(' ')) == 1 or len(PROP.split(' ')) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
             else :
                 match PROP.split(' ')[1]:
                     case "axiom" | "a" :
-                        if TOKENIZE(last_proposition) in RULES['AXIOMS'] : print("Axiom already stored!")
-                        else : RULES['AXIOMS'].append(TOKENIZE(last_proposition))
+                        add_axiom(multiple=False,last_proposition=last_proposition)
+                    case "axioms" | "as" :
+                        add_axiom(multiple=True)
                     case "rule" | "r":
                         add_rule(multiple=False,last_proposition=last_proposition)
                     case "rules" | "rs":
                         add_rule(multiple=True)
                     case "prop" | "p" | "proposition":
                         print("TODO")
+
+        case "rename" :
+            if len(PROP.split(' ')) != 3 : print("ERROR: 'rename' needs precisely two arguments: 'old_name', 'new_name'")
+            else :
+                found = False
+                if "A" in PROP.split(' ')[1] or "a" in PROP.split(' ')[1]:
+                    try:
+                        index = int(PROP.split(' ')[1].replace("A","").replace("a",""))
+                        RULES['AXIOMS_NAMES'][index] = PROP.split(' ')[2]
+                        found = True
+                    except : found = False
+                elif "R" in PROP.split(' ')[1] or "r" in PROP.split(' ')[1]:
+                    try:
+                        index = int(PROP.split(' ')[1].replace("R","").replace("r",""))
+                        RULES['REWRITE_RULES_NAMES'][index] = PROP.split(' ')[2]
+                        found = True
+                    except: found = False
+                else :
+                    for i in range(len(RULES['AXIOMS_NAMES'])):
+                        if PROP.split(' ')[1] == RULES['AXIOMS_NAMES'][i] :
+                            found = True
+                            RULES['AXIOMS_NAMES'][i] = PROP.split(' ')[2]
+                            break
+                    if not found :
+                        for i in range(len(RULES['REWRITE_RULES_NAMES'])):
+                            if PROP.split(' ')[1] == RULES['REWRITE_RULES_NAMES'][i] :
+                                found = True
+                                RULES['REWRITE_RULES_NAMES'][i] = PROP.split(' ')[2]
+                                break
+                if not found : print("ERROR: no axiom nor rule with that index or name.")
+
+
+        case "help":
+            print("TODO: sorry, this help menu is not really helpful for now.")
+
         case _:
             #print(bcolors.FAIL + "ERROR: unknown command. See '{} --help' or ':help'.".format(sys.argv[0]) + bcolors.ENDC)
             cur_proposition = str(PROP)
             if PARSE(TOKENIZE(cur_proposition))[0]:
                 last_proposition = cur_proposition
                 user_propositions.append(last_proposition)
-            else:
-                print(bcolors.FAIL + "ERROR: invalid syntax. TODO : say more about error." + bcolors.ENDC)
 
 try :
     if sys.argv[1] :

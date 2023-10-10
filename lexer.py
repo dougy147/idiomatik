@@ -29,7 +29,7 @@ def build_token(INPUT):
 
     ''' Populate TOKEN with [   identifier,     (e.g. 'STR')
                                 symbol,         (e.g. 'hello')
-                                [properties],   (e.g. ['immutable',5])
+                                [properties],   (e.g. ['variable',5])
                                 index ]         (e.g. 1)
     at its appropriate place in that order :
         1. Surrounders : property 'open/close'
@@ -144,7 +144,7 @@ def index_strings(INPUT,indexes_to_avoid):
             if string in SYMBOLS['META']:
                 prop.append(SYMBOLS['META NAMES'][SYMBOLS['META'].index(string)])
             else :
-                prop.append('immutable')
+                prop.append('variable')
             prop.append(len(string))
             indexes[1].append(['STR',string,prop,start_index])
             for j in range(len(string)-1):

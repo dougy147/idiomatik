@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from read_table import *
+from colors import *
 
 ''' The PARSER receives TOKENS from the LEXER.
 So it takes a LIST of LISTS as INPUT, given a TOKEN takes the following structure : [['str']['op']['str']]
@@ -19,13 +20,19 @@ def check_surrounders(TOKEN):
     if len(SUR) == 0: return True
     open_count   = NULL.join(map(str, [x[2] for x in SUR])).count("open")
     close_count  = NULL.join(map(str, [x[2] for x in SUR])).count("close")
-    if open_count != close_count : return False
+    if open_count != close_count :
+        if open_count > close_count: type_missing = "closing"
+        else :                       type_missing = "opening"
+        print(bcolors.FAIL + "ERROR: missing {} {} parenthesis.".format(abs(open_count-close_count),type_missing) + bcolors.ENDC)
+        return False
     for i in range(len(SUR)):
         if SUR[i][2][1] == 'open':
             match_found = False
             for j in range(i,len(SUR)):
                 if SUR[j][2][2] > SUR[i][2][2]:   continue
-                elif SUR[j][2][2] < SUR[i][2][2]: return False
+                elif SUR[j][2][2] < SUR[i][2][2]:
+                    print(bcolors.FAIL + "ERROR: incorrect nesting '{}'.".format(NULL.join(map(str, [x[1] for x in TOKEN[i:j]]))) + bcolors.ENDC)
+                    return False
                 if SUR[j][2][1] == 'close' and \
                         SUR[j][2][0] == SUR[i][2][0]:
                             match_found = True
@@ -61,6 +68,7 @@ def check_operands(OPERATOR,TOKEN,EXTRACT_OPERAND = False):
             else :
                 last_index = op_index
         if not get_operand(OPERATOR,TOKEN,operands_position[i],last_index)[0] :
+            print(bcolors.FAIL + "ERROR: invalid operand for operator '{}' at index '{}'.".format(OPERATOR[1],op_index) + bcolors.ENDC)
             if not EXTRACT_OPERAND: return False
             else :                  return [False, []]
         #print(OPERATOR[1],get_operand(OPERATOR,TOKEN,operands_position[i],last_index))

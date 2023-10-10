@@ -101,15 +101,15 @@ Give the following string `(~a) + [(b) / c]` to the lexer, and check the token w
 |> token
     [['SUR', '(', ['PARENTHESIS', 'open', 1], 0], \
     ['OP', '~', ['NOT', 'unary', 'R', 1], 1], \
-    ['STR', 'a', ['immutable', 1], 2], \
+    ['STR', 'a', ['variable', 1], 2], \
     ['SUR', ')', ['PARENTHESIS', 'close', 1], 3], \
     ['OP', '+', ['PLUS', 'binary', 'LR', 4], 4], \
     ['SUR', '[', ['BRAKET', 'open', 1], 5], \
     ['SUR', '(', ['PARENTHESIS', 'open', 2], 6], \
-    ['STR', 'b', ['immutable', 1], 7], \
+    ['STR', 'b', ['variable', 1], 7], \
     ['SUR', ')', ['PARENTHESIS', 'close', 2], 8], \
     ['OP', '/', ['DIV', 'binary', 'LR', 3], 9], \
-    ['STR', 'c', ['immutable', 1], 10], \
+    ['STR', 'c', ['variable', 1], 10], \
     ['SUR', ']', ['BRAKET', 'close', 1], 11]]
 ```
 <!--
