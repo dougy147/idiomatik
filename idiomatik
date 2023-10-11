@@ -192,6 +192,11 @@ def evaluate_proposition(PROP):
                             except :
                                 print(bcolors.FAIL + "ERROR: '{}' is not a rule.".format(rule_index) + bcolors.ENDC)
                                 return
+                        try :
+                            rule_index = int(rule_index)
+                        except:
+                            print(bcolors.FAIL + "ERROR: no rule correspond to '{}'.".format(rule_or_index) + bcolors.ENDC)
+                            return
                         if rule_found == False and (rule_index < 0 or rule_index >= len(RULES['REWRITE_RULES'])):
                             print(bcolors.FAIL + "ERROR: no rule has index '{}'.".format(rule_or_index) + bcolors.ENDC)
                             return
