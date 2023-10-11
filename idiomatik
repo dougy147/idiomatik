@@ -155,7 +155,7 @@ def evaluate_proposition(PROP):
                                 rule_or_index = i
                                 is_rule = True
                                 break
-                        if rule_or_index[0] == "r" or rule_or_index[0] == "R" :
+                        if is_rule == False and (rule_or_index[0] == "r" or rule_or_index[0] == "R") :
                             rule_or_index = rule_or_index.replace('r','').replace('R','')
                             try :
                                 rule_or_index = int(rule_or_index)
