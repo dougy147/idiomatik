@@ -161,11 +161,11 @@ def evaluate_proposition(PROP):
             elif exists(PROP.split(' ')[1]):
                 try :
                     IMPORT_RULES(STREAM=[],RULES_FILE=PROP.split(' ')[1])
-                    print(bcolors.OKGREEN + "INFO: successfully imported rules in file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
+                    print(bcolors.OKGREEN + "> Successfully imported rules in file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
                 except :
-                    print(bcolors.FAIL + "ERROR UNKNOWN while importing file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
+                    print(bcolors.FAIL + "UNKNOWN ERROR while importing file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
             else :
-                print(bcolors.FAIL + "ERROR: please provide an existing file." + bcolors.ENDC)
+                print(bcolors.FAIL + "ERROR: file '{}' does not exist.".format(PROP.split(' ')[1]) + bcolors.ENDC)
 
 
 
@@ -235,6 +235,14 @@ def evaluate_proposition(PROP):
                             print(bcolors.FAIL + "ERROR: '{}' is not a correct index.".format(PROP.split(' ')[2]) + bcolors.ENDC)
                             return
                         display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
+
+                        new_proposition  = rewrites_given_a_rule(TOKENIZE(last_proposition),RULE_INDEX=rule_index,MATCH_INDEX=match_index)
+                        if len(new_proposition) == 1 :
+                            prev_proposition = last_proposition
+                            last_proposition = new_proposition[0]
+                            print("\t " + bcolors.OKBLUE + "=> '" + bcolors.ENDC + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + bcolors.OKBLUE + "' rewritten to '" + bcolors.ENDC + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC + bcolors.OKBLUE + "'." + bcolors.ENDC)
+
+
 
         case "match" | "matches": # highlight rewritable parts of the token
             if len(PROP.split(' ')) == 1 :
@@ -319,6 +327,8 @@ def evaluate_proposition(PROP):
                                 break
                 if not found : print("ERROR: no axiom nor rule with that index or name.")
 
+        case "undo":
+            print("TODO: sorry, this undo does not do anything.")
 
         case "help":
             print("TODO: sorry, this help menu is not really helpful for now.")
@@ -332,7 +342,7 @@ def evaluate_proposition(PROP):
 
 try :
     if sys.argv[1] :
-        print(bcolors.OKBLUE + "TODO: {} will soon accept receiving arguments.".format(sys.argv[0]) + bcolors.ENDC)
+        print(bcolors.OKBLUE + "INFO: '{}' will accept receiving arguments in the future... But not now!".format(sys.argv[0]) + bcolors.ENDC)
 except:
     pass
 

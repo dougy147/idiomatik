@@ -180,27 +180,27 @@ def split_all_rewrite_rules():
     return splitted_rewrite_rules
 
 
-def split_rewrite_rule(rewrite_rule):
+def split_rewrite_rule(RULE):
     '''Given a REWRITE_RULE, returns a TUPLE of its LEFT and RIGHT PATTERNS'''
     REWRITE_AS_sym = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")]
 
-    rewrite_nb_in_rule = NULL.join(map(str, [x[1] for x in rewrite_rule])).count(REWRITE_AS_sym)
+    rewrite_nb_in_rule = NULL.join(map(str, [x[1] for x in RULE])).count(REWRITE_AS_sym)
     if rewrite_nb_in_rule > 1 :
-        print("Multiple rewrites in a single rule not yet supported:\n\tRule '{}'".format(NULL.join(map(str, [x[1] for x in rewrite_rule]))))
+        print("Multiple rewrites in a single rule not yet supported:\n\tRule '{}'".format(NULL.join(map(str, [x[1] for x in RULE]))))
         #print("Weird behavior expected!")
         return
 
     # Grabbing left side pattern
     index = 0
     left_pattern = []
-    while rewrite_rule[index][1] != REWRITE_AS_sym:
-        left_pattern.append(rewrite_rule[index])
+    while RULE[index][1] != REWRITE_AS_sym:
+        left_pattern.append(RULE[index])
         index+=1
     index+=1
     # Grabbing right side pattern
     right_pattern = []
-    while index < len(rewrite_rule):
-        right_pattern.append(rewrite_rule[index])
+    while index < len(RULE):
+        right_pattern.append(RULE[index])
         index+=1
     return (left_pattern,right_pattern)
 

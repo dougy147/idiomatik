@@ -14,7 +14,7 @@
 // Axioms are RULES without any TRANSFORMATION needed.
 // Examples:
 not a :: ~a
-//b = c
+a = a
 
 // TRANSFORMATION RULES:
 // Transformation rules contain the REWRITE_AS operator
@@ -37,7 +37,7 @@ mult_neutral :: A . 0 --> 0
 mult_peano2  :: A . s(B) --> A + (A . B)
 
 
-// Error prone rules
-mult_peano2  :: A . s(B) --> A + (A . B)
-A --> B --> C
-:: A --> B
+//// Error prone rules
+//mult_peano2  :: A . s(B) --> A + (A . B)
+//A --> B --> C
+//:: A --> B

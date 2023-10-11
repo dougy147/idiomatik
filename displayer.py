@@ -255,16 +255,20 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
             counter+=1
             continue
         symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
-        rewrite = rewrites_given_a_rule(token,RULE_INDEX=i,MATCH_INDEX=rule_counter)[0]
+        rewrite = rewrites_given_a_rule(token,RULE_INDEX=i,MATCH_INDEX=rule_counter)
+        if len(rewrite) == 1:
+            rewrite = rewrite[0]
+        elif len(rewrite) == 0:
+            continue
         max_rule_name_length = max(map(int,(len(x) for x in RULES['REWRITE_RULES_NAMES'])))
         #print(rewrite_would_be, rule_counter)
         if rule_name == "" :
-            print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + ")" + NULL * max_rule_name_length + NULL * len(symbol_prop_id) +  "\t {} {}".format(symbol_prop_id,rewrite))
-            #print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + ")")
+            print("{} | ".format(counter) + beautiful_rewrite + "\t" + bcolors.OKBLUE + "(" + rule_name_general + ")" +bcolors.ENDC + NULL * max_rule_name_length + NULL * len(symbol_prop_id) +  "  \t {}".format(symbol_prop_id) + bcolors.FAIL+ " {}".format(rewrite) + bcolors.ENDC)
+            #print("{} | ".format(counter) + beautiful_rewrite + "\t {}".format(symbol_prop_id) + bcolors.FAIL+ " {}".format(rewrite) + bcolors.ENDC + NULL * max_rule_name_length + NULL * len(symbol_prop_id) +  "\t" + bcolors.OKBLUE + "(" + rule_name_general + ")" +bcolors.ENDC)
         else :
             cur_rule_name_length = len(rule_name)
-            print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")"+ NULL * (max_rule_name_length - cur_rule_name_length) + "\t {} {}".format(symbol_prop_id,rewrite))
-            #print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")")
+            print("{} | ".format(counter) + beautiful_rewrite + "\t" + bcolors.OKBLUE +"(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")" +bcolors.ENDC+ NULL * (max_rule_name_length - cur_rule_name_length) + "\t {}". format(symbol_prop_id) + bcolors.FAIL + " {}".format(rewrite) + bcolors.ENDC)
+            #print("{} | ".format(counter) + beautiful_rewrite + "\t {}". format(symbol_prop_id) + bcolors.FAIL + " {}".format(rewrite) + bcolors.ENDC + NULL * (max_rule_name_length - cur_rule_name_length) + "\t" + bcolors.OKBLUE +"(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")" +bcolors.ENDC)
         counter+=1
 
 # rewrite full

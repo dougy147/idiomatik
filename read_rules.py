@@ -29,7 +29,8 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
 
     for i in range(len(STREAM)):
             I = STREAM[i]
-            while I[0] == NULL and len(I) > 0:
+            #while I[0] == NULL and len(I) > 0:
+            while len(I) > 0 and I[0] == NULL:
                 I=I[1:]
             if I[0:len(COMMENT)] == COMMENT: continue
             else:
@@ -75,6 +76,17 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                             print(bcolors.OKBLUE + "INFO: axiom '{}' already stored.".format(I) + bcolors.ENDC)
                             continue
                         RULES['AXIOMS'].append(RULE[1])
+                        name_exist = False
+                        FNAME = NAME
+                        while NAME in RULES['AXIOMS_NAMES']:
+                            name_exist = True
+                            try:
+                                RENAME = str(NAME[0:len(NAME)-1]) + str(int(NAME[len(NAME)-1])+1)
+                            except :
+                                RENAME = NAME + "0"
+                            NAME = RENAME
+                        if name_exist == True:
+                            print(bcolors.WARNING + "INFO: axiom '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
                         RULES['AXIOMS_NAMES'].append(NAME)
                         #counter_rewrite_axioms += 1
                     else :
@@ -85,12 +97,23 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                             print(bcolors.OKBLUE + "INFO: rule '{}' already stored.".format(I) + bcolors.ENDC)
                             continue
                         RULES['REWRITE_RULES'].append(RULE[1])
+                        name_exist = False
+                        FNAME = NAME
+                        while NAME in RULES['REWRITE_RULES_NAMES']:
+                            name_exist = True
+                            try:
+                                RENAME = str(NAME[0:len(NAME)-1]) + str(int(NAME[len(NAME)-1])+1)
+                            except :
+                                RENAME = NAME + "0"
+                            NAME = RENAME
+                        if name_exist == True:
+                            print(bcolors.WARNING + "INFO: rule '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
                         RULES['REWRITE_RULES_NAMES'].append(NAME)
                         #counter_rewrite_rules += 1
                 else:
                     if RULES_FILE == None:
                         print(bcolors.WARNING + "WARNING: invalid rule: '{}'".format(I) + bcolors.ENDC)
                     else :
-                        print(bcolors.WARNING + "WARNING: invalid rule in file '{}': '{}'".format(RULES_FILE,I,i) + bcolors.ENDC)
+                        print(bcolors.WARNING + "WARNING: invalid rule from file '{}': '{}'".format(RULES_FILE,I,i) + bcolors.ENDC)
 
-IMPORT_RULES(STREAM,"RULES")
+IMPORT_RULES(STREAM,RULES_FILE = "RULES")

@@ -193,13 +193,14 @@ That's where `idiomatik` is for now.
 
 # TODO
 
-- Do not allow same name for different rules or different axioms
-- Do not allow empty axioms
-- For some commands (match, etc.) do not reset last_proposition
+- (!!) Allow saving a succession of steps and use it as a new transformation rule
+- (!!) Allow chaining multiple transformation rules
+- Better handling of "last_proposition"
 - Meta character for ANY_OPERAND
 - Draw better trees
+- Transform tree to its linear form (to check if two trees are equals)
 - Undo command
-- Save logs/transformation
+- Save logs/transformations
 - Improve rewrite system
 
 # Resources
