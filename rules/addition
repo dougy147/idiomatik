@@ -1,0 +1,9 @@
+add_commutativity :: A + B --> B + A
+add_associativity :: A + (B + C) --> (A + B) + C
+//add_reflexivity   :: A --> A
+
+add_equality :: A = B --> (A - B) = 0
+
+:: test ==> a
+
+

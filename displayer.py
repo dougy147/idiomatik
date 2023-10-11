@@ -238,10 +238,12 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
         if MATCH_INDEX != None and MATCH_INDEX != counter :
             counter+=1
             continue
+        symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
         if rule_name == "" :
+            #print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + ")" + "\t {} {}".format(symbol_prop_id,rewrite))
             print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + ")")
         else :
-            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
+            #print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")"+ "\t {} {}".format(symbol_prop_id,rewrite))
             print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")")
         counter+=1
 

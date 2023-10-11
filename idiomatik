@@ -8,6 +8,7 @@
 #RULES['REWRITE_RULES'].append(RULE[1])
 
 import sys
+from os.path import exists
 from read_table import *
 from lexer import *
 from parser import *
@@ -38,14 +39,14 @@ def add_rule(multiple=False,last_proposition=last_proposition):
         try :
             last_proposition = input("    > ")
         except:
-            print(bcolors.FAIL + "ERROR: Invalid characters in input." + bcolors.ENDC)
+            print(bcolors.FAIL + "ERROR: invalid characters in input." + bcolors.ENDC)
         if last_proposition == "" or last_proposition == ":q" :
             print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
             return
     elif last_proposition.replace(NULL,'') == "" :
         print("ERROR: empty proposition")
         return
-    READ_RULES([last_proposition],add_axioms=False)
+    IMPORT_RULES([last_proposition],add_axioms=False)
     if multiple :
         add_rule(multiple=True)
 
@@ -54,14 +55,14 @@ def add_axiom(multiple=False,last_proposition=last_proposition):
         try :
             last_proposition = input("    > ")
         except:
-            print(bcolors.FAIL + "ERROR: Invalid characters in input." + bcolors.ENDC)
+            print(bcolors.FAIL + "ERROR: invalid characters in input." + bcolors.ENDC)
         if last_proposition == "" or last_proposition == ":q" :
             print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
             return
     elif last_proposition.replace(NULL,'') == "" :
         print("ERROR: empty proposition")
         return
-    READ_RULES([last_proposition],add_rules=False)
+    IMPORT_RULES([last_proposition],add_rules=False)
     if multiple :
         add_axiom(multiple=True)
 
@@ -115,9 +116,9 @@ def del_rule_or_axiom(user_value):
 
 def evaluate_proposition(PROP):
     global last_proposition
-    '''
-    If PROP starts with ':' then it is a COMMAND?
-    '''
+    #'''
+    #If PROP starts with ':' then it is a COMMAND?
+    #'''
     #if PROP[0:1] == ":":
     #PROP = PROP.split(' ')
     match PROP.split(' ')[0]:
@@ -139,6 +140,34 @@ def evaluate_proposition(PROP):
             display_axioms_and_rules("axioms")
         case "rules":
             display_axioms_and_rules("rules")
+
+        case "reset":
+            if len(PROP.split(' ')) != 2 :
+                print(bcolors.WARNING + "'reset' only accept the 'rule' argument." + bcolors.ENDC)
+            elif PROP.split(' ')[1] == "rules" :
+                for i in range(len(RULES['REWRITE_RULES'])):
+                    RULES['REWRITE_RULES'].pop(0)
+                    RULES['REWRITE_RULES_NAMES'].pop(0)
+                for i in range(len(RULES['AXIOMS'])):
+                    RULES['AXIOMS'].pop(0)
+                    RULES['AXIOMS_NAMES'].pop(0)
+                print(bcolors.OKBLUE + "Rules reset." + bcolors.ENDC)
+            else :
+                print(bcolors.WARNING + "'reset' only accept the 'rule' argument." + bcolors.ENDC)
+
+        case "load":
+            if len(PROP.split(' ')) != 2 :
+                print(bcolors.WARNING + "'load' needs one filename as argument." + bcolors.ENDC)
+            elif exists(PROP.split(' ')[1]):
+                try :
+                    IMPORT_RULES(STREAM=[],RULES_FILE=PROP.split(' ')[1])
+                    print(bcolors.OKGREEN + "INFO: successfully imported rules in file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
+                except :
+                    print(bcolors.FAIL + "ERROR UNKNOWN while importing file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
+            else :
+                print(bcolors.FAIL + "ERROR: please provide an existing file." + bcolors.ENDC)
+
+
 
         case "rewrite":
             if len(PROP.split(' ')) == 1 :
@@ -195,20 +224,20 @@ def evaluate_proposition(PROP):
                         try :
                             rule_index = int(rule_index)
                         except:
-                            print(bcolors.FAIL + "ERROR: no rule correspond to '{}'.".format(rule_or_index) + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: no rule correspond to '{}'.".format(rule_index) + bcolors.ENDC)
                             return
                         if rule_found == False and (rule_index < 0 or rule_index >= len(RULES['REWRITE_RULES'])):
-                            print(bcolors.FAIL + "ERROR: no rule has index '{}'.".format(rule_or_index) + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: no rule has index '{}'.".format(rule_index) + bcolors.ENDC)
                             return
                         try :
                             match_index = int(PROP.split(' ')[2])
                         except :
-                            print(bcolors.FAIL + "ERROR: '{}' is not a correct index.".format(match_index) + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: '{}' is not a correct index.".format(PROP.split(' ')[2]) + bcolors.ENDC)
+                            return
                         display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
 
         case "match" | "matches": # highlight rewritable parts of the token
             if len(PROP.split(' ')) == 1 :
-                #display_rewritable_parts(last_proposition)
                 display_rewritable_parts(last_proposition)
             elif len(PROP.split(' ')) == 2 :
                 rule_to_match = PROP.split(' ')[1]
@@ -228,7 +257,7 @@ def evaluate_proposition(PROP):
 
         case "debug" :
             if len(PROP.split(' ')) != 2 :
-                print("Need one thing to debug. For example : debug rules")
+                print(bcolors.WARNING + "'debug' needs one thing to debug (e.g. 'debug rules').")
             else :
                 match PROP.split(' ')[1] :
                     case "rules" : print(RULES)
@@ -237,11 +266,11 @@ def evaluate_proposition(PROP):
 
         case "del" | "delete":
             if len(PROP.split(' ')) == 1 :
-                print("INFO: Use 'delete x' or 'delete Rx' to delete a rule.")
+                print("INFO: use 'delete Ax' or 'delete Rx' to delete an axiom or a rule.")
                 for i in range(len(RULES['REWRITE_RULES'])) :
                     print(bcolors.OKBLUE + "\t(R{}) \t{}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
             elif len(PROP.split(' ')) > 2 :
-                print("ERROR: 'delete' needs precisely one rule number")
+                print("ERROR: 'delete' needs precisely one rule or axiom number")
             else :
                 del_rule_or_axiom(PROP.split(' ')[1])
 
@@ -313,7 +342,7 @@ while True:
     try :
         user_input = input(IDIOMATIK_PROMPT)
     except:
-        print(bcolors.FAIL + "ERROR: Invalid characters in input." + bcolors.ENDC)
+        print(bcolors.FAIL + "ERROR: invalid characters in input." + bcolors.ENDC)
         continue
     proposition=str(user_input)
     evaluate_proposition(proposition)

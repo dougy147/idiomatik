@@ -9,22 +9,24 @@ from lexer import *
 from parser import *
 from colors import *
 
-STREAM = []
-RULES_FILE = "RULES"
-with open(RULES_FILE) as rules:
-    for line in rules.readlines():
-        if not line == '\n':
-            STREAM.append(line.replace('\n',''))
-rules.close()
-
+global RULES
 RULES = {'AXIOMS'             : [],
          'AXIOMS_NAMES'       : [],
          'REWRITE_RULES'      : [],
          'REWRITE_RULES_NAMES': []}
 
-#counter_rewrite_rules  = 0
-#counter_rewrite_axioms = 0
-def READ_RULES(STREAM,add_rules=True,add_axioms=True):
+def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
+    global RULES
+    if RULES_FILE != None:
+        STREAM = []
+        #RULES_FILE = "RULES"
+        with open(RULES_FILE) as rules:
+            for line in rules.readlines():
+                if not line == '\n':
+                    STREAM.append(line.replace('\n',''))
+        rules.close()
+
+
     for i in range(len(STREAM)):
             I = STREAM[i]
             while I[0] == NULL and len(I) > 0:
@@ -64,28 +66,31 @@ def READ_RULES(STREAM,add_rules=True,add_axioms=True):
                                 invalid = True
                                 break
                     if   invalid :
-                        print(bcolors.WARNING + "WARNING: Invalid rule (too many names or 'rewrite' symbols in file '{}': '{}'".format(RULES_FILE,I) + bcolors.ENDC)
+                        print(bcolors.WARNING + "WARNING: invalid rule (too many names or 'rewrite' symbols in file '{}': '{}'".format(RULES_FILE,I) + bcolors.ENDC)
                     elif not rewrite :
                         if add_axioms == False:
-                            print(bcolors.FAIL + "Rules need the rewrite symbol." + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: rules need the rewrite symbol." + bcolors.ENDC)
                             continue
                         if RULE[1] in RULES['AXIOMS'] :
-                            print(bcolors.WARNING + "Axiom '{}' already stored!".format(I) + bcolors.ENDC)
+                            print(bcolors.OKBLUE + "INFO: axiom '{}' already stored.".format(I) + bcolors.ENDC)
                             continue
                         RULES['AXIOMS'].append(RULE[1])
                         RULES['AXIOMS_NAMES'].append(NAME)
                         #counter_rewrite_axioms += 1
                     else :
                         if add_rules == False:
-                            print(bcolors.FAIL + "Rules are not considered axioms. Correct or not? Time to think about it..." + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: rules are not considered axioms. Correct or not? Time to think about it..." + bcolors.ENDC)
                             continue
                         if RULE[1] in RULES['REWRITE_RULES'] :
-                            print(bcolors.WARNING + "Rule '{}' already stored!".format(I) + bcolors.ENDC)
+                            print(bcolors.OKBLUE + "INFO: rule '{}' already stored.".format(I) + bcolors.ENDC)
                             continue
                         RULES['REWRITE_RULES'].append(RULE[1])
                         RULES['REWRITE_RULES_NAMES'].append(NAME)
                         #counter_rewrite_rules += 1
                 else:
-                    print(bcolors.WARNING + "WARNING: Invalid rule in file '{}': '{}'".format(RULES_FILE,I,i) + bcolors.ENDC)
+                    if RULES_FILE == None:
+                        print(bcolors.WARNING + "WARNING: invalid rule: '{}'".format(I) + bcolors.ENDC)
+                    else :
+                        print(bcolors.WARNING + "WARNING: invalid rule in file '{}': '{}'".format(RULES_FILE,I,i) + bcolors.ENDC)
 
-READ_RULES(STREAM)
+IMPORT_RULES(STREAM,"RULES")
