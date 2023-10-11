@@ -158,25 +158,43 @@ def render_tree(TOKEN):
         index-=1
     #print("\n")
 
-def display_single_rewritable_parts(INPUT,RULE_INDEX):
-    '''Temporary function to show ALL possible rewritable
-     parts of a token for A SINGLE RULE '''
-    found_name = False
-    for i in range(len(RULES['REWRITE_RULES_NAMES'])):
-        if RULE_INDEX == RULES['REWRITE_RULES_NAMES'][i] :
-            found_name = True
-            RULE_INDEX = i
-            break
-    if found_name == False:
-        RULE_INDEX = RULE_INDEX.replace('R','').replace('r','')
+def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
+    '''Temporary function to show possible rewritable
+     parts of a token for ALL RULES if no RULE_TO_MATCH specified.
+     It also can dispay a specified matching index (0 for the first match...)'''
+    if RULE_TO_MATCH != None:
+        # Find name of rule
+        found_name = False
+        # If user gave the exact name rule : grab its index
+        for i in range(len(RULES['REWRITE_RULES_NAMES'])):
+            if RULE_TO_MATCH == RULES['REWRITE_RULES_NAMES'][i] :
+                found_name = True
+                RULE_TO_MATCH = i
+                break
+        if found_name == False:
+            if not "r" in str(RULE_TO_MATCH) and not "R" in str(RULE_TO_MATCH) :
+                print(bcolors.FAIL + "ERROR: please provide a rule to match (e.g. 'match r0 [index]')" + bcolors.ENDC)
+                return
+            RULE_TO_MATCH = RULE_TO_MATCH.replace('R','').replace('r','')
+    # Check if token is valid (is that useful? too many checks before I guess)
     token = TOKENIZE(INPUT)
     parse = PARSE(token)
     if not parse[0] :
         print("Invalid proposition")
         return
-    REWRITES = token_rewritable_parts(token,RULE_INDEX=RULE_INDEX)
-    if not REWRITES[0]: return
-    REWRITES = REWRITES[1]
+    # Grab rewritable parts!
+    if RULE_TO_MATCH != None:
+        if MATCH_INDEX != None :
+            REWRITES = token_rewritable_parts(token,RULE_INDEX=RULE_TO_MATCH,MATCH_INDEX=MATCH_INDEX)
+        else :
+            REWRITES = token_rewritable_parts(token,RULE_INDEX=RULE_TO_MATCH)
+        if not REWRITES[0]: return
+        REWRITES = REWRITES[1]
+    else :
+        if MATCH_INDEX != None :
+            REWRITES = token_all_rewritable_parts(token,MATCH_INDEX=MATCH_INDEX)
+        else :
+            REWRITES = token_all_rewritable_parts(token)
     if len(REWRITES) == 0 :
         print("No matching pattern.")
         return
@@ -216,69 +234,20 @@ def display_single_rewritable_parts(INPUT,RULE_INDEX):
                 rule_name_general = "R"+str(i)
                 rule_name = RULES['REWRITE_RULES_NAMES'][i]
                 break
-        if rule_name == "" :
-            print(beautiful_rewrite + "\t" + "(" + rule_name_general + ")")
-        else :
-            print(beautiful_rewrite + "\t" + "(" + rule_name_general + " :: " + rule_name + ")")
-        counter+=1
-
-def display_rewritable_parts(INPUT):
-    '''Temporary function to show ALL possible rewritable
-     parts of a token for ALL RULES '''
-    token = TOKENIZE(INPUT)
-    parse = PARSE(token)
-    if not parse[0] :
-        print("Invalid proposition")
-        return
-    REWRITES = token_all_rewritable_parts(token)
-    if len(REWRITES) == 0 :
-        print("No matching pattern.")
-        return
-    #REWRITES = check[1] # Storing tokens of possible rewritings
-    counter = 0
-    redundant = 0
-    STR_REWRITES = []
-    for rew in REWRITES:
-        # ...
-        rule_name_general = rew[1]
-        rew = rew[0]
-        # ...
-        str_rewrite = rew
-        if not (str_rewrite,rule_name_general) in STR_REWRITES :
-            STR_REWRITES.append((rew,rule_name_general))
-        else :
-            redundant+=1
+        # Print it
+        if MATCH_INDEX != None and MATCH_INDEX != counter :
+            counter+=1
             continue
-        indexes_in_part = []
-        for i in range(len(rew)):
-            indexes_in_part.append(rew[i][3])
-        beautiful_rewrite = ""
-        for i in range(len(parse[1])):
-            if parse[1][i][3] in indexes_in_part :
-                if parse[1][i][3] == indexes_in_part[len(indexes_in_part)-1]:
-                    if indexes_in_part[0] == 0 :
-                        beautiful_rewrite = bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
-                    else :
-                        beautiful_rewrite = beautiful_rewrite + NULL + bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
-            else :
-                if i == 0:
-                    beautiful_rewrite = str(parse[1][i][1])
-                else :
-                    beautiful_rewrite = beautiful_rewrite + NULL + str(parse[1][i][1])
-
-        for i in range(len(RULES['REWRITE_RULES'])):
-            if rule_name_general == RULES['REWRITE_RULES'][i]:
-                rule_name_general = "R"+str(i)
-                rule_name = RULES['REWRITE_RULES_NAMES'][i]
-                break
         if rule_name == "" :
-            print(beautiful_rewrite + "\t" + "(" + rule_name_general + ")")
+            print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + ")")
         else :
-            print(beautiful_rewrite + "\t" + "(" + rule_name_general + " :: " + rule_name + ")")
+            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
+            print("{} | ".format(counter) + beautiful_rewrite + "\t" + "(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")")
         counter+=1
 
 
-def display_all_possible_rewritings(INPUT):
+
+def display_all_possible_rewritings(INPUT,MATCH_INDEX=None):
     '''Temporary function to show ALL possible rewrites
      for an INPUT (proposition) given the set of RULES'''
     token = TOKENIZE(INPUT)
@@ -286,32 +255,50 @@ def display_all_possible_rewritings(INPUT):
     if not parse[0] :
         print("Invalid proposition")
         return
-    check = combine_all_possible_rewrites(token)
-    #print(check)
+    check = combine_all_possible_rewrites(token,MATCH_INDEX=MATCH_INDEX)
     if not check[0] :
         print("No matching pattern.")
         return
-    #else :
-    #    nb_to_pass[0] = len(check[1]) - 1
-    #    print("As there is a problem with functions, we will remove the first {} values in REWRITES next time".format(nb_to_pass[0]))
-    #REWRITES = [y[0] for y in [x for x in check[1]]] # Storing tokens of possible rewritings
     REWRITES = check[1] # Storing tokens of possible rewritings
     counter = 0
     redundant = 0
     STR_REWRITES = []
     for rew in REWRITES:
-        #str_rewrite = NULL.join(map(str,[x[1] for x in rew])) # Transform tokens to human readable string
         str_rewrite = rew
         if not str_rewrite in STR_REWRITES :
             STR_REWRITES.append(rew)
         else :
             redundant+=1
-            #nb_to_pass[1] -= 1 # TODO
             continue
         print(str_rewrite)
         counter+=1
-    ##print("\n{} possible rewritings".format(counter))
-    #if redundant > 0: print("{} redundancies...".format(redundant))
+
+def display_given_a_rule(INPUT,RULE_INDEX=None,MATCH_INDEX=None):
+    token = TOKENIZE(INPUT)
+    parse = PARSE(token)
+    if not parse[0] :
+        print("Invalid proposition")
+        return
+    RULE = RULES['REWRITE_RULES'][int(RULE_INDEX)]
+    #print("rule: ",RULE)
+    check = rewrite_given_a_rule(token,RULE,MATCH_INDEX=MATCH_INDEX)
+    #print("check: rewrite_given_a_rule = {}".format(check))
+    if not check[0] :
+        print("No matching pattern.")
+        return
+    REWRITES = check[1] # Storing tokens of possible rewritings
+    counter = 0
+    redundant = 0
+    STR_REWRITES = []
+    for rew in REWRITES:
+        str_rewrite = rew
+        if not str_rewrite in STR_REWRITES :
+            STR_REWRITES.append(rew)
+        else :
+            redundant+=1
+            continue
+        print(str_rewrite)
+        counter+=1
 
 def display_axioms_and_rules(choice=False):
     if choice == False or choice == "axioms":
@@ -322,12 +309,13 @@ def display_axioms_and_rules(choice=False):
             max_axiom_name_length = max(map(int,(len(x) for x in RULES['AXIOMS_NAMES'])))
             cur_axiom_name_length = len(axiom_name)
             axiom = NULL.join(map(str,[x[1] for x in RULES['AXIOMS'][i]]))
+            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
             if axiom_name == "" :
                 #print("\t(A{}) \t {}".format(index,axiom))
-                print("\t(A{})".format(index) + NULL * max_axiom_name_length + "\t {}".format(axiom))
+                print("\t(A{})".format(index) + NULL * max_axiom_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(axiom))
             else :
                 #print("\t(A{} :: {}) \t {}".format(index,axiom_name,axiom))
-                print("\t(A{} :: {})".format(index,axiom_name) + NULL * (max_axiom_name_length - cur_axiom_name_length) + "\t {}".format(axiom))
+                print("\t(A{} ".format(index) + str(symbol_prop_id) + " {})".format(axiom_name) + NULL * (max_axiom_name_length - cur_axiom_name_length) + "\t {}".format(axiom))
             index += 1
     if choice == False or choice == "rules":
         index = 0
@@ -338,12 +326,13 @@ def display_axioms_and_rules(choice=False):
             max_rule_name_length = max(map(int,(len(x) for x in RULES['REWRITE_RULES_NAMES'])))
             cur_rule_name_length = len(rule_name)
             rule = NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))
+            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
             if rule_name == "" :
                 #print("\t(R{}) \t {}".format(index,NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))))
-                print("\t(R{})".format(index) + NULL * max_rule_name_length + "\t {}".format(rule))
+                print("\t(R{})".format(index) + NULL * max_rule_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(rule))
             else :
                 #print("\t(R{} :: {}) \t {}".format(index,rule_name,NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))))
-                print("\t(R{} :: {})".format(index,rule_name) + NULL * (max_rule_name_length - cur_rule_name_length) + "\t {}".format(rule))
+                print("\t(R{} ".format(index) + str(symbol_prop_id) + " {})".format(rule_name) + NULL * (max_rule_name_length - cur_rule_name_length) + "\t {}".format(rule))
             index += 1
 
 def human_readable(TOKEN):

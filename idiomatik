@@ -75,8 +75,10 @@ def del_rule_or_axiom(user_value):
             str(i) == user_value :
                 found = True
                 name = RULES['REWRITE_RULES_NAMES'][i]
-                if name == "" : name = "empty name"
-                print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                if name == "" :
+                    print(bcolors.OKBLUE + "Deleted R{} {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                else :
+                    print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
                 RULES['REWRITE_RULES'].pop(i)
                 RULES['REWRITE_RULES_NAMES'].pop(i)
                 break
@@ -84,7 +86,6 @@ def del_rule_or_axiom(user_value):
     for i in range(len(RULES['REWRITE_RULES_NAMES'])) :
         if user_value == RULES['REWRITE_RULES_NAMES'][i] :
                 name = RULES['REWRITE_RULES_NAMES'][i]
-                if name == "" : name = "empty name"
                 print(bcolors.OKBLUE + "Deleted '{}' (R{}) {}".format(name,i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
                 RULES['REWRITE_RULES_NAMES'].pop(i)
                 RULES['REWRITE_RULES'].pop(i)
@@ -96,8 +97,10 @@ def del_rule_or_axiom(user_value):
             str(i) == user_value :
                 found = True
                 name = RULES['AXIOMS_NAMES'][i]
-                if name == "" : name = "empty name"
-                print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                if name == "" :
+                    print(bcolors.OKBLUE + "Deleted R{} {}".format(i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                else :
+                    print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
                 RULES['AXIOMS'].pop(i)
                 RULES['AXIOMS_NAMES'].pop(i)
                 break
@@ -105,7 +108,6 @@ def del_rule_or_axiom(user_value):
     for i in range(len(RULES['AXIOMS_NAMES'])) :
         if user_value == RULES['AXIOMS_NAMES'][i] :
                 name = RULES['AXIOMS_NAMES'][i]
-                if name == "" : name = "empty name"
                 print(bcolors.OKBLUE + "Deleted '{}' (A{}) {}".format(name,i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
                 RULES['AXIOMS_NAMES'].pop(i)
                 RULES['AXIOMS'].pop(i)
@@ -121,54 +123,103 @@ def evaluate_proposition(PROP):
     match PROP.split(' ')[0]:
         case ":q" | "quit" | "exit" :
             exit(0)
-
         case "prop" | "proposition": # displays current proposition under scrutiny
             print(human_readable(TOKENIZE(last_proposition)))
-
         case "tok" | "token":
-            try:
-                print(TOKENIZE(last_proposition))
-            except:
-                print(bcolors.FAIL + "ERROR: you need to give an expression first." + bcolors.ENDC)
-
+            print(TOKENIZE(last_proposition))
         case "tree" | "draw" :
             try :
                 render_tree(TOKENIZE(last_proposition))
             except:
-                print("ERROR: why no tree? TODO")
-
+                print(bcolors.FAIL + "ERROR: why no tree? TODO" + bcolors.ENDC)
         case "surr" | "surrounding" :
-            #try :
-            #solving_surrounders = NULL.join(map(str, [x[1] for x in silent_surrounding(TOKENIZE(last_proposition))]))
             solving_surrounders = human_readable(silent_surrounding(TOKENIZE(last_proposition)))
-            #print("Background surrounding : {}".format(solving_surrounders))
             print("{}".format(solving_surrounders))
-            #except:
-            #    print("ERROR: you need to give an expression first.")
-
         case "axioms":
             display_axioms_and_rules("axioms")
-
         case "rules":
             display_axioms_and_rules("rules")
 
         case "rewrite":
-            if len(PROP.split(' ')) < 2 :
+            if len(PROP.split(' ')) == 1 :
                     print(bcolors.WARNING + "Please provide a name or number for rewriting rule.\nOr use 'full' to combine them all." + bcolors.ENDC)
-            else :
+            elif len(PROP.split(' ')) == 2 :
                 match PROP.split(' ')[1]:
                     case "full" | "f" :
                         display_all_possible_rewritings(last_proposition)
                     case _ :
-                        print(bcolors.WARNING + "TODO: something else than full rewrite" + bcolors.ENDC)
+                        rule_or_index = PROP.split(' ')[1]
+                        is_rule = False
+                        for i in range(len(RULES['REWRITE_RULES_NAMES'])):
+                            if rule_or_index == RULES['REWRITE_RULES_NAMES'][i]:
+                                rule_or_index = i
+                                is_rule = True
+                                break
+                        if rule_or_index[0] == "r" or rule_or_index[0] == "R" :
+                            rule_or_index = rule_or_index.replace('r','').replace('R','')
+                            try :
+                                rule_or_index = int(rule_or_index)
+                                is_rule = True
+                            except :
+                                print(bcolors.FAIL + "ERROR: '{}' is not a rule nor an index.".format(rule_or_index) + bcolors.ENDC)
+                                return
+                        if is_rule == False :
+                            try :
+                                rule_or_index = int(rule_or_index)
+                            except :
+                                print(bcolors.FAIL + "ERROR: '{}' is not a rule nor an index.".format(rule_or_index) + bcolors.ENDC)
+                                return
+                            if rule_or_index < 0 or rule_or_index >= len(RULES['REWRITE_RULES']):
+                                print(bcolors.FAIL + "ERROR: no possible rewrite has index '{}'.".format(rule_or_index) + bcolors.ENDC)
+                                return
+                            display_all_possible_rewritings(last_proposition,MATCH_INDEX=rule_or_index)
+                        else :
+                            display_given_a_rule(last_proposition,RULE_INDEX=rule_or_index)
+            elif len(PROP.split(' ')) == 3 :
+                match PROP.split(' ')[1]:
+                    case _ :
+                        rule_index = PROP.split(' ')[1]
+                        rule_found = False
+                        for i in range(len(RULES['REWRITE_RULES_NAMES'])):
+                            if rule_index == RULES['REWRITE_RULES_NAMES'][i]:
+                                rule_index = i
+                                rule_found = True
+                                break
+                        if rule_found == False and (rule_index[0] == "r" or rule_index[0] == "R") :
+                            rule_index = rule_index.replace('r','').replace('R','')
+                            try :
+                                rule_index = int(rule_index)
+                            except :
+                                print(bcolors.FAIL + "ERROR: '{}' is not a rule.".format(rule_index) + bcolors.ENDC)
+                                return
+                        if rule_found == False and (rule_index < 0 or rule_index >= len(RULES['REWRITE_RULES'])):
+                            print(bcolors.FAIL + "ERROR: no rule has index '{}'.".format(rule_or_index) + bcolors.ENDC)
+                            return
+                        try :
+                            match_index = int(PROP.split(' ')[2])
+                        except :
+                            print(bcolors.FAIL + "ERROR: '{}' is not a correct index.".format(match_index) + bcolors.ENDC)
+                        display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
 
         case "match" | "matches": # highlight rewritable parts of the token
-            if len(PROP.split(' ')) == 2 :
-                #rule_index = PROP.split(' ')[1].replace('r','').replace('R','')
-                rule_index = PROP.split(' ')[1]
-                display_single_rewritable_parts(last_proposition,RULE_INDEX=rule_index)
-            else :
+            if len(PROP.split(' ')) == 1 :
+                #display_rewritable_parts(last_proposition)
                 display_rewritable_parts(last_proposition)
+            elif len(PROP.split(' ')) == 2 :
+                rule_to_match = PROP.split(' ')[1]
+                display_rewritable_parts(last_proposition,RULE_TO_MATCH=rule_to_match)
+            elif len(PROP.split(' ')) == 3 :
+                rule_to_match = PROP.split(' ')[1]
+                match_index = PROP.split(' ')[2]
+                try :
+                    match_index = int(match_index)
+                except:
+                    print(bcolors.FAIL + "ERROR: '{}' is not a valid match index.".format(match_index) + bcolors.ENDC)
+                    return
+                display_rewritable_parts(last_proposition,RULE_TO_MATCH=rule_to_match,MATCH_INDEX=match_index)
+            else :
+                print(bcolors.FAIL + "ERROR: match syntax is 'match [r0 [index]]'" + bcolors.ENDC)
+
 
         case "debug" :
             if len(PROP.split(' ')) != 2 :
