@@ -236,7 +236,7 @@ def evaluate_proposition(PROP):
                             return
                         display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
 
-                        new_proposition  = rewrites_given_a_rule(TOKENIZE(last_proposition),RULE_INDEX=rule_index,MATCH_INDEX=match_index)
+                        new_proposition  = str_rewrites_given_a_rule(TOKENIZE(last_proposition),RULE_INDEX=rule_index,MATCH_INDEX=match_index)
                         if len(new_proposition) == 1 :
                             prev_proposition = last_proposition
                             last_proposition = new_proposition[0]

@@ -22,7 +22,7 @@ def CHECK(TOKEN):
     if len(TOKEN) == 0     : return [True, TOKEN, [RULES]]
     if len(RULES) == 0     : return [True, TOKEN, [RULES]]
 
-def check_axiom(TOKEN):
+def check_if_axiom(TOKEN):
     ''' For AXIOMS in RULES, check if AXIOM is equivalent to a TOKEN'''
     # should also check when token is rewritten by compatible REWRITE_RULES
     for axiom in RULES['AXIOMS']:

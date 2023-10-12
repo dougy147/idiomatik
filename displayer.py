@@ -13,6 +13,9 @@ to output "proper" results to the user, given the INPUT.
 '''
 
 def render_tree(TOKEN):
+    ''' Beta function to visualize trees. But there are troubles with long
+    variables' names, etc.
+    '''
     surrounded_expression_token = silent_surrounding(TOKEN)
     if 'SUR' in [x[0] for x in surrounded_expression_token]:
         highest_nestedness_score = max([x[2][2] for x in filter(lambda y: y[0] == 'SUR', surrounded_expression_token)])
@@ -49,6 +52,7 @@ def render_tree(TOKEN):
                 occupied_indexes.append(str(j))
                 continue
         TREE_MATRICE.append(TMP_MATRICE)
+    #print("TREE_MATRICE: ",TREE_MATRICE)
 
     LAST_MATRICE = []
     for i in reversed(range(len(TREE_MATRICE))):
@@ -70,6 +74,7 @@ def render_tree(TOKEN):
             index += 1
         #print(len(TREE_MATRICE) - (i+1), "\t",STRING,"\n")
         LAST_MATRICE.append(STRING)
+    #print("LAST_MATRICE: ",LAST_MATRICE)
 
     # Place operators on line ABOVE (except for i = 0) and remove empty lines
     FINAL_MATRICE = []
@@ -123,9 +128,7 @@ def render_tree(TOKEN):
                 LAST_MATRICE[i+1] = ''.join(map(str,list_next_line)) + (max_length - len(list_next_line)) * NULL
             index+=1
         FINAL_MATRICE.append(list(LAST_MATRICE[i]))
-    #for line in FINAL_MATRICE:
-    #    print(line)
-    #print("-----------------------")
+    #print("FINAL_MATRICE: ",FINAL_MATRICE)
 
     # Remove cells that are empty on same index for every row (remove empty columns)
     columns_to_ignore = []
@@ -150,13 +153,11 @@ def render_tree(TOKEN):
             STRING += FINAL_MATRICE[i][j]
         if STRING.replace(' ','') != "" : ULTIMATE_MATRICE.append(STRING)
 
-    #print("-+++----------- tree -----------+")
+    # Display tree
     index = len(FINAL_MATRICE)-1
     for line in ULTIMATE_MATRICE:
-        #print("{} | {}".format(index,line))
         print("{} |".format(index) + bcolors.OKGREEN + " {}".format(line) + bcolors.ENDC)
         index-=1
-    #print("\n")
 
 def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
     '''Temporary function to show possible rewritable
@@ -255,13 +256,12 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
             counter+=1
             continue
         symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
-        rewrite = rewrites_given_a_rule(token,RULE_INDEX=i,MATCH_INDEX=rule_counter)
+        rewrite = str_rewrites_given_a_rule(token,RULE_INDEX=i,MATCH_INDEX=rule_counter)
         if len(rewrite) == 1:
             rewrite = rewrite[0]
         elif len(rewrite) == 0:
             continue
         max_rule_name_length = max(map(int,(len(x) for x in RULES['REWRITE_RULES_NAMES'])))
-        #print(rewrite_would_be, rule_counter)
         if rule_name == "" :
             print("{} | ".format(counter) + beautiful_rewrite + "\t" + bcolors.OKBLUE + "(" + rule_name_general + ")" +bcolors.ENDC + NULL * max_rule_name_length + NULL * len(symbol_prop_id) +  "  \t {}".format(symbol_prop_id) + bcolors.FAIL+ " {}".format(rewrite) + bcolors.ENDC)
             #print("{} | ".format(counter) + beautiful_rewrite + "\t {}".format(symbol_prop_id) + bcolors.FAIL+ " {}".format(rewrite) + bcolors.ENDC + NULL * max_rule_name_length + NULL * len(symbol_prop_id) +  "\t" + bcolors.OKBLUE + "(" + rule_name_general + ")" +bcolors.ENDC)
@@ -300,48 +300,8 @@ def display_all_possible_rewritings(INPUT,MATCH_INDEX=None):
 
 def display_given_a_rule(INPUT,RULE_INDEX=None,MATCH_INDEX=None):
     token = TOKENIZE(INPUT)
-    for rew in rewrites_given_a_rule(token,RULE_INDEX,MATCH_INDEX):
+    for rew in str_rewrites_given_a_rule(token,RULE_INDEX,MATCH_INDEX):
         print(rew)
-    #parse = PARSE(token)
-    #if not parse[0] :
-    #    print("Invalid proposition")
-    #    return
-    #RULE = RULES['REWRITE_RULES'][int(RULE_INDEX)]
-    ##print("rule: ",RULE)
-    #check = rewrite_given_a_rule(token,RULE,MATCH_INDEX=MATCH_INDEX)
-    ##print("check: rewrite_given_a_rule = {}".format(check))
-    #if not check[0] :
-    #    print("No matching pattern.")
-    #    return
-    #REWRITES = check[1] # Storing tokens of possible rewritings
-    #counter = 0
-    #redundant = 0
-    #STR_REWRITES = []
-    #for rew in REWRITES:
-    #    str_rewrite = rew
-    #    if not str_rewrite in STR_REWRITES :
-    #        STR_REWRITES.append(rew)
-    #    else :
-    #        redundant+=1
-    #        continue
-    #    counter+=1
-
-def rewrites_given_a_rule(TOKEN,RULE_INDEX=None,MATCH_INDEX=None):
-    STR_REWRITES = []
-    token = TOKEN
-    parse = PARSE(token)
-    if not parse[0] :
-        return STR_REWRITES
-    RULE = RULES['REWRITE_RULES'][int(RULE_INDEX)]
-    check = rewrite_given_a_rule(token,RULE,MATCH_INDEX=MATCH_INDEX)
-    if not check[0] :
-        return STR_REWRITES
-    REWRITES = check[1]
-    for rew in REWRITES:
-        str_rewrite = rew
-        if not str_rewrite in STR_REWRITES :
-            STR_REWRITES.append(rew)
-    return STR_REWRITES
 
 def display_axioms_and_rules(choice=False):
     if choice == False or choice == "axioms":

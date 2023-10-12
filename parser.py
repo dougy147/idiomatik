@@ -48,7 +48,7 @@ def check_operators(TOKEN):
         if not check_operands(OP,TOKEN): return False
     return True
 
-def check_operands(OPERATOR,TOKEN,EXTRACT_OPERAND = False):
+def check_operands(OPERATOR,TOKEN,EXTRACT_OPERAND = False,ERROR_LOG = True):
     ''' EXTRACT_OPERAND is here in case we need to extract an operator's operand(s)
     for example in the "silent_surrounding()" function.
     '''
@@ -68,7 +68,8 @@ def check_operands(OPERATOR,TOKEN,EXTRACT_OPERAND = False):
             else :
                 last_index = op_index
         if not get_operand(OPERATOR,TOKEN,operands_position[i],last_index)[0] :
-            print(bcolors.FAIL + "ERROR: invalid operand for operator '{}' at index '{}'.".format(OPERATOR[1],op_index) + bcolors.ENDC)
+            if ERROR_LOG:
+                print(bcolors.FAIL + "ERROR: invalid operand for operator '{}' at index '{}'.".format(OPERATOR[1],op_index) + bcolors.ENDC)
             if not EXTRACT_OPERAND: return False
             else :                  return [False, []]
         #print(OPERATOR[1],get_operand(OPERATOR,TOKEN,operands_position[i],last_index))
