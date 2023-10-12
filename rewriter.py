@@ -377,7 +377,8 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
         RECURSION_EXCEEDED = True
         return
     if REWRITES is None: REWRITES = []
-    for i in range(INDEX + distance_to_jump,len(TOKEN)):
+    #for i in range(INDEX + distance_to_jump,len(TOKEN)):
+    for i in range(INDEX,len(TOKEN)):
         if len(TOKEN) - i < len(LEFT_PATTERN) : continue # New : avoid "Rule a + b ::= c" rewrite "Token a" as "c"
         CUR_RIGHT_PATTERN = [x for x in RIGHT_PATTERN]
         pattern_in_token = True
@@ -386,8 +387,9 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
         for j in range(len(LEFT_PATTERN)):
             if i+j >= len(TOKEN):
                 pattern_in_token = False
-                #distance_to_jump = 0
-                distance_to_jump -= distance_to_jump + 1
+                #distance_to_jump -= distance_to_jump + 1
+                distance_to_jump -= ((2 * distance_to_jump) + 1)
+                i -= distance_to_jump
                 break
             rest_of_proposition = NULL+NULL.join(map(str,[x[1] for x in TOKEN[distance_to_jump+i+j+1:]]))
 
@@ -454,12 +456,13 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
             ''' ----------------------- '''
 
             if i+j+distance_to_jump >= len(TOKEN) : break
+            print("Checking if: '{}'  <==>  '{}'".format(TOKEN[i+j+distance_to_jump][1] , LEFT_PATTERN[j][1]))
             if TOKEN[i+j+distance_to_jump][1] != LEFT_PATTERN[j][1] : # and was not ANY_OPERAND?
-                #print("Checking if: '{}'  <==>  '{}'".format(TOKEN[i+j][1] , LEFT_PATTERN[j][1]))
-                #print("CUR_RIGHT_PATTERN: {}".format(CUR_RIGHT_PATTERN))
+                print(" |-> not equal : CUR_RIGHT_PATTERN: {}".format(CUR_RIGHT_PATTERN))
                 pattern_in_token = False
-                #distance_to_jump = 0
-                distance_to_jump -= distance_to_jump + 1
+                #distance_to_jump -= distance_to_jump + 1
+                distance_to_jump -= ((2 * distance_to_jump) + 1)
+                i -= distance_to_jump
                 break
             rewritable_part_of_token.append(TOKEN[i+j])
             #distance_to_jump = 0
