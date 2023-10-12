@@ -9,13 +9,13 @@ Its job is to evaluate if a TOKEN is a "well formed proposition".
 '''
 
 
-def PARSE(TOKEN):
+def PARSE(TOKEN,ERROR_LOG=True):
     if len(TOKEN) == 0: return [True, TOKEN]
-    if not check_surrounders(TOKEN): return [False, TOKEN]
+    if not check_surrounders(TOKEN,ERROR_LOG=ERROR_LOG): return [False, TOKEN]
     if not check_operators(TOKEN): return [False, TOKEN]
     return [True, TOKEN]
 
-def check_surrounders(TOKEN):
+def check_surrounders(TOKEN,ERROR_LOG = True):
     SUR = [x for x in filter(lambda y: y[0] == 'SUR',TOKEN)]
     if len(SUR) == 0: return True
     open_count   = NULL.join(map(str, [x[2] for x in SUR])).count("open")
@@ -23,7 +23,8 @@ def check_surrounders(TOKEN):
     if open_count != close_count :
         if open_count > close_count: type_missing = "closing"
         else :                       type_missing = "opening"
-        print(bcolors.FAIL + "ERROR: missing {} {} parenthesis.".format(abs(open_count-close_count),type_missing) + bcolors.ENDC)
+        if ERROR_LOG :
+            print(bcolors.FAIL + "ERROR: missing {} {} parenthesis.".format(abs(open_count-close_count),type_missing) + bcolors.ENDC)
         return False
     for i in range(len(SUR)):
         if SUR[i][2][1] == 'open':
@@ -31,7 +32,8 @@ def check_surrounders(TOKEN):
             for j in range(i,len(SUR)):
                 if SUR[j][2][2] > SUR[i][2][2]:   continue
                 elif SUR[j][2][2] < SUR[i][2][2]:
-                    print(bcolors.FAIL + "ERROR: incorrect nesting '{}'.".format(NULL.join(map(str, [x[1] for x in TOKEN[i:j]]))) + bcolors.ENDC)
+                    if ERROR_LOG :
+                        print(bcolors.FAIL + "ERROR: incorrect nesting '{}'.".format(NULL.join(map(str, [x[1] for x in TOKEN[i:j]]))) + bcolors.ENDC)
                     return False
                 if SUR[j][2][1] == 'close' and \
                         SUR[j][2][0] == SUR[i][2][0]:
