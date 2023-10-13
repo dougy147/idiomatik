@@ -232,6 +232,11 @@ def token_rewritable_parts(TOKEN,RULE_INDEX=None,MATCH_INDEX=None):
             if LEFT_PATTERN[j][2][0] == 'ANY_STR' and TOKEN[i+j][0] == 'STR':
                 rewritable_part_of_token.append(TOKEN[i+j])
                 continue
+            ''' Add ANY_OPERAND ''' # TODO
+            #if LEFT_PATTERN[j][2][0] == 'ANY_OPERAND' : #and TOKEN[i+j][0] == 'STR':
+            #    rewritable_part_of_token.append(TOKEN[i+j])
+            #    continue
+            ''''''
             if TOKEN[i+j][1] != LEFT_PATTERN[j][1]:
                 pattern_in_token = False
                 break
@@ -272,6 +277,11 @@ def token_all_rewritable_parts(TOKEN,MATCH_INDEX=None):
                 if LEFT_PATTERN[j][2][0] == 'ANY_STR' and TOKEN[i+j][0] == 'STR':
                     rewritable_part_of_token.append(TOKEN[i+j])
                     continue
+                ''' Add ANY_OPERAND ''' # TODO
+                #if LEFT_PATTERN[j][2][0] == 'ANY_OPERAND' : #and TOKEN[i+j][0] == 'STR':
+                #    rewritable_part_of_token.append(TOKEN[i+j])
+                #    continue
+                ''''''
                 if TOKEN[i+j][1] != LEFT_PATTERN[j][1]:
                     pattern_in_token = False
                     break
@@ -428,6 +438,7 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                     if [TOKEN[i+j+distance_to_jump]] == potential : # notice the [] around TOKEN : [TOKEN]
                         #print("2) Yes, I am equal! token: {} i: {} j: {}".format(TOKEN[i+j+distance_to_jump],i,j))
                         found_operand = True
+                        #rewritable_part_of_token.append(TOKEN[i+j])
                         rewritable_part_of_token.append(TOKEN[i+j+distance_to_jump])
                         for l in range(len(RIGHT_PATTERN)):
                             if CUR_RIGHT_PATTERN[l][2][0] == 'ANY_OPERAND' and CUR_RIGHT_PATTERN[l][1] == LEFT_PATTERN[j][1] :
