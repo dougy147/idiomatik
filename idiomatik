@@ -116,11 +116,11 @@ def del_rule_or_axiom(user_value):
 
 def evaluate_proposition(PROP):
     global last_proposition
-    #'''
-    #If PROP starts with ':' then it is a COMMAND?
-    #'''
-    #if PROP[0:1] == ":":
-    #PROP = PROP.split(' ')
+    if PROP.replace(' ','') == '' : return
+    symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
+    if symbol_prop_id in PROP :
+        add_rule(multiple=False,last_proposition=PROP)
+        return
     match PROP.split(' ')[0]:
         case ":q" | "quit" | "exit" :
             exit(0)
@@ -240,7 +240,10 @@ def evaluate_proposition(PROP):
                         if len(new_proposition) == 1 :
                             prev_proposition = last_proposition
                             last_proposition = new_proposition[0]
-                            print("\t " + bcolors.OKBLUE + "=> '" + bcolors.ENDC + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + bcolors.OKBLUE + "' rewritten to '" + bcolors.ENDC + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC + bcolors.OKBLUE + "'." + bcolors.ENDC)
+                            #print("\t " + bcolors.OKBLUE + "=> '" + bcolors.ENDC + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + bcolors.OKBLUE + "' rewritten to '" + bcolors.ENDC + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC + bcolors.OKBLUE + "'." + bcolors.ENDC)
+                            '''Exotic output formatting ...'''
+                            middle_line = str(SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")])
+                            print("\t " + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + (length_old_prop * NULL) + bcolors.OKBLUE + middle_line + bcolors.ENDC + (length_old_prop * NULL) + (len(middle_line) * NULL) + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC)
 
 
 

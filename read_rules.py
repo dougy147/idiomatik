@@ -88,6 +88,7 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                         if name_exist == True:
                             print(bcolors.WARNING + "INFO: axiom '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
                         RULES['AXIOMS_NAMES'].append(NAME)
+                        print(bcolors.OKBLUE + "INFO: imported axiom '{}'.".format(I) + bcolors.ENDC)
                         #counter_rewrite_axioms += 1
                     else :
                         if add_rules == False:
@@ -109,6 +110,7 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                         if name_exist == True:
                             print(bcolors.WARNING + "INFO: rule '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
                         RULES['REWRITE_RULES_NAMES'].append(NAME)
+                        print(bcolors.OKBLUE + "INFO: imported rule '{}'.".format(I) + bcolors.ENDC)
                         #counter_rewrite_rules += 1
                 else:
                     if RULES_FILE == None:

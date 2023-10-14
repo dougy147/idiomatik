@@ -23,37 +23,38 @@ But why not share a "work" in progress?
 
 ## What it does
 
-### Lexing : Raw input to tokens
+### Lexing : from raw input to tokens
 
-`idiomatik` receives input strings (e.g. `a + b = c`) that are returned as *tokens*.
-A token is a chain of elements extracted from the input by the *lexer*.
-The lexer decomposes the input into individual elements (characters, or sequences of characters) corresponding to predefined categories (strings, operators, surrounders, etc.). (These *atomistic* categories and their elements are defined in the `SYMBOLS` table.)
-When all the elements of an input have been attributed an identity (to what category they belong and eventually what are their properties), they are chained together and the construction of the token ends.
+`idiomatik` receives input strings (e.g. `a + b = c`) that are returned as **tokens**.
+A token is a chain of elements built from the input by the **lexer**.
+The lexer decomposes the input into *atomistic* elements (characters, or sequences of characters) that correspond to predefined categories (strings, operators, surrounders, meta characters, etc.). (Those categories are defined in the `SYMBOLS` table.)
+When all the elements of an input have been attributed an identity (to which category they belong, and eventually what are their properties), they are chained together and the construction of the token ends.
 
 ### Parsing : checking syntax
 
-Tokens are then sent to the *parser* whose job is to assess *syntax* (i.e. is the chain of elements in the token a well-formed expression?).
+Tokens are then sent to the **parser** whose job is to assess **syntax** (i.e. is the chain of elements in the token a well-formed expression?).
 The parser returns a truth value depending on the token being syntactically correct or not.
 
 Syntax is immediately incorrect when one of those axioms is false :
 
-- every closing surrounder (`)`, `]`, `}`) matches an opening opposite, at the same level of *nestedness* (opening a surrounder increments the level of nestedness by 1; closing decrements it)
-- every *operator* has a correct amount of *operands* in proper position
+- every closing surrounder (`)`, `]`, `}`) matches an opening opposite, at the same level of **nestedness** (opening a surrounder increments the level of nestedness by 1; closing decrements it)
+- every **operator** has a correct amount of **operands** in proper position
 
-If the token is syntactically valid, then the input is considered to be too.
+If the token is syntactically valid, the input was a well-formed expression (whatever that could mean).
 
 ### Rewriting : transforming expressions
 
-When an input is a valid expression, `idiomatik` can *rewrite* it as another valid expression.
-This transformation depends on a set of arbitrarly rules (i.e. *rewrite rules*) that the user can predefine (see `RULES`) or send on-the-fly :
+When an input is a well-formed expression, `idiomatik` can **rewrite** it as another valid expression.
+This transformation depends on a set of **rewrite rules** that the user can arbitrarly define in files (see `RULES` and the `load` command) or send on-the-fly :
 
 ```bash
-./idiomatik
-|> A => B --> ~A V B
-|> add rule
+|> contraposition :: A => B --> ~B => ~A
+INFO: imported rule 'contraposition :: A => B --> ~B => ~A'.
+
 |> p => q
-|> rewrite full
-~p V q
+
+|> rewrite contraposition
+~q => ~p
 ```
 
 Rewrite rules put aside, `idiomatik` is gonna be used to solve expressions (work in progress).
@@ -61,21 +62,20 @@ It is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnem
 This is by default but it is configurable thanks to a precedence value given to operators in the `SYMBOLS` table.
 If some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), `idiomatik` allows users to set the associative direction of operators as we stated above. In the `SYMBOLS` table negative priority values give right-to-left associativity, positive left-to-right, while null oppose their operands by "splitting" expressions. 
 
-This process of desambiguation is of course of interest to solve expressions, but also to draw trees.
+This process of desambiguation is also of interest to draw trees.
 
 ### Visualizing : drawing trees
 
 `idiomatik` can draw basic trees (really basic trees) representing any given expression with `tree` or `draw`:
 
 ```bash
-./idiomatik
 |> a + b * c / d
+
 |> draw
--+++----------+
-#0 |  +
-#1 | a    /
-#2 |    *  d
-#3 |   b c
+0 |  +
+1 | a    /
+2 |    *  d
+3 |   b c
 ```
 
 ## Control how `idiomatik` speaks and think
@@ -96,8 +96,8 @@ Precedence is set with relative values. To the exception of `0`, the lowest the 
 Give the following string `(~a) + [(b) / c]` to the lexer, and check the token with the command `token`:
 
 ```bash
-./idiomatik
 |> (~a) + [(b) / c]
+
 |> token
     [['SUR', '(', ['PARENTHESIS', 'open', 1], 0], \
     ['OP', '~', ['NOT', 'unary', 'R', 1], 1], \
@@ -112,13 +112,8 @@ Give the following string `(~a) + [(b) / c]` to the lexer, and check the token w
     ['STR', 'c', ['variable', 1], 10], \
     ['SUR', ']', ['BRAKET', 'close', 1], 11]]
 ```
-<!--
-```
-[PAR_open_1][OP_not][STR][PAR_close_1][OP_plus][BRA_open_1][PAR_open_2][STR][PAR_close_2][OP_div][STR][BRA_close_1]
-```
--->
 
-Tokens are hard to read for humans, but as `idiomatik` does not return an error, we can conclude this is a syntactically valid expression. This is because none of our axioms is refuted :
+Tokens are not simple to read for humans but as `idiomatik` returns no error, this is definitely a syntactically valid expression (just keep in mind that this depends on how symbols are defined in `SYMBOLS`!). To check it ourself, let's observe that no syntax axiom is refuted :
 
 - `~a` is nested at level 1 in matching parenthesis
 - `(b) / c` is nested at level 1 in matching brakets
@@ -130,10 +125,11 @@ Tokens are hard to read for humans, but as `idiomatik` does not return an error,
 Let's now define an arbitrary rewrite rule, for example : `(_) --> _`, by feeding it to our program :
 
 ```bash
-|> (_) --> _
-|> add r
+|> unparenthesize :: (_) --> _
+INFO: imported rule 'unparenthesize :: (_) --> _'.
+
 |> rules
-    (R0)     ( _ ) --> _
+    (R0 :: unparenthesize)     ( _ ) --> _
 ```
 
 `_` and `-->` are two *meta* symbols, meaning respectively _any string_ and _rewrite as_. This rewrite rule could be understood as "any string between parenthesis can be rewritten without it".
@@ -147,11 +143,27 @@ Now ask `idiomatik` to try to match our rule with our proposition and eventually
 
 ```bash
 |> rewrite full
-( ~ a ) + [ b / c ]  
+( ~ a ) + [ b / c ]
 ```
 
 That's it! `(b)` became `b`, and that's all we wanted to do in this example.
+
 Now try adding rules and try them on different expressions.
+
+### Matches
+
+The `rewrite full` command is not always what we need to get fine control.
+Use `match <rule index>` or `match <rule name>` to check if the current proposition can be rewritten by a specific rule.
+If multiples matches are possible, index are displayed on the left.
+Use `rewrite <rule index> <match index>` (or `rewrite <rule name> <match index>`) to transform the current proposition to the desired one.
+
+```bash
+|> match R0
+0 | ( ~ a ) + [ ( b ) / c ]     (R0 :: unparenthesize)   :: ( ~ a ) + [ b / c ]
+
+|> rewrite R0 0
+( ~ a ) + [ b / c ]  
+```
 
 ### Meta characters
 
@@ -173,16 +185,21 @@ Here is a quick summary of current meta characters in `idiomatik`:
 | **`_1`**  | Any *identified* string (same as `_2`, `_3`..., `_10`)   |
 | **`A`**  | Any *identified* string (same as `B`, `C`..., `Z`)        |
 | **`$`**   | Any operand                                              |
-| **`$1`**   | Any *identified* operand (same as `_2`, `_3`..., `_10`) |
+| **`$1`**   | Any *identified* operand (same as `$2`, `$3`..., `$10`) |
 | **`¤`**   | Any left-right (binary) operator                         |
 | **`_¤`**   | Any right (unary) operator                         |
 | **`¤_`**   | Any left (unary) operator                         |
 
 ### Troubles with rewrite rules
 
-We have various choices when applying transformation rules to an expression. For example checking if the rewrited expression (here ` ( ~ a ) + [ b / c ] `) is also rewritable given our rules, or stopping.
-This is not trivial when considering rules leading to never ending loops (e.g. `_ --> (_)`).
-There is no optimal choice for now in `idiomatik` as it exhaustively recomputes every rewritings, given all rules (!) until nothing new can be rewritten (highly resource consuming and potentially never ending...), but I will add simpler behaviors (forbid infinite use of expanding rules?).
+We have various choices when applying transformation rules to an expression.
+For example, we may want to check again if the rewrited expression is itself rewritable given our rules.
+We may also want to stop after just one transformation.
+This reflexion is not trivial when considering rules leading to never ending loops (e.g. `_ --> (_)`).
+
+The `rewrite full` command apply all combinations of all rules (!) to an input and all its transformations (!!).
+But `idiomatik` as a recursive limit of 50 calls to that command.
+The `rewrite <rule> <match index>` command is safer.
 
 ### Derivating
 
@@ -195,6 +212,7 @@ Here is an example with [Peano's definition of addition](https://en.wikipedia.or
     > A + s(B) --> s(A + B)
     
 |> a + 1 = a + s(0)
+
 |> rewrite full
 a + 1 = s ( a + 0 )
 a + 1 = s ( 0 )
@@ -210,6 +228,7 @@ That's where `idiomatik` is for now.
 - (!!) Allow saving a succession of steps and use it as a new transformation rule
 - (!!) Allow chaining multiple transformation rules
 - (!) Use silent surrounders when transforming some expressions, then delete those surrounders (useful for unary operators exp?).
+- Check if rule already exists before importing
 - Better handling of "last_proposition"
 - Draw better trees
 - Transform tree to its linear form (to check if two trees are equals)
@@ -238,6 +257,7 @@ That's where `idiomatik` is for now.
 - https://plato.stanford.edu/entries/dynamic-epistemic/appendix-B-solutions.html#muddy
 - https://yewtu.be/JO_0e9mPofY
 - https://en.wikipedia.org/wiki/Computer_algebra_system
+- https://github.com/tsoding/Noq
 
 ## Raw pasting
 
@@ -347,13 +367,13 @@ Idiomatik in BNF notation (might be wrong)...
 <Token> 	::= <Proposition> | <Rule>
 <Rule> 		::= <Axiom> | <Rewrite rule>
 <Axiom>         ::= <Proposition>
-<Rewrite rule> 	::= <Token> --> <Token>
+<Rewrite rule> 	::= <Proposition> --> <Proposition>
 <Proposition> 	::= <Symbol> | <Symbol> <Proposition>
-<Symbol> 	::= <Str> | <Surr> | <Op> | <Meta> | <Number>
+<Symbol> 	::= <Str> | <Surr> | <Op> | <Meta>
 <Str> 		::= <char> | <char> <Str>
 <Surr> 		::= ( | ) | [ | ] | { | }
 <Op> 		::= + | ... | -->
-<Meta> 		::= _ | $
+<Meta> 		::= _ | $ | ¤ | ...
 <Number> 	::= <digit> | <digit> <Number>
 <char> 		::= a | ... | Z
 <digit> 	::= 0 | ... | 9
