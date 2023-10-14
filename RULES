@@ -10,11 +10,11 @@
 // Rules are first parsed by 'read_rules.py' with PARSE(TOKENIZE(rule)) function
 // Invalid rules propositions are excluded so that in IDIOMATIK, RULES are always TRUE.
 
-//// AXIOMS:
-//// Axioms are RULES without any TRANSFORMATION needed.
-//// Examples:
-//not a :: ~a
-//id a  :: a = a
+// AXIOMS:
+// Axioms are RULES without any TRANSFORMATION needed.
+// Examples:
+not a :: ~a
+id a  :: a = a
 
 //// TRANSFORMATION RULES:
 //// Transformation rules contain the REWRITE_AS operator
@@ -22,20 +22,20 @@
 //// In the future, there could be multiple rewrite symbols with different directions
 //// Examples :
 
-//(_) --> _
-//
-//((_)) --> (_)
-//(~ _) --> ~ _
-//A => B --> ~ A V B
+(_) --> _
+
+((_)) --> (_)
+(~ _) --> ~ _
+A => B --> ~ A V B
 
 
-//// Peano's definition of addition
-//add_neutral :: A + 0 --> A
-//add_peano2  :: A + s(B) --> s(A + B)
-//
-//// Peano's definition of multiplication
-//mult_neutral :: A . 0 --> 0
-//mult_peano2  :: A . s(B) --> A + (A . B)
+// Peano's definition of addition
+add_neutral :: A + 0 --> A
+add_peano2  :: A + s(B) --> s(A + B)
+
+// Peano's definition of multiplication
+mult_neutral :: A . 0 --> 0
+mult_peano2  :: A . s(B) --> A + (A . B)
 
 
 //// Testing Rules
