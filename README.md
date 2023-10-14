@@ -195,13 +195,17 @@ That's where `idiomatik` is for now.
 
 - (!!) Allow saving a succession of steps and use it as a new transformation rule
 - (!!) Allow chaining multiple transformation rules
+- (!) Use silent surrounders when transforming the expression, then delete them. (Need to mark silent surrounders with a specific identifier.)
 - Better handling of "last_proposition"
-- Meta character for ANY_OPERAND
 - Draw better trees
 - Transform tree to its linear form (to check if two trees are equals)
 - Undo command
 - Save logs/transformations
 - Improve rewrite system
+
+# Doing
+
+- Meta character for ANY_OPERAND (to check)
 
 # Resources
 
