@@ -155,14 +155,28 @@ Now try adding rules and try them on different expressions.
 
 ### Meta characters
 
-Note that `(~a)` is not rewritten in this example, because it does not match the pattern.
-To unwrap it, we could consider a rule like `(~_) --> ~_`.
-Adding a meta operator like `$`, symbolizing any couple operator-operand(s), could be helpful : `($) --> $`.
+Note that in the example above, `(~a)` is not unparenthesized.
+It does not match the pattern `(_)` because of the operator `~`.
+To unwrap it, we could consider a rule like `(~_) --> ~_`, or maybe better `(¤_ $) --> ¤_ $`.
+`$` symbolizes *any operand*, while `¤_` means *any right unary operator*. 
 Other meta symbols are to be implemented (e.g. any surrounder, rules, etc.).
 
 Upper case letters (`A`...`Z`) are the same as `_`, they represent *any string* but allow flexibility in the assignement of which variable in the left hand side of the rewrite rule (the pattern to match) corresponds to which variable in the right hand side. 
 To illustrate this, consider a rule like : `A (B + C) --> A * B + B * C`.
 When applied to the expression `2 ( 3 + 4 )` it will match `A` to `2`, `B` to `3` and `C` to `4`, ending in this rewrite : `2 * 3 + 2 * 4`.
+
+Here is a quick summary of current meta characters in `idiomatik`:
+
+| Symbol    | Meaning                                                  |
+|-----------|----------------------------------------------------------|
+| **`_`**   | Any string                                               |
+| **`_1`**  | Any *identified* string (same as `_2`, `_3`..., `_10`)   |
+| **`A`**  | Any *identified* string (same as `B`, `C`..., `Z`)        |
+| **`$`**   | Any operand                                              |
+| **`$1`**   | Any *identified* operand (same as `_2`, `_3`..., `_10`) |
+| **`¤`**   | Any left-right (binary) operator                         |
+| **`_¤`**   | Any right (unary) operator                         |
+| **`¤_`**   | Any left (unary) operator                         |
 
 ### Troubles with rewrite rules
 
@@ -195,7 +209,7 @@ That's where `idiomatik` is for now.
 
 - (!!) Allow saving a succession of steps and use it as a new transformation rule
 - (!!) Allow chaining multiple transformation rules
-- (!) Use silent surrounders when transforming the expression, then delete them. (Need to mark silent surrounders with a specific identifier.)
+- (!) Use silent surrounders when transforming some expressions, then delete those surrounders (useful for unary operators exp?).
 - Better handling of "last_proposition"
 - Draw better trees
 - Transform tree to its linear form (to check if two trees are equals)

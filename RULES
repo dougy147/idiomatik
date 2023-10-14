@@ -28,22 +28,26 @@
 //(~ _) --> ~ _
 //A => B --> ~ A V B
 //
-//// Peano's definition of addition
-//add_neutral :: A + 0 --> A
-//add_peano2  :: A + s(B) --> s(A + B)
-//
-//// Peano's definition of multiplication
-//mult_neutral :: A . 0 --> 0
-//mult_peano2  :: A . s(B) --> A + (A . B)
-//
-//
+
+// Peano's definition of addition
+add_neutral :: A + 0 --> A
+add_peano2  :: A + s(B) --> s(A + B)
+
+// Peano's definition of multiplication
+mult_neutral :: A . 0 --> 0
+mult_peano2  :: A . s(B) --> A + (A . B)
+
+
+
 //// Error prone rules
 //mult_peano2  :: A . s(B) --> A + (A . B)
 //A --> B --> C
 //:: A --> B
 //
-////any_operand_test :: $1 --> $1 + 0
+
+//// Testing Rules
+//any_operand_test :: $1 --> $1 + 0
 //test_null :: $1 + 0 --> $1
-asso      :: ($1 + $2 ) + $3 --> $1 + ($2 + $3)
-test_swap :: $1 + $2 --> $2 + $1
+//asso      :: ($1 + $2 ) + $3 --> $1 + ($2 + $3)
+//test_swap :: $1 + $2 --> $2 + $1
 //test_any_op :: $1 ¤ $2 --> $2 ¤ $1
