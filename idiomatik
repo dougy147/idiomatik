@@ -4,9 +4,6 @@
 #Model = { 'R0 : A = B <=> B = A (swap)', 'P0 : "a" = "b"', 'P1 : "b" = "c"' }
 #CHECK P1 : "a" = "c"
 
-#RULES['AXIOMS'].append(RULE[1])
-#RULES['REWRITE_RULES'].append(RULE[1])
-
 import sys
 from os.path import exists
 from read_table import *
@@ -16,7 +13,7 @@ from read_rules import *
 from checker import *
 from displayer import *
 from rewriter import *
-import readline # allow left/right arrow while inputing
+import readline # allows left/right/up/down arrows in command prompt
 from colors import *
 
 sys.setrecursionlimit(10**6)
@@ -24,7 +21,7 @@ sys.setrecursionlimit(10**6)
 global last_proposition
 last_proposition = ""
 global user_propositions
-user_propositions = []
+user_propositions = [] # use it as history soon
 
 IDIOMATIK_PROMPT   = bcolors.OKGREEN + '\n|> ' + bcolors.ENDC
 IDIOMATIK_GREETING = bcolors.OKBLUE + '''
@@ -68,7 +65,6 @@ def add_axiom(multiple=False,last_proposition=last_proposition):
 
 
 def del_rule_or_axiom(user_value):
-    # user_value = PROP.split(' ')[1]
     found = False
     for i in range(len(RULES['REWRITE_RULES'])) :
         if "R"+str(i) == user_value or \
@@ -115,13 +111,18 @@ def del_rule_or_axiom(user_value):
                 break
 
 def evaluate_proposition(PROP):
+    ''' TODO : use a better command checker '''
     global last_proposition
-    if PROP.replace(' ','') == '' : return
+    COMMAND = [x for x in PROP.split(' ') if x]
+    if len(PROP) == 0: return
+    #if PROP.replace(' ','') == '' : return
+    #print(PROP)
     symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
     if symbol_prop_id in PROP :
         add_rule(multiple=False,last_proposition=PROP)
         return
-    match PROP.split(' ')[0]:
+    #match PROP.split(' ')[0]:
+    match COMMAND[0]:
         case ":q" | "quit" | "exit" :
             exit(0)
         case "prop" | "proposition": # displays current proposition under scrutiny
@@ -142,42 +143,52 @@ def evaluate_proposition(PROP):
             display_axioms_and_rules("rules")
 
         case "reset":
-            if len(PROP.split(' ')) != 2 :
-                print(bcolors.WARNING + "'reset' only accept the 'rule' argument." + bcolors.ENDC)
-            elif PROP.split(' ')[1] == "rules" :
+            if len(COMMAND) != 2 :
+                print(bcolors.WARNING + "'reset' only accept 'axioms', 'rules', or 'all' arguments." + bcolors.ENDC)
+            elif COMMAND[1] == "all" :
                 for i in range(len(RULES['REWRITE_RULES'])):
                     RULES['REWRITE_RULES'].pop(0)
                     RULES['REWRITE_RULES_NAMES'].pop(0)
                 for i in range(len(RULES['AXIOMS'])):
                     RULES['AXIOMS'].pop(0)
                     RULES['AXIOMS_NAMES'].pop(0)
+                print(bcolors.OKBLUE + "Rules and axioms reset." + bcolors.ENDC)
+            elif COMMAND[1] == "rules" :
+                for i in range(len(RULES['REWRITE_RULES'])):
+                    RULES['REWRITE_RULES'].pop(0)
+                    RULES['REWRITE_RULES_NAMES'].pop(0)
                 print(bcolors.OKBLUE + "Rules reset." + bcolors.ENDC)
+            elif COMMAND[1] == "axioms" :
+                for i in range(len(RULES['AXIOMS'])):
+                    RULES['AXIOMS'].pop(0)
+                    RULES['AXIOMS_NAMES'].pop(0)
+                print(bcolors.OKBLUE + "Axioms reset." + bcolors.ENDC)
             else :
-                print(bcolors.WARNING + "'reset' only accept the 'rule' argument." + bcolors.ENDC)
+                print(bcolors.WARNING + "'reset' only accept 'axioms', 'rules', or 'all' arguments." + bcolors.ENDC)
 
         case "load":
-            if len(PROP.split(' ')) != 2 :
+            if len(COMMAND) != 2 :
                 print(bcolors.WARNING + "'load' needs one filename as argument." + bcolors.ENDC)
-            elif exists(PROP.split(' ')[1]):
+            elif exists(COMMAND[1]):
                 try :
-                    IMPORT_RULES(STREAM=[],RULES_FILE=PROP.split(' ')[1])
-                    print(bcolors.OKGREEN + "> Successfully imported rules in file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
+                    IMPORT_RULES(STREAM=[],RULES_FILE=COMMAND[1])
+                    print(bcolors.OKGREEN + "> Successfully imported rules in file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
                 except :
-                    print(bcolors.FAIL + "UNKNOWN ERROR while importing file '{}'.".format(PROP.split(' ')[1]) + bcolors.ENDC)
+                    print(bcolors.FAIL + "UNKNOWN ERROR while importing file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
             else :
-                print(bcolors.FAIL + "ERROR: file '{}' does not exist.".format(PROP.split(' ')[1]) + bcolors.ENDC)
+                print(bcolors.FAIL + "ERROR: file '{}' does not exist.".format(COMMAND[1]) + bcolors.ENDC)
 
 
 
         case "rewrite":
-            if len(PROP.split(' ')) == 1 :
+            if len(COMMAND) == 1 :
                     print(bcolors.WARNING + "Please provide a name or number for rewriting rule.\nOr use 'full' to combine them all." + bcolors.ENDC)
-            elif len(PROP.split(' ')) == 2 :
-                match PROP.split(' ')[1]:
+            elif len(COMMAND) == 2 :
+                match COMMAND[1]:
                     case "full" | "f" :
                         display_all_possible_rewritings(last_proposition)
                     case _ :
-                        rule_or_index = PROP.split(' ')[1]
+                        rule_or_index = COMMAND[1]
                         is_rule = False
                         for i in range(len(RULES['REWRITE_RULES_NAMES'])):
                             if rule_or_index == RULES['REWRITE_RULES_NAMES'][i]:
@@ -204,10 +215,10 @@ def evaluate_proposition(PROP):
                             display_all_possible_rewritings(last_proposition,MATCH_INDEX=rule_or_index)
                         else :
                             display_given_a_rule(last_proposition,RULE_INDEX=rule_or_index)
-            elif len(PROP.split(' ')) == 3 :
-                match PROP.split(' ')[1]:
+            elif len(COMMAND) == 3 :
+                match COMMAND[1]:
                     case _ :
-                        rule_index = PROP.split(' ')[1]
+                        rule_index = COMMAND[1]
                         rule_found = False
                         for i in range(len(RULES['REWRITE_RULES_NAMES'])):
                             if rule_index == RULES['REWRITE_RULES_NAMES'][i]:
@@ -230,32 +241,31 @@ def evaluate_proposition(PROP):
                             print(bcolors.FAIL + "ERROR: no rule has index '{}'.".format(rule_index) + bcolors.ENDC)
                             return
                         try :
-                            match_index = int(PROP.split(' ')[2])
+                            match_index = int(COMMAND[2])
                         except :
-                            print(bcolors.FAIL + "ERROR: '{}' is not a correct index.".format(PROP.split(' ')[2]) + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: '{}' is not a correct index.".format(COMMAND[2]) + bcolors.ENDC)
                             return
-                        display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
 
+                        display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
                         new_proposition  = str_rewrites_given_a_rule(TOKENIZE(last_proposition),RULE_INDEX=rule_index,MATCH_INDEX=match_index)
                         if len(new_proposition) == 1 :
                             prev_proposition = last_proposition
                             last_proposition = new_proposition[0]
-                            #print("\t " + bcolors.OKBLUE + "=> '" + bcolors.ENDC + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + bcolors.OKBLUE + "' rewritten to '" + bcolors.ENDC + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC + bcolors.OKBLUE + "'." + bcolors.ENDC)
                             '''Exotic output formatting ...'''
                             middle_line = str(SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")])
-                            print("\t " + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + (length_old_prop * NULL) + bcolors.OKBLUE + middle_line + bcolors.ENDC + (length_old_prop * NULL) + (len(middle_line) * NULL) + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC)
+                            print("\t " + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + " \t " + bcolors.OKBLUE + middle_line + bcolors.ENDC + " \t " + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC)
 
 
 
         case "match" | "matches": # highlight rewritable parts of the token
-            if len(PROP.split(' ')) == 1 :
+            if len(COMMAND) == 1 :
                 display_rewritable_parts(last_proposition)
-            elif len(PROP.split(' ')) == 2 :
-                rule_to_match = PROP.split(' ')[1]
+            elif len(COMMAND) == 2 :
+                rule_to_match = COMMAND[1]
                 display_rewritable_parts(last_proposition,RULE_TO_MATCH=rule_to_match)
-            elif len(PROP.split(' ')) == 3 :
-                rule_to_match = PROP.split(' ')[1]
-                match_index = PROP.split(' ')[2]
+            elif len(COMMAND) == 3 :
+                rule_to_match = COMMAND[1]
+                match_index = COMMAND[2]
                 try :
                     match_index = int(match_index)
                 except:
@@ -267,66 +277,65 @@ def evaluate_proposition(PROP):
 
 
         case "debug" :
-            if len(PROP.split(' ')) != 2 :
-                print(bcolors.WARNING + "'debug' needs one thing to debug (e.g. 'debug rules').")
+            if len(COMMAND) != 2 :
+                print(bcolors.WARNING + "'debug' needs one thing to debug (e.g. 'debug all').")
             else :
-                match PROP.split(' ')[1] :
-                    case "rules" : print(RULES)
-                    case "rewrite" : print(RULES['REWRITE_RULES'])
+                match COMMAND[1] :
+                    case "all" : print(RULES)
+                    case "rules" : print(RULES['REWRITE_RULES'])
                     case "axioms" : print(RULES['AXIOMS'])
+                    case "history": print(user_propositions)
+                    #case STR_REWRITES, etc.
+                    case "rewrites":
+                        try : print(REWRITES)
+                        except : print("No REWRITES variable.")
+                    case _: print("Unknown debug command.")
 
         case "del" | "delete":
-            if len(PROP.split(' ')) == 1 :
-                print("INFO: use 'delete Ax' or 'delete Rx' to delete an axiom or a rule.")
+            if len(COMMAND) == 1 :
+                print(bcolors.WARNING + "INFO: use 'delete Ax' or 'delete Rx' to delete an axiom or a rule given an index.\nYou can also delete by name." + bcolors.ENDC)
                 for i in range(len(RULES['REWRITE_RULES'])) :
                     print(bcolors.OKBLUE + "\t(R{}) \t{}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
-            elif len(PROP.split(' ')) > 2 :
-                print("ERROR: 'delete' needs precisely one rule or axiom number")
-            else :
-                del_rule_or_axiom(PROP.split(' ')[1])
+            elif len(COMMAND) > 2 : print("ERROR: 'delete' needs precisely one rule or axiom number/name.")
+            else : del_rule_or_axiom(COMMAND[1])
 
         case "add" :
-            if len(PROP.split(' ')) == 1 or len(PROP.split(' ')) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
+            if len(COMMAND) == 1 or len(COMMAND) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
             else :
-                match PROP.split(' ')[1]:
-                    case "axiom" | "a" :
-                        add_axiom(multiple=False,last_proposition=last_proposition)
-                    case "axioms" | "as" :
-                        add_axiom(multiple=True)
-                    case "rule" | "r":
-                        add_rule(multiple=False,last_proposition=last_proposition)
-                    case "rules" | "rs":
-                        add_rule(multiple=True)
-                    case "prop" | "p" | "proposition":
-                        print("TODO")
+                match COMMAND[1]:
+                    case "axiom" | "a"   : add_axiom(multiple=False,last_proposition=last_proposition)
+                    case "axioms" | "as" : add_axiom(multiple=True)
+                    case "rule" | "r"    : add_rule(multiple=False,last_proposition=last_proposition)
+                    case "rules" | "rs"  : add_rule(multiple=True)
+                    case "prop" | "p" | "proposition": print("TODO")
 
         case "rename" :
-            if len(PROP.split(' ')) != 3 : print("ERROR: 'rename' needs precisely two arguments: 'old_name', 'new_name'")
+            if len(COMMAND) != 3 : print("ERROR: 'rename' needs precisely two arguments: 'old_name', 'new_name'")
             else :
                 found = False
-                if "A" in PROP.split(' ')[1] or "a" in PROP.split(' ')[1]:
+                if "A" in COMMAND[1] or "a" in COMMAND[1]:
                     try:
-                        index = int(PROP.split(' ')[1].replace("A","").replace("a",""))
-                        RULES['AXIOMS_NAMES'][index] = PROP.split(' ')[2]
+                        index = int(COMMAND[1].replace("A","").replace("a",""))
+                        RULES['AXIOMS_NAMES'][index] = COMMAND[2]
                         found = True
                     except : found = False
-                elif "R" in PROP.split(' ')[1] or "r" in PROP.split(' ')[1]:
+                elif "R" in COMMAND[1] or "r" in COMMAND[1]:
                     try:
-                        index = int(PROP.split(' ')[1].replace("R","").replace("r",""))
-                        RULES['REWRITE_RULES_NAMES'][index] = PROP.split(' ')[2]
+                        index = int(COMMAND[1].replace("R","").replace("r",""))
+                        RULES['REWRITE_RULES_NAMES'][index] = COMMAND[2]
                         found = True
                     except: found = False
                 else :
                     for i in range(len(RULES['AXIOMS_NAMES'])):
-                        if PROP.split(' ')[1] == RULES['AXIOMS_NAMES'][i] :
+                        if COMMAND[1] == RULES['AXIOMS_NAMES'][i] :
                             found = True
-                            RULES['AXIOMS_NAMES'][i] = PROP.split(' ')[2]
+                            RULES['AXIOMS_NAMES'][i] = COMMAND[2]
                             break
                     if not found :
                         for i in range(len(RULES['REWRITE_RULES_NAMES'])):
-                            if PROP.split(' ')[1] == RULES['REWRITE_RULES_NAMES'][i] :
+                            if COMMAND[1] == RULES['REWRITE_RULES_NAMES'][i] :
                                 found = True
-                                RULES['REWRITE_RULES_NAMES'][i] = PROP.split(' ')[2]
+                                RULES['REWRITE_RULES_NAMES'][i] = COMMAND[2]
                                 break
                 if not found : print("ERROR: no axiom nor rule with that index or name.")
 

@@ -45,7 +45,7 @@ If the token is syntactically valid, the input was a well-formed expression (wha
 ### Rewriting : transforming expressions
 
 When an input is a well-formed expression, `idiomatik` can **rewrite** it as another valid expression.
-This transformation depends on a set of **rewrite rules** that the user can arbitrarly define in files (see `RULES` and the `load` command) or send on-the-fly :
+This transformation depends on a set of **rewrite rules** that the user can arbitrarly define and send on-the-fly :
 
 ```bash
 |> contraposition :: A => B --> ~B => ~A
@@ -55,6 +55,16 @@ INFO: imported rule 'contraposition :: A => B --> ~B => ~A'.
 
 |> rewrite contraposition
 ~q => ~p
+```
+
+Rules can also be imported from files (see `rules/example`) with the `load` command) :
+
+```bash
+|> load ./rules/addition
+INFO: imported rule 'add_commutativity :: A + B --> B + A'.
+INFO: imported rule 'add_associativity :: A + (B + C) --> (A + B) + C'.
+INFO: imported rule 'add_neutral :: A + 0 --> A'.
+> Successfully imported rules in file 'rules/addition'.
 ```
 
 Rewrite rules put aside, `idiomatik` is gonna be used to solve expressions (work in progress).
