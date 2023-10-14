@@ -118,4 +118,4 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                     else :
                         print(bcolors.WARNING + "WARNING: invalid rule from file '{}': '{}'".format(RULES_FILE,I,i) + bcolors.ENDC)
 
-IMPORT_RULES(STREAM,RULES_FILE = "RULES")
+#IMPORT_RULES(STREAM,RULES_FILE = "RULES")
