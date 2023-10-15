@@ -78,7 +78,7 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                         RULES['AXIOMS'].append(RULE[1])
                         name_exist = False
                         FNAME = NAME
-                        while NAME in RULES['AXIOMS_NAMES']:
+                        while NAME in RULES['AXIOMS_NAMES'] and NAME != "" : # ignore if name is empty
                             name_exist = True
                             try:
                                 RENAME = str(NAME[0:len(NAME)-1]) + str(int(NAME[len(NAME)-1])+1)
@@ -100,7 +100,7 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                         RULES['REWRITE_RULES'].append(RULE[1])
                         name_exist = False
                         FNAME = NAME
-                        while NAME in RULES['REWRITE_RULES_NAMES']:
+                        while NAME in RULES['REWRITE_RULES_NAMES'] and NAME != "" : # ignore if name is empty
                             name_exist = True
                             try:
                                 RENAME = str(NAME[0:len(NAME)-1]) + str(int(NAME[len(NAME)-1])+1)

@@ -303,7 +303,8 @@ def token_rewritable_parts(TOKEN,RULE_INDEX=None,MATCH_INDEX=None):
             rewritable_part_of_token.append(TOKEN[i+j+distance_to_jump])
             #print("pattern_in_token : '{}'".format(pattern_in_token))
             #print("rewritable_part_of_token : '{}'".format(rewritable_part_of_token))
-        if pattern_in_token :
+        #if pattern_in_token :
+        if pattern_in_token and rewritable_part_of_token != [] :
             #print("--> WRITING rewritable_part_of_token : '{}'".format(rewritable_part_of_token))
             REWRITABLE_PARTS.append([rewritable_part_of_token,R])
         distance_to_jump = 0
@@ -396,7 +397,8 @@ def token_all_rewritable_parts(TOKEN,MATCH_INDEX=None):
                     pattern_in_token = False
                     break
                 rewritable_part_of_token.append(TOKEN[i+j+distance_to_jump])
-            if pattern_in_token:
+            #if pattern_in_token:
+            if pattern_in_token and rewritable_part_of_token != [] :
                 REWRITABLE_PARTS.append([rewritable_part_of_token,R])
             distance_to_jump = 0
     return REWRITABLE_PARTS
@@ -638,7 +640,8 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                 rewritable_part_of_token.append(TOKEN[i+j])
 
 
-        if pattern_in_token :
+        #if pattern_in_token :
+        if pattern_in_token and rewritable_part_of_token != [] :
             if "ANY_STR" in str(CUR_RIGHT_PATTERN) or "ANY_OPERAND" in str(CUR_RIGHT_PATTERN) :
                 #print("7) ANY_OPERAND in CUR_RIGHT_PATTERN '{}'".format(NULL.join(map(str,[x[1] for x in CUR_RIGHT_PATTERN]))))
                 continue
