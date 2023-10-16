@@ -1,4 +1,5 @@
-add_commutativity :: A + B --> B + A
+//add_commutativity :: A + B --> B + A
+add_commutativity :: $1 + $2 --> $2 + $1
 //add_associativity :: A + (B + C) --> (A + B) + C
 add_associativity :: $1 + ($2 + $3) --> ($1 + $2) + $3
 

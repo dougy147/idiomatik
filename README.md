@@ -13,14 +13,6 @@ cd idiomatik
 ./idiomatik
 ```
 
-## Why?
-
-I initially wanted to write a solving algorithm for the [Muddy Children Puzzle](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle). That led me to some questions about public/private knowledge, inference rules, well-formed formulas and other stuff I had never heard of, seriously thought of, or invested time in. What are those things? how to implement lexemes identification or evaluate syntax? why is model checking so hard?... those are things I'm interested in for now... until the fail ! lol.
-
-So, I'm not reinventing the wheel, and this will be far from original or quality work. Just disorganized trials and errors, and random notes and code.
-A lot of things here could be wrong or bad approximations, reflecting my ignorance in CS in general.
-But why not share a "work" in progress?
-
 ## What it does
 
 ### Lexing : from raw input to tokens
@@ -191,14 +183,14 @@ Here is a quick summary of current meta characters in `idiomatik`:
 
 | Symbol    | Meaning                                                  |
 |-----------|----------------------------------------------------------|
-| **`_`**   | Any string                                               |
-| **`_1`**  | Any *identified* string (same as `_2`, `_3`..., `_10`)   |
-| **`A`**  | Any *identified* string (same as `B`, `C`..., `Z`)        |
-| **`$`**   | Any operand                                              |
-| **`$1`**   | Any *identified* operand (same as `$2`, `$3`..., `$10`) |
-| **`¤`**   | Any left-right (binary) operator                         |
-| **`_¤`**   | Any right (unary) operator                         |
-| **`¤_`**   | Any left (unary) operator                         |
+|   `_`     | Any string                                               |
+|   `_1`    | Any *identified* string (same as `_2`, `_3`..., `_10`)   |
+|   `A`     | Any *identified* string (same as `B`, `C`..., `Z`)       |
+|   `$`     | Any operand                                              |
+|   `$1`    | Any *identified* operand (same as `$2`, `$3`..., `$10`)  |
+|   `¤`     | Any left-right (binary) operator                         |
+|   `_¤`    | Any right (unary) operator                               |
+|   `¤_`    | Any left (unary) operator                                |
 
 ### Troubles with rewrite rules
 
@@ -402,3 +394,15 @@ Less compact.
 In BNF notation `<exp> ::= <exp> <term> | <term>` is an example of left-recursion (so left associativity) because `... ::= <exp> <term> | ...` sees `<exp>` on the left side, meaning recursion will happen on the left side.
 To the contrary `<exp> ::= <term> <exp> | <term>` would be right recursive, therefore right associative.
 See [this video](https://piped.video/JO_0e9mPofY?t=1115).
+
+
+## Why?
+
+I initially wanted to write a solving algorithm for the [Muddy Children Puzzle](https://en.wikipedia.org/wiki/Induction_puzzles#Muddy_Children_Puzzle). That led me to some questions about public/private knowledge, inference rules, well-formed formulas and other stuff I had never heard of, seriously thought of, or invested time in. How to implement lexemes identification, evaluate syntax, do model checking, ...? 
+Topics or concepts derivating from these questions are covered in the resources section.
+
+So, I'm not reinventing the wheel, and this will be far from original or quality work. Just disorganized trials and errors, and random notes and code.
+A lot of things here could be wrong or bad approximations, reflecting my ignorance in CS in general.
+But why not share a "work" in progress?
+
+Thanks to [tsoding](https://twitch.tv/tsoding) for the great source of inspiration and stimulation.

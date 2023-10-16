@@ -289,6 +289,12 @@ def evaluate_proposition(PROP):
                     case "rewrites":
                         try : print(REWRITES)
                         except : print("No REWRITES variable.")
+                    case "parse":
+                        try : print(PARSE(TOKENIZE(last_proposition)))
+                        except : print("Error while parsing current proposition.")
+                    case "tokenize":
+                        try : print(TOKENIZE(last_proposition))
+                        except : print("Error while tokenizing current proposition.")
                     case _: print("Unknown debug command.")
 
         case "del" | "delete":
@@ -300,14 +306,14 @@ def evaluate_proposition(PROP):
             else : del_rule_or_axiom(COMMAND[1])
 
         case "add" :
-            if len(COMMAND) == 1 or len(COMMAND) > 2 : print("ERROR: ':add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
+            if len(COMMAND) == 1 or len(COMMAND) > 2 : print("ERROR: 'add' needs precisely of those arguments: 'axiom', 'rule', 'proposition'")
             else :
                 match COMMAND[1]:
-                    case "axiom" | "a"   : add_axiom(multiple=False,last_proposition=last_proposition)
+                    case "axiom"  | "a"  : add_axiom(multiple=False,last_proposition=last_proposition)
                     case "axioms" | "as" : add_axiom(multiple=True)
-                    case "rule" | "r"    : add_rule(multiple=False,last_proposition=last_proposition)
-                    case "rules" | "rs"  : add_rule(multiple=True)
-                    case "prop" | "p" | "proposition": print("TODO")
+                    case "rule"   | "r"  : add_rule(multiple=False,last_proposition=last_proposition)
+                    case "rules"  | "rs" : add_rule(multiple=True)
+                    case "prop"   | "p" | "proposition": print("TODO")
 
         case "rename" :
             if len(COMMAND) != 3 : print("ERROR: 'rename' needs precisely two arguments: 'old_name', 'new_name'")

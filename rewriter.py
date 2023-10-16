@@ -287,6 +287,51 @@ def token_rewritable_parts(TOKEN,RULE_INDEX=None,MATCH_INDEX=None):
                                 break
                 if found_operand: continue
             ''''''
+            ''' Add ANY_EXPRESSION (test)'''
+            #if LEFT_PATTERN[j][2][0] == 'ANY_VALID_EXP':
+            #    print("Investigating 'ANY_VALID_EXP'")
+            #    token_end_index = len(TOKEN)
+            #    while token_end_index >= 0 :
+            #        token_end_index -= 1
+            #        if token_end_index < 0 :
+            #            print("No valid expression found in the rest of the token.")
+            #            pattern_in_token = False
+            #            break
+            #        exp_token = NULL.join(map(str,[x[1] for x in TOKEN[i+j+distance_to_jump:token_end_index]]))
+            #        print("Testing token : '{}'".format(exp_token))
+            #        if PARSE(TOKENIZE(exp_token))[0]:
+            #            print("Valid expression from index '{}' to '{}'.".format(i+j+distance_to_jump,token_end_index))
+            #            print("Accepted token : '{}'".format(exp_token))
+            #            if i+j+distance_to_jump+token_end_index+1 >= len(TOKEN):
+            #                print("whole rest of token taken")
+            #                if j == len(LEFT_PATTERN) - 1 :
+            #                    print("cool, the whole rest of the token is accepted.")
+            #                    for x in range(i+j+distance_to_jump,token_end_index):
+            #                        if x >= len(TOKEN): continue
+            #                        print("Appending '{}'".format(TOKEN[x]))
+            #                        rewritable_part_of_token.append(TOKEN[x])
+            #                    distance_to_jump += token_end_index
+            #                    break
+            #                elif j != len(LEFT_PATTERN)-1 :
+            #                    print("not reached the end of LEFT_PATTERN")
+            #                    pattern_in_token = True
+            #                    for x in range(i+j+distance_to_jump,token_end_index):
+            #                        if x >= len(TOKEN): continue
+            #                        print("Appending '{}'".format(TOKEN[x]))
+            #                        rewritable_part_of_token.append(TOKEN[x])
+            #                    distance_to_jump += token_end_index
+            #                    break
+            #                else :
+            #                    print("PERFECT!")
+            #            elif TOKEN[i+j+distance_to_jump+token_end_index+1][1] != LEFT_PATTERN[j+1][1]:
+            #                print("No match for next index!")
+            #                continue
+            #            #break
+            #        else: continue
+            #    if pattern_in_token == False: break
+            #    #continue
+            ''''''
+
             #if rewritable_part_of_token == []:
             #    print("rewritable_part_of_token is EMPTY")
             #    pattern_in_token = False
@@ -508,9 +553,12 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
         rewritable_part_of_token = []
         distance_to_jump = 0 # when adding an operand with more than 1 character, it needs to be jumped
         found_operand = False
+        ''' Create a dictionnary of replacable variables in rule to check if they are equal in some cases '''
+        any_str_dict      = {}
+        any_operands_dict = {}
+        any_exp_dict      = {}
 
         for j in range(len(LEFT_PATTERN)):
-            #if i+j >= len(TOKEN):
             if i+j+distance_to_jump >= len(TOKEN):
                 if found_operand : break
                 pattern_in_token = False
@@ -521,9 +569,13 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
             ''' For ANY_STR '''
             #if LEFT_PATTERN[j][2][0] == 'ANY_STR' and TOKEN[i+j][0] == 'STR':
             if LEFT_PATTERN[j][2][0] == 'ANY_STR' and TOKEN[i+j+distance_to_jump][0] == 'STR':
-                #rewritable_part_of_token.append(TOKEN[i+j])
+                if not LEFT_PATTERN[j][1] in any_str_dict :
+                    any_str_dict[LEFT_PATTERN[j][1]] = TOKEN[i+j+distance_to_jump][1]
+                else :
+                    if TOKEN[i+j+distance_to_jump][1] != any_str_dict[LEFT_PATTERN[j][1]] :
+                        pattern_in_token = False
+                        break
                 rewritable_part_of_token.append(TOKEN[i+j+distance_to_jump])
-                #for k in range(len(RIGHT_PATTERN)):
                 for k in range(len(CUR_RIGHT_PATTERN)):
                     if CUR_RIGHT_PATTERN[k][2][0] == 'ANY_STR' and CUR_RIGHT_PATTERN[k][1] == LEFT_PATTERN[j][1] :
                         #CUR_RIGHT_PATTERN[k] = TOKEN[i+j]
@@ -531,7 +583,7 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                         continue
                 continue
 
-            ''' For ANY_OP '''
+            ''' For ANY_OPERATOR '''
             ''' LR '''
             if LEFT_PATTERN[j][2][0] == 'ANY_LR_OP' and \
                     TOKEN[i+j+distance_to_jump][0] == 'OP' and \
@@ -576,7 +628,6 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                 #print("0) found operand in LEFT_PATTERN : {}".format(LEFT_PATTERN[j]))
                 #print("0) current 'found_operand' var : '{}'".format(found_operand))
                 #print("0) current 'distance_to_jump' var : '{}'".format(distance_to_jump))
-                ##OPS = [x for x in filter(lambda y: y[0] == 'OP', TOKEN[i+j:])]
                 OPS = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
                 #print("OPS : {}".format(OPS))
                 for OP in OPS:
@@ -590,14 +641,26 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                     found_operand = False
                     break # If current token not in any operand, break
                 found_operand = False
+                unmatched = False
                 for potential in potential_operands:
                     #print("potential: '{}'".format(potential))
                     if [TOKEN[i+j+distance_to_jump]] == potential : # notice the [] around TOKEN : [TOKEN]
                         #print("2) Yes, I am equal! token: {} i: {} j: {}".format(TOKEN[i+j+distance_to_jump],i,j))
                         found_operand = True
-                        #rewritable_part_of_token.append(TOKEN[i+j])
+
+                        str_potential = NULL.join(map(str,[x[1] for x in potential]))
+                        if not LEFT_PATTERN[j][1] in any_operands_dict :
+                            any_operands_dict[LEFT_PATTERN[j][1]] = str_potential
+                            #print(f"Appending {str_potential} to dict : {any_operands_dict}")
+                        else :
+                            if str_potential != any_operands_dict[LEFT_PATTERN[j][1]] :
+                                pattern_in_token = False
+                                unmatched = True
+                                #print(f"unmatching {potential} with '{any_operands_dict[LEFT_PATTERN[j][1]]}'")
+                                break
+                        if unmatched : break
+
                         rewritable_part_of_token.append(TOKEN[i+j+distance_to_jump])
-                        #for l in range(len(RIGHT_PATTERN)):
                         for l in range(len(CUR_RIGHT_PATTERN)):
                             if CUR_RIGHT_PATTERN[l][2][0] == 'ANY_OPERAND' and CUR_RIGHT_PATTERN[l][1] == LEFT_PATTERN[j][1] :
                                 CUR_RIGHT_PATTERN[l] = TOKEN[i+j+distance_to_jump]
@@ -611,6 +674,22 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                         distance_to_jump += (len(potential) - 1)
                         rest_of_proposition = NULL+NULL.join(map(str,[x[1] for x in TOKEN[distance_to_jump+i+j+1:]]))
                         found_operand = True
+
+
+                        str_potential = NULL.join(map(str,[x[1] for x in potential]))
+                        if not LEFT_PATTERN[j][1] in any_operands_dict :
+                            #any_operands_dict[LEFT_PATTERN[j][1]] = potential
+                            any_operands_dict[LEFT_PATTERN[j][1]] = str_potential
+                            #print(f"Appending {str_potential} to dict : {any_operands_dict}")
+                        else :
+                            #if potential != any_operands_dict[LEFT_PATTERN[j][1]] :
+                            if str_potential != any_operands_dict[LEFT_PATTERN[j][1]] :
+                                pattern_in_token = False
+                                unmatched = True
+                                #print(f"unmatching {str_potential} with '{any_operands_dict[LEFT_PATTERN[j][1]]}'")
+                                break
+                        if unmatched : break
+
                         for elem in potential:
                             #print("check that : {}".format(elem))
                             rewritable_part_of_token.append(elem)
@@ -627,6 +706,7 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
                 if found_operand: continue
             ''' ----------------------- '''
 
+
             if i+j+distance_to_jump >= len(TOKEN) :
                 pattern_in_token = False
                 break
@@ -639,7 +719,10 @@ def token_full_rewrites_list(TOKEN,LEFT_PATTERN,RIGHT_PATTERN,INDEX=0,REWRITES=N
             if found_operand == False:
                 rewritable_part_of_token.append(TOKEN[i+j])
 
-
+        if i+j+distance_to_jump >= (len(TOKEN) - 1) and j < len(LEFT_PATTERN) - 1:
+            #print("Nothing more in token to rewrite, but LEFT_PATTERN is not finished: nothing more to do!")
+            pattern_in_token = False
+            continue
         #if pattern_in_token :
         if pattern_in_token and rewritable_part_of_token != [] :
             if "ANY_STR" in str(CUR_RIGHT_PATTERN) or "ANY_OPERAND" in str(CUR_RIGHT_PATTERN) :
