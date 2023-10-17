@@ -42,11 +42,13 @@ def build_token(INPUT):
         index = TOKEN_SUR[3]
         TOKEN[index] = TOKEN_SUR
 
+    for TOKEN_META in index_meta(INPUT)[1]:
+        index = TOKEN_META[3]
+        TOKEN[index] = TOKEN_META
+
     for TOKEN_OP in index_operators(INPUT)[1]:
         index = TOKEN_OP[3]
         TOKEN[index] = TOKEN_OP
-
-    # Might need to do META here?
 
     '''Strings are the last to be built '''
     '''They are the remaining characters'''
@@ -141,16 +143,45 @@ def index_strings(INPUT,indexes_to_avoid):
                 INPUT=INPUT[1:]
                 index+=1
             prop = []
-            if string in SYMBOLS['META']:
-                prop.append(SYMBOLS['META NAMES'][SYMBOLS['META'].index(string)])
-            else :
-                prop.append('variable')
+            #if string in SYMBOLS['META']:
+            #    prop.append(SYMBOLS['META NAMES'][SYMBOLS['META'].index(string)])
+            #else :
+            #    prop.append('variable')
+            prop.append('variable')
             prop.append(len(string))
             indexes[1].append(['STR',string,prop,start_index])
             for j in range(len(string)-1):
                 indexes[1].append(['RESERVED',string,prop,start_index+j+1])
         INPUT=INPUT[1:]
         index+=1
+    return indexes
+
+def index_meta(INPUT):
+    '''Returns ['META_OP','@', ['META_OP NAME', len(META_OP)], index_in_token]'''
+    indexes = [True, []]
+    index = 0
+    max_length_meta = max(len(x) for x in SYMBOLS['META'])
+    while len(INPUT) > 0:
+        found_meta = False
+        if INPUT[0] == NULL:
+            INPUT=INPUT[1:]
+            index+=1
+            continue
+        for i in reversed(range(max_length_meta)):
+            if INPUT[0:i+1] in [x for x in SYMBOLS['META']]:
+                meta = INPUT[0:i+1]
+                meta_name = SYMBOLS['META NAMES'][SYMBOLS['META'].index(meta)]
+                prop = [meta_name,len(meta_name)]
+                indexes[1].append(['STR',meta,prop,index])
+                for j in range(len(meta)-1):
+                    indexes[1].append(['RESERVED',meta,prop,index+j+1])
+                INPUT=INPUT[len(meta):]
+                found_meta = True
+                index+=len(meta)
+                break
+        if found_meta: continue
+        index+=1
+        INPUT=INPUT[1:]
     return indexes
 
 def remove_trailing_and_duplicate_null(INPUT):

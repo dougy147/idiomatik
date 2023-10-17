@@ -1,11 +1,11 @@
 //add_commutativity :: A + B --> B + A
-add_commutativity :: $1 + $2 --> $2 + $1
+add_commutativity :: $A + $B --> $B + $A
 //add_associativity :: A + (B + C) --> (A + B) + C
-add_associativity :: $1 + ($2 + $3) --> ($1 + $2) + $3
+add_associativity :: $A + ($B + $C) --> ($A + $B) + $C
 
 //add_reflexivity   :: A --> A
 //                     A = B --> (A - B) = 0
 
-add_neutral :: A + 0 --> A
+add_neutral :: $A + 0 --> $A
 
 

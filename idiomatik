@@ -284,6 +284,7 @@ def evaluate_proposition(PROP):
                     case "all" : print(RULES)
                     case "rules" : print(RULES['REWRITE_RULES'])
                     case "axioms" : print(RULES['AXIOMS'])
+                    case "symbols" : print(SYMBOLS)
                     case "history": print(user_propositions)
                     #case STR_REWRITES, etc.
                     case "rewrites":

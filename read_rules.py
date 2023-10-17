@@ -45,9 +45,9 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                             if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(RULE[1][i][1])] == "PROPOSITION_IDENTIFIER":
                                 naming_counter += 1
                                 for j in range(0,i):
-                                    if j > 0 : NAME += NULL
+                                    #if j > 0 : NAME += NULL
                                     NAME += str(RULE[1][j][1])
-                    if naming_counter > 1 : invalid = True
+                    if naming_counter > 1 : invalid = True # it means more than 1 PROPOSITION_IDENTIFIER : so multiple names
                     if NAME != "" and invalid == False : # it means that 'PROPOSITION_IDENTIFIER' operator was in the expression, so remove it from expression
                         for i in range(len(RULE[1])):
                             if RULE[1][i][1] in SYMBOLS['OPERATORS']:

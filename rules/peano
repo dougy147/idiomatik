@@ -1,0 +1,1 @@
+peano_add :: $A + s(B) --> s($A + B)

@@ -1,0 +1,14 @@
+// Some formulas from "Reasoning about knowledge" (Fagin et al., 1995)
+
+abbrev_OR      :: ~ ( ~ $A && ~ $B ) --> $A || $B
+implication    :: ~ $A || $B --> $A => $B
+if_and_only_if :: ( $A => $B ) && ( $B => $A ) --> $A <=> $B
+
+
+// Basic tautologies
+
+taut1 :: $P || ~ $P --> true
+
+// Definitions
+
+def_false :: ~ true --> false
