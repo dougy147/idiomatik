@@ -118,7 +118,7 @@ def evaluate_proposition(PROP):
     if len(PROP) == 0: return
     #if PROP.replace(' ','') == '' : return
     #print(PROP)
-    symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
+    symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
     if symbol_prop_id in PROP :
         add_rule(multiple=False,last_proposition=PROP)
         return
@@ -196,7 +196,7 @@ def evaluate_proposition(PROP):
                         for i in range(len(RULES['REWRITE_RULES'])) :
                             rule_str = NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))
                             rule_name = RULES['REWRITE_RULES_NAMES'][i]
-                            symbol_prop_id = str(SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")])
+                            symbol_prop_id = str(SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")])
                             if rule_name == "" :
                                 to_append = rule_str
                             else :

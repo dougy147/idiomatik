@@ -64,9 +64,7 @@ def render_tree(TOKEN):
             #for sur in SYMBOLS['SURROUNDERS']:
             elif i != 0 and element == TREE_MATRICE[i-1][index] : STRING += NULL
             else :
-                #if str(element) == str(sur[0]) or str(element) == str(sur[1]) :
-                if str(element) in list(map(str,[x[0] for x in SYMBOLS['SURROUNDERS']])) or \
-                        str(element) in list(map(str,[x[1] for x in SYMBOLS['SURROUNDERS']])):
+                if str(element) in SYMBOLS['SURROUNDERS']:
                             STRING += NULL
                             index += 1
                             continue
@@ -248,7 +246,7 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
         if MATCH_INDEX != None and MATCH_INDEX != counter :
             counter+=1
             continue
-        symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
+        symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
         rewrite = str_rewrites_given_a_rule(token,RULE_INDEX=i,MATCH_INDEX=rule_counter)
         if len(rewrite) == 1:
             rewrite = rewrite[0]
@@ -302,7 +300,7 @@ def display_axioms_and_rules(choice=False):
             max_axiom_name_length = max(map(int,(len(x) for x in RULES['AXIOMS_NAMES'])))
             cur_axiom_name_length = len(axiom_name)
             axiom = NULL.join(map(str,[x[1] for x in RULES['AXIOMS'][i]]))
-            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
+            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
             if axiom_name == "" :
                 print("\t(A{})".format(index) + NULL * max_axiom_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(axiom))
             else :
@@ -315,7 +313,7 @@ def display_axioms_and_rules(choice=False):
             max_rule_name_length = max(map(int,(len(x) for x in RULES['REWRITE_RULES_NAMES'])))
             cur_rule_name_length = len(rule_name)
             rule = NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))
-            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")]
+            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
             if rule_name == "" :
                 print("\t(R{})".format(index) + NULL * max_rule_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(rule))
             else :

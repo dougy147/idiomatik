@@ -42,16 +42,16 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                     naming_counter = 0
                     for i in range(len(RULE[1])):
                         if RULE[1][i][1] in SYMBOLS['OPERATORS']:
-                            if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(RULE[1][i][1])] == "PROPOSITION_IDENTIFIER":
+                            if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(RULE[1][i][1])] == "PROP_ID":
                                 naming_counter += 1
                                 for j in range(0,i):
                                     #if j > 0 : NAME += NULL
                                     NAME += str(RULE[1][j][1])
-                    if naming_counter > 1 : invalid = True # it means more than 1 PROPOSITION_IDENTIFIER : so multiple names
-                    if NAME != "" and invalid == False : # it means that 'PROPOSITION_IDENTIFIER' operator was in the expression, so remove it from expression
+                    if naming_counter > 1 : invalid = True # it means more than 1 PROP_ID : so multiple names
+                    if NAME != "" and invalid == False : # it means that 'PROP_ID' operator was in the expression, so remove it from expression
                         for i in range(len(RULE[1])):
                             if RULE[1][i][1] in SYMBOLS['OPERATORS']:
-                                if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(RULE[1][i][1])] == "PROPOSITION_IDENTIFIER":
+                                if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(RULE[1][i][1])] == "PROP_ID":
                                     for j in range(0,i+1):
                                         RULE[1].pop(0)   # pop FIRST element each time!
                                     break
