@@ -49,7 +49,6 @@ def check_surrounders(TOKEN,ERROR_LOG = True):
 
 def check_operators(TOKEN):
     OPS = [x for x in filter(lambda y: y[0] == 'OP', TOKEN)]
-    #print(OPS)
     if len(OPS) == 0 : return True
     for OP in OPS:
         if not check_operands(OP,TOKEN): return False
@@ -101,10 +100,10 @@ def get_operand(OPERATOR, TOKEN, DIRECTION, index):
         direction, break_point = +1, len(TOKEN)
         add_surrounder, substract_surrounder = 'open', 'close'
     ''' Test for operators with 0 precedence '''
-    #precedence = OPERATOR[2][3]
-    #if precedence == 0: operator_index = OPERATOR[3]
-    #else :              index += direction
-    index += direction
+    precedence = OPERATOR[2][3]
+    if precedence == 0: operator_index = OPERATOR[3]
+    else :              index += direction
+    #index += direction
     ''''''
     surrounder_counter, operand = 0, []
     found_operand = False
@@ -112,29 +111,29 @@ def get_operand(OPERATOR, TOKEN, DIRECTION, index):
     if index < 0 or index >= len(TOKEN): return [False,[]]
 
     ''' For 0-precedence operators '''
-    #if precedence == 0:
-    #    index = 0
-    #    while found_operand == False:
-    #        if index < 0 or index >= len(TOKEN): return [False,[]]
-    #        if DIRECTION == "L" :
-    #            if index >= operator_index: break
-    #            operand_to_test = NULL.join(map(str,[x[1] for x in TOKEN[index:operator_index]]))
-    #        elif DIRECTION == "R" :
-    #            if len(TOKEN) - index <= operator_index + 1: break
-    #            operand_to_test = NULL.join(map(str,[x[1] for x in TOKEN[operator_index+1:len(TOKEN)-index]]))
-    #        if PARSE(TOKENIZE(operand_to_test), ERROR_LOG=False)[0]:
-    #            found_operand = True
-    #            operand_token = PARSE(TOKENIZE(operand_to_test), ERROR_LOG=False)[1]
-    #            for k in range(len(operand_token)):
-    #                if DIRECTION == "L":
-    #                    operand.append(TOKEN[index+k])
-    #                elif DIRECTION == "R":
-    #                    operand.append(TOKEN[operator_index+1+k])
-    #            #print(operand)
-    #            return [True, operand]
-    #        index += 1
-    #    return [False,[]]
-    #''''''
+    if precedence == 0:
+        index = 0
+        while found_operand == False:
+            if index < 0 or index >= len(TOKEN): return [False,[]]
+            if DIRECTION == "L" :
+                if index >= operator_index: break
+                operand_to_test = NULL.join(map(str,[x[1] for x in TOKEN[index:operator_index]]))
+            elif DIRECTION == "R" :
+                if len(TOKEN) - index <= operator_index + 1: break
+                operand_to_test = NULL.join(map(str,[x[1] for x in TOKEN[operator_index+1:len(TOKEN)-index]]))
+            if PARSE(TOKENIZE(operand_to_test), ERROR_LOG=False)[0]:
+                found_operand = True
+                operand_token = PARSE(TOKENIZE(operand_to_test), ERROR_LOG=False)[1]
+                for k in range(len(operand_token)):
+                    if DIRECTION == "L":
+                        operand.append(TOKEN[index+k])
+                    elif DIRECTION == "R":
+                        operand.append(TOKEN[operator_index+1+k])
+                #print(operand)
+                return [True, operand]
+            index += 1
+        return [False,[]]
+    ''''''
 
     if TOKEN[index][0] == 'STR': return [True,[TOKEN[index]]]
 

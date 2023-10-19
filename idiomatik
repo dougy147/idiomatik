@@ -6,6 +6,7 @@
 
 import sys
 from os.path import exists
+import glob
 from read_table import *
 from lexer import *
 from parser import *
@@ -169,15 +170,42 @@ def evaluate_proposition(PROP):
         case "load":
             if len(COMMAND) != 2 :
                 print(bcolors.WARNING + "'load' needs one filename as argument." + bcolors.ENDC)
-            elif exists(COMMAND[1]):
+            #elif exists(COMMAND[1]):
+            elif glob.glob(COMMAND[1]):
                 try :
-                    IMPORT_RULES(STREAM=[],RULES_FILE=COMMAND[1])
-                    print(bcolors.OKGREEN + "> Successfully imported rules in file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
+                    #IMPORT_RULES(STREAM=[],RULES_FILE=COMMAND[1])
+                    #print(bcolors.OKGREEN + "> Successfully imported rules in file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
+                    for rule_file in glob.glob(COMMAND[1]):
+                        IMPORT_RULES(STREAM=[],RULES_FILE=rule_file)
+                        print(bcolors.OKGREEN + "> Successfully imported rules from file '{}'.".format(rule_file) + bcolors.ENDC)
                 except :
                     print(bcolors.FAIL + "UNKNOWN ERROR while importing file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
             else :
                 print(bcolors.FAIL + "ERROR: file '{}' does not exist.".format(COMMAND[1]) + bcolors.ENDC)
 
+        case "save":
+            #print("TODO: make it work properly...!")
+            if len(COMMAND) != 2 :
+                print(bcolors.WARNING + "'save' needs one filename as argument." + bcolors.ENDC)
+            else :
+                try :
+                    with open(COMMAND[1], "w+") as f:
+                        #lines = [line.rstrip('\n') for line in f]
+                        lines = f.readlines()
+                        #print(lines)
+                        for i in range(len(RULES['REWRITE_RULES'])) :
+                            rule_str = NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))
+                            rule_name = RULES['REWRITE_RULES_NAMES'][i]
+                            symbol_prop_id = str(SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROPOSITION_IDENTIFIER")])
+                            if rule_name == "" :
+                                to_append = rule_str
+                            else :
+                                to_append = rule_name + NULL + symbol_prop_id + NULL + rule_str
+                            if not to_append in lines:
+                                lines.insert(len(lines)-1,to_append)
+                        f.writelines('\n'.join(lines))
+                except :
+                    print(bcolors.FAIL + "ERROR: file '{}' not written. Try with 'save ./{}'.".format(COMMAND[1],COMMAND[1]) + bcolors.ENDC)
 
 
         case "rewrite":

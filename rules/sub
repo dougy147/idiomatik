@@ -1,0 +1,2 @@
+cancel :: $A - $A --> 0
+cancel2 :: $A = $A --> $A - ( $A ) = 0

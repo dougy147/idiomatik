@@ -42,13 +42,13 @@ def build_token(INPUT):
         index = TOKEN_SUR[3]
         TOKEN[index] = TOKEN_SUR
 
-    for TOKEN_META in index_meta(INPUT)[1]:
-        index = TOKEN_META[3]
-        TOKEN[index] = TOKEN_META
-
     for TOKEN_OP in index_operators(INPUT)[1]:
         index = TOKEN_OP[3]
         TOKEN[index] = TOKEN_OP
+
+    for TOKEN_META in index_meta(INPUT)[1]:
+        index = TOKEN_META[3]
+        TOKEN[index] = TOKEN_META
 
     '''Strings are the last to be built '''
     '''They are the remaining characters'''

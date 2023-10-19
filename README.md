@@ -171,8 +171,8 @@ Use `rewrite <rule index> <match index>` (or `rewrite <rule name> <match index>`
 
 Note that in the example above, `(~a)` is not unparenthesized.
 It does not match the pattern `(_)` because of the operator `~`.
-To unwrap it, we could consider a rule like `(~_) --> ~_`, or maybe better `(¤_ $) --> ¤_ $`.
-`$` symbolizes *any operand*, while `¤_` means *any right unary operator*. 
+To unwrap it, we could consider a rule like `(~_) --> ~_`, or maybe better `(*> $) --> *> $`.
+`$` symbolizes *any operand*, while `*>` means *any right unary operator*. 
 Other meta symbols are to be implemented (e.g. any surrounder, rules, etc.).
 
 Upper case letters (`A`...`Z`) are the same as `_`, they represent *any string* but allow flexibility in the assignement of which variable in the left hand side of the rewrite rule (the pattern to match) corresponds to which variable in the right hand side. 
@@ -188,9 +188,9 @@ Here is a quick summary of current meta characters in `idiomatik`:
 |   `A`     | Any *identified* string (same as `B`, `C`..., `Z`)       |
 |   `$`     | Any operand                                              |
 |   `$1`    | Any *identified* operand (same as `$2`, `$3`..., `$10`)  |
-|   `¤`     | Any left-right (binary) operator                         |
-|   `_¤`    | Any right (unary) operator                               |
-|   `¤_`    | Any left (unary) operator                                |
+|   `<*>`   | Any left-right (binary) operator                         |
+|   `<*`    | Any right (unary) operator                               |
+|   `*>`    | Any left (unary) operator                                |
 
 ### Troubles with rewrite rules
 
@@ -375,7 +375,7 @@ Idiomatik in BNF notation (might be wrong)...
 <Str> 		::= <char> | <char> <Str>
 <Surr> 		::= ( | ) | [ | ] | { | }
 <Op> 		::= + | ... | -->
-<Meta> 		::= _ | $ | ¤ | ...
+<Meta> 		::= _ | $ | <*> | ...
 <Number> 	::= <digit> | <digit> <Number>
 <char> 		::= a | ... | Z
 <digit> 	::= 0 | ... | 9
