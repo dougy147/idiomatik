@@ -230,6 +230,7 @@ That's where `idiomatik` is for now.
 - (!!) Allow saving a succession of steps and use it as a new transformation rule
 - (!!) Allow chaining multiple transformation rules
 - (!) Use silent surrounders when transforming some expressions, then delete those surrounders (useful for unary operators exp?).
+- Load different symbols sets
 - Implement wrappers (`"` and `'`)
 - Check if rule already exists before importing
 - Better handling of "last_proposition"
@@ -238,10 +239,7 @@ That's where `idiomatik` is for now.
 - Undo command
 - Save logs/transformations
 - Improve rewrite system
-
-# Doing
-
-- Meta character for ANY_OPERAND (to check)
+- Create symbols/operators... on-the-fly?
 
 # Resources
 
