@@ -4,7 +4,6 @@ from read_table import *
 from lexer import *
 from parser import *
 from read_rules import *
-#from checker import *
 
 ''' The REWRITER job is to rewrite PROPOSITIONS to another PROPOSITION given a RULE.
 PROPOSITIONS are valid TOKENS.

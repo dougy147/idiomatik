@@ -4,7 +4,6 @@ from read_table import *
 from lexer import *
 from parser import *
 from read_rules import *
-from checker import *
 from rewriter import *
 from colors import *
 
