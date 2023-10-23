@@ -17,27 +17,31 @@ cd idiomatik
 
 ### Lexing : from raw input to tokens
 
-`idiomatik` receives input strings (e.g. `a + b = c`) that are returned as **tokens**.
-A token is a chain of elements built from the input by the **lexer**.
-The lexer decomposes the input into *atomistic* elements (characters, or sequences of characters) that correspond to predefined categories (strings, operators, surrounders, meta characters, etc.). (Those categories are defined in the `SYMBOLS` table.)
-When all the elements of an input have been attributed an identity (to which category they belong, and eventually what are their properties), they are chained together and the construction of the token ends.
+`idiomatik` receives input strings (e.g. `a + b = c`) that the **lexer** breaks apart.
+The lexer matches symbols from the input to "abstract" categories: operators, surrounders, strings, boolean...
+At each match, a **token** is created.
+Tokens are elementary bricks storing and inheriting properties depending on the symbol they are built from.
+When there is nothing more to match in the input, this process of *tokenization* ends.
+Tokens are chained together, indexed, and sent to the **parser**.
 
 ### Parsing : checking syntax
 
-Tokens are then sent to the **parser** whose job is to assess **syntax** (i.e. is the chain of elements in the token a well-formed expression?).
-The parser returns a truth value depending on the token being syntactically correct or not.
+The **parser** receives lists of tokens from the lexer. 
+Its job is principally to determine if the chain of tokens is a well-formed expression; in other words, to assess **syntax**. 
+This process leads to the creation of objects called **epressions**.
+Like tokens, expressions have properties depending of the chain of tokens they are built from (including syntax validity).
 
 Syntax is immediately incorrect when one of those axioms is false :
 
 - every closing surrounder (`)`, `]`, `}`) matches an opening opposite, at the same level of **nestedness** (opening a surrounder increments the level of nestedness by 1; closing decrements it)
 - every **operator** has a correct amount of **operands** in proper position
 
-If the token is syntactically valid, the input was a well-formed expression (whatever that could mean).
+If the list of tokens is syntactically valid, the input was a well-formed expression (whatever that could mean).
 
 ### Rewriting : transforming expressions
 
-When an input is a well-formed expression, `idiomatik` can **rewrite** it as another valid expression.
-This transformation depends on a set of **rewrite rules** that the user can arbitrarly define and send on-the-fly :
+`idiomatik` can **rewrite** well-formed expressions to other valid expressions.
+This transformation depends on the definition of **rewrite rules** that the user can send on-the-fly:
 
 ```bash
 |> contraposition :: A => B --> ~B => ~A
@@ -49,7 +53,7 @@ INFO: imported rule 'contraposition :: A => B --> ~B => ~A'.
 ~q => ~p
 ```
 
-Rules can also be imported from files (see `rules/example`) with the `load` command) :
+or import from files with the `load` command:
 
 ```bash
 |> load ./rules/addition
@@ -59,7 +63,7 @@ INFO: imported rule 'add_neutral :: A + 0 --> A'.
 > Successfully imported rules in file 'rules/addition'.
 ```
 
-Rewrite rules put aside, `idiomatik` is gonna be used to solve expressions (work in progress).
+Rewrite rules put aside, `idiomatik` will be used to solve expressions (work in progress).
 It is by default [PEMDAS](https://en.wikipedia.org/wiki/Order_of_operations#Mnemonics) compliant, solving propositions in the "correct" order, even when parenthesis are missing. 
 This is by default but it is configurable thanks to a precedence value given to operators in the `SYMBOLS` table.
 If some special cases are not consensual when considering the "correct solving order" (e.g. [serial exponentiation](https://en.wikipedia.org/wiki/Order_of_operations#Special_cases)), `idiomatik` allows users to set the associative direction of operators as we stated above. In the `SYMBOLS` table negative priority values give right-to-left associativity, positive left-to-right, while null oppose their operands by "splitting" expressions. 
@@ -113,6 +117,7 @@ Give the following string `(~a) + [(b) / c]` to the lexer, and check the token w
     ['OP', '/', ['DIV', 'binary', 'LR', 3], 9], \
     ['STR', 'c', ['variable', 1], 10], \
     ['SUR', ']', ['BRAKET', 'close', 1], 11]]
+    # not like this anymore TODO
 ```
 
 Tokens are not simple to read for humans but as `idiomatik` returns no error, this is definitely a syntactically valid expression (just keep in mind that this depends on how symbols are defined in `SYMBOLS`!). To check it ourself, let's observe that no syntax axiom is refuted :
@@ -222,11 +227,7 @@ a + 1 = s ( 0 )
 
 ### More to come?
 
-That's where `idiomatik` is for now.
-
-# BUGS
-
-- `(a=a) = (b=b)` matches `a=a` but not `b=b` nor the whole expression.
+That's where `idiomatik` is for now,and maybe forever.
 
 # TODO
 
