@@ -224,6 +224,9 @@ a + 1 = s ( 0 )
 
 That's where `idiomatik` is for now.
 
+# BUGS
+
+- `(a=a) = (b=b)` matches `a=a` but not `b=b` nor the whole expression.
 
 # TODO
 
@@ -231,7 +234,7 @@ That's where `idiomatik` is for now.
 - (!!) Allow chaining multiple transformation rules
 - (!) Use silent surrounders when transforming some expressions, then delete those surrounders (useful for unary operators exp?).
 - Load different symbols sets
-- Implement wrappers (`"` and `'`)
+- Properly implement wrappers (`"` and `'`)
 - Check if rule already exists before importing
 - Better handling of "last_proposition"
 - Draw better trees
@@ -259,6 +262,7 @@ That's where `idiomatik` is for now.
 - https://yewtu.be/JO_0e9mPofY
 - https://en.wikipedia.org/wiki/Computer_algebra_system
 - https://github.com/tsoding/Noq
+- https://en.wikipedia.org/wiki/Turing_completeness
 
 ## Raw pasting
 

@@ -33,57 +33,59 @@ IDIOMATIK_GREETING = bcolors.OKBLUE + '''
 
 def add_rule(multiple=False,last_proposition=last_proposition):
     if multiple == True:
-        try :
-            last_proposition = input("    > ")
-        except:
-            print(bcolors.FAIL + "ERROR: invalid characters in input." + bcolors.ENDC)
+        try : last_proposition = input("    > ")
+        except: print(bcolors.FAIL + "ERROR: invalid characters in input." + bcolors.ENDC)
         if last_proposition == "" or last_proposition == ":q" :
             print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
             return
     elif last_proposition.replace(NULL,'') == "" :
-        print("ERROR: empty proposition")
+        print(bcolors.DIM + "Empty proposition" + bcolors.ENDC)
         return
     IMPORT_RULES([last_proposition],add_axioms=False)
-    if multiple :
-        add_rule(multiple=True)
+    if multiple : add_rule(multiple=True)
 
 def add_axiom(multiple=False,last_proposition=last_proposition):
     if multiple == True:
-        try :
-            last_proposition = input("    > ")
-        except:
-            print(bcolors.FAIL + "ERROR: invalid characters in input." + bcolors.ENDC)
+        try : last_proposition = input("    > ")
+        except: print(bcolors.FAIL + "ERROR: invalid characters in input." + bcolors.ENDC)
         if last_proposition == "" or last_proposition == ":q" :
             print(bcolors.ERASE_LINE + bcolors.ERASE_UP + bcolors.ERASE_LINE) # Erase empty prompt
             return
     elif last_proposition.replace(NULL,'') == "" :
-        print("ERROR: empty proposition")
+        print(bcolors.DIM + "Empty proposition" + bcolors.ENDC)
         return
     IMPORT_RULES([last_proposition],add_rules=False)
-    if multiple :
-        add_axiom(multiple=True)
+    if multiple : add_axiom(multiple=True)
 
 
 def del_rule_or_axiom(user_value):
     found = False
+    counter = 0
+    try   : symbol_prop_id = SYMBOLS['OP'][SYMBOLS['OP NAMES'].index("PROP_ID")]
+    except: symbol_prop_id = ""
     for i in range(len(RULES['REWRITE_RULES'])) :
         if "R"+str(i) == user_value or \
             "r"+str(i) == user_value or \
             str(i) == user_value :
+                counter+=1
                 found = True
                 name = RULES['REWRITE_RULES_NAMES'][i]
                 if name == "" :
-                    print(bcolors.OKBLUE + "Deleted R{} {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                    #print(bcolors.OKBLUE + "Deleted R{} {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                    print(bcolors.DIM + bcolors.WARNING + " * [deleted R{}] {}".format(i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
                 else :
-                    print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                    print(bcolors.DIM + bcolors.WARNING + " * [deleted R{}] {} {} {}".format(i,name,symbol_prop_id,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
                 RULES['REWRITE_RULES'].pop(i)
                 RULES['REWRITE_RULES_NAMES'].pop(i)
                 break
     if found: return
     for i in range(len(RULES['REWRITE_RULES_NAMES'])) :
         if user_value == RULES['REWRITE_RULES_NAMES'][i] :
+                #found = True
+                counter+=1
                 name = RULES['REWRITE_RULES_NAMES'][i]
-                print(bcolors.OKBLUE + "Deleted '{}' (R{}) {}".format(name,i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                #print(bcolors.OKBLUE + "Deleted '{}' (R{}) {}".format(name,i,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
+                print(bcolors.DIM + bcolors.WARNING + " * [deleted R{}] {} {} {}".format(i,name,symbol_prop_id,human_readable(RULES['REWRITE_RULES'][i])) + bcolors.ENDC)
                 RULES['REWRITE_RULES_NAMES'].pop(i)
                 RULES['REWRITE_RULES'].pop(i)
                 break
@@ -93,22 +95,31 @@ def del_rule_or_axiom(user_value):
             "a"+str(i) == user_value or \
             str(i) == user_value :
                 found = True
+                counter+=1
                 name = RULES['AXIOMS_NAMES'][i]
                 if name == "" :
-                    print(bcolors.OKBLUE + "Deleted R{} {}".format(i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                    #print(bcolors.OKBLUE + "Deleted R{} {}".format(i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                    print(bcolors.DIM + bcolors.WARNING + " * [deleted A{}] {}".format(i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
                 else :
-                    print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                    #print(bcolors.OKBLUE + "Deleted R{} ({}) {}".format(i,name,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                    print(bcolors.DIM + bcolors.WARNING + " * [deleted A{}] {} {} {}".format(i,name,symbol_prop_id,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
                 RULES['AXIOMS'].pop(i)
                 RULES['AXIOMS_NAMES'].pop(i)
                 break
     if found: return
     for i in range(len(RULES['AXIOMS_NAMES'])) :
         if user_value == RULES['AXIOMS_NAMES'][i] :
+                #found = True
+                counter+=1
                 name = RULES['AXIOMS_NAMES'][i]
-                print(bcolors.OKBLUE + "Deleted '{}' (A{}) {}".format(name,i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                #print(bcolors.OKBLUE + "Deleted '{}' (A{}) {}".format(name,i,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
+                print(bcolors.DIM + bcolors.WARNING + " * [deleted A{}] {} {} {}".format(i,name,symbol_prop_id,human_readable(RULES['AXIOMS'][i])) + bcolors.ENDC)
                 RULES['AXIOMS_NAMES'].pop(i)
                 RULES['AXIOMS'].pop(i)
                 break
+    if found: return
+    if counter == 0:
+        print(bcolors.DIM + f"No rule or axiom matches '{user_value}'." + bcolors.ENDC)
 
 def evaluate_proposition(PROP):
     ''' TODO : use a better command checker '''
@@ -117,7 +128,8 @@ def evaluate_proposition(PROP):
     if len(PROP) == 0: return
     #if PROP.replace(' ','') == '' : return
     #print(PROP)
-    symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
+    symbol_prop_id = SYMBOLS['OP'][SYMBOLS['OP NAMES'].index("PROP_ID")]
+    #symbol_prop_id = SYMBOLS['SYMBOLS_CATEGORIES']['OP'][SYMBOLS['OP NAMES'].index("PROP_ID")]
     if symbol_prop_id in PROP :
         add_rule(multiple=False,last_proposition=PROP)
         return
@@ -126,25 +138,35 @@ def evaluate_proposition(PROP):
         case ":q" | "quit" | "exit" :
             exit(0)
         case "prop" | "proposition": # displays current proposition under scrutiny
-            print(human_readable(TOKENIZE(last_proposition)))
+            print(human_readable(PARSE(last_proposition).tokens))
         case "tok" | "token":
-            print(TOKENIZE(last_proposition))
+            #print(Lex(last_proposition).tokens)
+            print(NULL.join(map(str,[x.symbol for x in PARSE(last_proposition).tokens])))
+        case "TOK" | "TOKEN":
+            #print(PARSE(last_proposition).tokens)
+            print(NULL.join(map(str,[x.name for x in PARSE(last_proposition).tokens])))
         case "tree" | "draw" :
             try :
-                render_tree(TOKENIZE(last_proposition))
+                render_tree(PARSE(last_proposition).tokens)
             except:
-                print(bcolors.FAIL + "ERROR: why no tree? TODO" + bcolors.ENDC)
+                print(bcolors.FAIL + "ERROR: cannot display tree." + bcolors.ENDC)
         case "surr" | "surrounding" :
-            solving_surrounders = human_readable(silent_surrounding(TOKENIZE(last_proposition)))
-            print("{}".format(solving_surrounders))
+            print("{}".format(silent_surrounding(PARSE(last_proposition).tokens)))
         case "axioms":
             display_axioms_and_rules("axioms")
         case "rules":
             display_axioms_and_rules("rules")
+        case "subexp":
+            for sub in PARSE(last_proposition).get_subexp(SECURE_SURROUND = True).subexp:
+                print(NULL.join(map(str,[x.symbol for x in sub.tokens])))
+        case "SUBEXP":
+            for sub in PARSE(last_proposition).get_subexp(SECURE_SURROUND = False).subexp:
+                print(NULL.join(map(str,[x.symbol for x in sub.tokens])))
+
 
         case "reset":
             if len(COMMAND) != 2 :
-                print(bcolors.WARNING + "'reset' only accept 'axioms', 'rules', or 'all' arguments." + bcolors.ENDC)
+                print(bcolors.WARNING + "USAGE: 'reset <axioms|rules|all>'." + bcolors.ENDC)
             elif COMMAND[1] == "all" :
                 for i in range(len(RULES['REWRITE_RULES'])):
                     RULES['REWRITE_RULES'].pop(0)
@@ -152,40 +174,38 @@ def evaluate_proposition(PROP):
                 for i in range(len(RULES['AXIOMS'])):
                     RULES['AXIOMS'].pop(0)
                     RULES['AXIOMS_NAMES'].pop(0)
-                print(bcolors.OKBLUE + "Rules and axioms reset." + bcolors.ENDC)
+                print(bcolors.DIM + bcolors.WARNING + "* [reset] Rules and axioms emptied." + bcolors.ENDC)
             elif COMMAND[1] == "rules" :
                 for i in range(len(RULES['REWRITE_RULES'])):
                     RULES['REWRITE_RULES'].pop(0)
                     RULES['REWRITE_RULES_NAMES'].pop(0)
-                print(bcolors.OKBLUE + "Rules reset." + bcolors.ENDC)
+                print(bcolors.DIM + bcolors.WARNING + "* [reset] Rules emptied." + bcolors.ENDC)
             elif COMMAND[1] == "axioms" :
                 for i in range(len(RULES['AXIOMS'])):
                     RULES['AXIOMS'].pop(0)
                     RULES['AXIOMS_NAMES'].pop(0)
-                print(bcolors.OKBLUE + "Axioms reset." + bcolors.ENDC)
+                print(bcolors.DIM + bcolors.WARNING + "* [reset] Axioms emptied." + bcolors.ENDC)
             else :
-                print(bcolors.WARNING + "'reset' only accept 'axioms', 'rules', or 'all' arguments." + bcolors.ENDC)
+                print(bcolors.WARNING + "USAGE: 'reset <axioms|rules|all>'." + bcolors.ENDC)
 
         case "load":
             if len(COMMAND) != 2 :
-                print(bcolors.WARNING + "'load' needs one filename as argument." + bcolors.ENDC)
+                print(bcolors.WARNING + "USAGE: 'load <filepath|*>'." + bcolors.ENDC)
             #elif exists(COMMAND[1]):
             elif glob.glob(COMMAND[1]):
                 try :
-                    #IMPORT_RULES(STREAM=[],RULES_FILE=COMMAND[1])
-                    #print(bcolors.OKGREEN + "> Successfully imported rules in file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
                     for rule_file in glob.glob(COMMAND[1]):
                         IMPORT_RULES(STREAM=[],RULES_FILE=rule_file)
-                        print(bcolors.OKGREEN + "> Successfully imported rules from file '{}'.".format(rule_file) + bcolors.ENDC)
+                        print(bcolors.DIM + bcolors.OKGREEN + "> Successfully imported rules from file '{}'.".format(rule_file) + bcolors.ENDC)
                 except :
-                    print(bcolors.FAIL + "UNKNOWN ERROR while importing file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
+                    print(bcolors.FAIL + "ERROR: could not import file '{}'.".format(COMMAND[1]) + bcolors.ENDC)
             else :
                 print(bcolors.FAIL + "ERROR: file '{}' does not exist.".format(COMMAND[1]) + bcolors.ENDC)
 
         case "save":
             #print("TODO: make it work properly...!")
             if len(COMMAND) != 2 :
-                print(bcolors.WARNING + "'save' needs one filename as argument." + bcolors.ENDC)
+                print(bcolors.WARNING + "USAGE: 'save <file>'." + bcolors.ENDC)
             else :
                 try :
                     with open(COMMAND[1], "w+") as f:
@@ -195,7 +215,7 @@ def evaluate_proposition(PROP):
                         for i in range(len(RULES['REWRITE_RULES'])) :
                             rule_str = NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))
                             rule_name = RULES['REWRITE_RULES_NAMES'][i]
-                            symbol_prop_id = str(SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")])
+                            symbol_prop_id = str(SYMBOLS['OP'][SYMBOLS['OP NAMES'].index("PROP_ID")])
                             if rule_name == "" :
                                 to_append = rule_str
                             else :
@@ -204,12 +224,12 @@ def evaluate_proposition(PROP):
                                 lines.insert(len(lines)-1,to_append)
                         f.writelines('\n'.join(lines))
                 except :
-                    print(bcolors.FAIL + "ERROR: file '{}' not written. Try with 'save ./{}'.".format(COMMAND[1],COMMAND[1]) + bcolors.ENDC)
+                    print(bcolors.FAIL + "ERROR: could not write file '{}'. Try 'save ./{}'?".format(COMMAND[1],COMMAND[1]) + bcolors.ENDC)
 
 
         case "rewrite":
             if len(COMMAND) == 1 :
-                    print(bcolors.WARNING + "Please provide a name or number for rewriting rule.\nOr use 'full' to combine them all." + bcolors.ENDC)
+                print(bcolors.WARNING + "USAGE: 'rewrite <rule_name|rule_index|full> [<match_index>]'" + bcolors.ENDC)
             elif len(COMMAND) == 2 :
                 match COMMAND[1]:
                     case "full" | "f" :
@@ -223,21 +243,24 @@ def evaluate_proposition(PROP):
                                 is_rule = True
                                 break
                         if is_rule == False and (rule_or_index[0] == "r" or rule_or_index[0] == "R") :
-                            rule_or_index = rule_or_index.replace('r','').replace('R','')
+                            #rule_or_index = rule_or_index.replace('r','').replace('R','')
                             try :
-                                rule_or_index = int(rule_or_index)
+                                rule_or_index = int(rule_or_index.replace('r','').replace('R',''))
                                 is_rule = True
                             except :
-                                print(bcolors.FAIL + "ERROR: '{}' is not a rule nor an index.".format(rule_or_index) + bcolors.ENDC)
+                                print(bcolors.FAIL + "ERROR: no rule with name or index '{}'.".format(rule_or_index) + bcolors.ENDC)
+                                return
+                            if rule_or_index < 0 or rule_or_index >= len(RULES['REWRITE_RULES_NAMES']):
+                                print(bcolors.FAIL + "ERROR: no rule with index '{}' (number of rules in memory={} rules in memory).".format(rule_or_index,len(RULES['REWRITE_RULES_NAMES'])) + bcolors.ENDC)
                                 return
                         if is_rule == False :
                             try :
                                 rule_or_index = int(rule_or_index)
                             except :
-                                print(bcolors.FAIL + "ERROR: '{}' is not a rule nor an index.".format(rule_or_index) + bcolors.ENDC)
+                                print(bcolors.FAIL + "ERROR: no rule with name '{}'.".format(rule_or_index) + bcolors.ENDC)
                                 return
                             if rule_or_index < 0 or rule_or_index >= len(RULES['REWRITE_RULES']):
-                                print(bcolors.FAIL + "ERROR: no possible rewrite has index '{}'.".format(rule_or_index) + bcolors.ENDC)
+                                print(bcolors.FAIL + "ERROR: no rule with index '{}' (number of rules in memory={} rules in memory).".format(rule_or_index,len(RULES['REWRITE_RULES_NAMES'])) + bcolors.ENDC)
                                 return
                             display_all_possible_rewritings(last_proposition,MATCH_INDEX=rule_or_index)
                         else :
@@ -253,11 +276,14 @@ def evaluate_proposition(PROP):
                                 rule_found = True
                                 break
                         if rule_found == False and (rule_index[0] == "r" or rule_index[0] == "R") :
-                            rule_index = rule_index.replace('r','').replace('R','')
+                            #rule_index = rule_index.replace('r','').replace('R','')
                             try :
-                                rule_index = int(rule_index)
+                                rule_index = int(rule_index.replace('r','').replace('R',''))
                             except :
                                 print(bcolors.FAIL + "ERROR: '{}' is not a rule.".format(rule_index) + bcolors.ENDC)
+                                return
+                            if rule_index < 0 or rule_index >= len(RULES['REWRITE_RULES_NAMES']):
+                                print(bcolors.FAIL + "ERROR: no rule with index '{}' (number of rules in memory={} rules in memory).".format(rule_index,len(RULES['REWRITE_RULES_NAMES'])) + bcolors.ENDC)
                                 return
                         try :
                             rule_index = int(rule_index)
@@ -265,22 +291,25 @@ def evaluate_proposition(PROP):
                             print(bcolors.FAIL + "ERROR: no rule correspond to '{}'.".format(rule_index) + bcolors.ENDC)
                             return
                         if rule_found == False and (rule_index < 0 or rule_index >= len(RULES['REWRITE_RULES'])):
-                            print(bcolors.FAIL + "ERROR: no rule has index '{}'.".format(rule_index) + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: no rule with index '{}' (number of rules in memory={} rules in memory).".format(rule_index,len(RULES['REWRITE_RULES_NAMES'])) + bcolors.ENDC)
                             return
                         try :
                             match_index = int(COMMAND[2])
                         except :
-                            print(bcolors.FAIL + "ERROR: '{}' is not a correct index.".format(COMMAND[2]) + bcolors.ENDC)
+                            print(bcolors.FAIL + "ERROR: '{}' is not a correct match index.".format(COMMAND[2]) + bcolors.ENDC)
                             return
 
-                        display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
-                        new_proposition  = str_rewrites_given_a_rule(TOKENIZE(last_proposition),RULE_INDEX=rule_index,MATCH_INDEX=match_index)
+                        #display_given_a_rule(last_proposition,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
+                        new_proposition  = str_rewrites_given_a_rule(PARSE(last_proposition).tokens,RULE_INDEX=rule_index,MATCH_INDEX=match_index)
+
                         if len(new_proposition) == 1 :
                             prev_proposition = last_proposition
                             last_proposition = new_proposition[0]
                             '''Exotic output formatting ...'''
-                            middle_line = str(SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("REWRITE_AS")])
+                            middle_line = str(SYMBOLS['OP'][SYMBOLS['OP NAMES'].index("REWRITE_AS")])
                             print("\t " + bcolors.BOLD + bcolors.FAIL + "{}".format(prev_proposition) + bcolors.ENDC + " \t " + bcolors.OKBLUE + middle_line + bcolors.ENDC + " \t " + bcolors.BOLD + bcolors.OKGREEN + "{}".format(last_proposition) + bcolors.ENDC)
+                        else:
+                            print(bcolors.DIM + "No match index '{}' for rule '{}'".format(match_index,rule_index) + bcolors.ENDC)
 
 
 
@@ -318,10 +347,12 @@ def evaluate_proposition(PROP):
                         try : print(REWRITES)
                         except : print("No REWRITES variable.")
                     case "parse":
-                        try : print(PARSE(TOKENIZE(last_proposition)))
+                        #try : print(PARSE(TOKENIZE(last_proposition)))
+                        try : print(PARSE(last_proposition))
                         except : print("Error while parsing current proposition.")
                     case "tokenize":
-                        try : print(TOKENIZE(last_proposition))
+                        #try : print(TOKENIZE(last_proposition))
+                        try : print(PARSE(last_proposition).tokens)
                         except : print("Error while tokenizing current proposition.")
                     case _: print("Unknown debug command.")
 
@@ -382,7 +413,8 @@ def evaluate_proposition(PROP):
         case _:
             #print(bcolors.FAIL + "ERROR: unknown command. See '{} --help' or ':help'.".format(sys.argv[0]) + bcolors.ENDC)
             cur_proposition = str(PROP)
-            if PARSE(TOKENIZE(cur_proposition))[0]:
+            #if PARSE(TOKENIZE(cur_proposition))[0]:
+            if PARSE(cur_proposition).validity:
                 last_proposition = cur_proposition
                 user_propositions.append(last_proposition)
 

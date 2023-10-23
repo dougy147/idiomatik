@@ -10,7 +10,8 @@ with open(TABLE_FILE) as table:
 table.close()
 
 SYMBOLS = {}
-SYMBOLS['SYMBOLS_CATEGORIES'] = []
+SYMBOLS['CATEGORIES'] = []
+SYMBOLS['SUBCATEGORIES'] = []
 #print(len(STREAM))
 
 for i in range(len(STREAM)):
@@ -51,7 +52,7 @@ for i in range(len(STREAM)):
             while I[0:len(NULL)] != NULL and len(I) > 0:
                 SYMBOL_CATEGORY+=I[0]
                 I=I[1:]
-            SYMBOLS['SYMBOLS_CATEGORIES'].append(SYMBOL_CATEGORY)
+            SYMBOLS['CATEGORIES'].append(SYMBOL_CATEGORY)
             SYMBOLS[SYMBOL_CATEGORY] = []
             while len(I) > 0:
                 if I[0:len(NULL)] == NULL:
@@ -68,6 +69,7 @@ for i in range(len(STREAM)):
                         I=I[1:]
                     SYMBOLS[SUB_CATEGORY_CUR] = []
                     SUB_CATEGORIES.append(SUB_CATEGORY_CUR)
+            SYMBOLS['SUBCATEGORIES'].append(SUB_CATEGORIES)
         else:
             while len(I) > 0:
                 if I[0:len(NULL)] == NULL:

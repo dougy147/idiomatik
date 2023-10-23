@@ -11,150 +11,62 @@ from colors import *
 to output "proper" results to the user, given the INPUT.
 '''
 
-def render_tree(TOKEN):
+def render_tree(CHAIN: list):
     ''' Beta function to visualize trees. But there are troubles with long
     variables' names, etc.
     '''
-    surrounded_expression_token = silent_surrounding(TOKEN)
-    if 'SUR' in [x[0] for x in surrounded_expression_token]:
-        highest_nestedness_score = max([x[2][2] for x in filter(lambda y: y[0] == 'SUR', surrounded_expression_token)])
-    else :
-        highest_nestedness_score = 0
-    #print("Nestedness max : {}".format(highest_nestedness_score))
-    #print("\n")
-    TREE_MATRICE = []
-    occupied_indexes = []
-    for i in reversed(range(highest_nestedness_score+1)):
-        TMP_MATRICE = [[] for x in surrounded_expression_token]
-        found_nest = False
-        if i == 0 :
-            for k in range(len(surrounded_expression_token)):
-                if str(k) in occupied_indexes:
-                    continue
+    SUR_EXP    = PARSE(silent_surrounding(CHAIN)).tokens
+    highest_nestedness_score = max([token.nestedness for token in SUR_EXP])
+    # Build template tree
+    cols       = len(SUR_EXP)
+    rows       = highest_nestedness_score + 1 + 1
+    empty_line = [[] for x in range(cols)]
+    TREE = [empty_line]
+    for i in range(rows):
+        TREE.append([ [] for x in range(cols) ])
+    # Populate template tree given nestedness
+    for i in range(rows):
+        for j in range(cols):
+            if SUR_EXP[j].nestedness == i :
+                if is_surrounder(SUR_EXP[j]) : continue
+                if is_operator(SUR_EXP[j]) :
+                    TREE[i][j] = SUR_EXP[j].symbol
                 else :
-                    TMP_MATRICE[k] = str(surrounded_expression_token[k][1])
-            TREE_MATRICE.append(TMP_MATRICE)
-            break
-        for j in range(0,len(surrounded_expression_token)):
-            if found_nest :
-                if surrounded_expression_token[j][0] == 'SUR' and surrounded_expression_token[j][2][2] == i and surrounded_expression_token[j][2][1] == 'close':
-                    found_nest = False
-                    TMP_MATRICE[j] = str(surrounded_expression_token[j][1])
-                    occupied_indexes.append(str(j))
-                    continue
-                else:
-                    TMP_MATRICE[j] = str(surrounded_expression_token[j][1])
-                    occupied_indexes.append(str(j))
-            elif surrounded_expression_token[j][0] == 'SUR' and surrounded_expression_token[j][2][2] == i:
-                found_nest = True
-                TMP_MATRICE[j] = str(surrounded_expression_token[j][1])
-                occupied_indexes.append(str(j))
-                continue
-        TREE_MATRICE.append(TMP_MATRICE)
-    #print("TREE_MATRICE: ",TREE_MATRICE)
+                    TREE[i+1][j] = SUR_EXP[j].symbol
+    ## Pop empty lines if any
+    indexes_to_pop = []
+    for i in range(len(TREE)):
+        pop = True
+        for j in range(cols):
+            if TREE[i][j] != [] : pop = False
+        if pop : indexes_to_pop.append(i)
+    for index in reversed(indexes_to_pop): TREE.pop(index)
 
-    LAST_MATRICE = []
-    for i in reversed(range(len(TREE_MATRICE))):
-        #print(NULL.join(map(str,[x for x in TREE_MATRICE[i]])))
-        STRING = ""
-        index = 0
-        for element in TREE_MATRICE[i]:
-            if   element == []: STRING += NULL
-            #for sur in SYMBOLS['SURROUNDERS']:
-            elif i != 0 and element == TREE_MATRICE[i-1][index] : STRING += NULL
-            else :
-                if str(element) in SYMBOLS['SURROUNDERS']:
-                            STRING += NULL
-                            index += 1
-                            continue
-                STRING += str(element)
-            index += 1
-        #print(len(TREE_MATRICE) - (i+1), "\t",STRING,"\n")
-        LAST_MATRICE.append(STRING)
-    #print("LAST_MATRICE: ",LAST_MATRICE)
-
-    # Place operators on line ABOVE (except for i = 0) and remove empty lines
-    FINAL_MATRICE = []
-    max_length = max([len(x) for x in LAST_MATRICE])
-    for i in range(len(LAST_MATRICE)):
-        if i == len(LAST_MATRICE)-1:
-            #print(i, "\t",LAST_MATRICE[i],"\n")
-            FINAL_MATRICE.append(list(LAST_MATRICE[i]))
-            continue
-        index = 0
-        if i == 0 :
-            STRING = ""
-            is_non_null = False
-            has_op = False
-            NEW_LINE = ""
-            for char in LAST_MATRICE[i]:
-                if char == NULL:
-                    STRING += NULL
-                    index+=1
-                    continue
-                char_token = TOKENIZE(char)
-                if char_token[0][0] == 'OP':
-                    has_op = True
-                    STRING += char
-                    NEW_LINE = ""
-                    for j in range(len(LAST_MATRICE[i])):
-                        if j == index :
-                            NEW_LINE+=NULL
-                        else:
-                            NEW_LINE += LAST_MATRICE[i][j]
-                    LAST_MATRICE[i] = list(NEW_LINE)
-                else:
-                    is_non_null = True
-                    STRING += NULL
-                index+=1
-            if has_op or is_non_null :
-                FINAL_MATRICE.append(list(STRING))
-
-        index = 0
-        for char in LAST_MATRICE[i+1]:
-            if char == NULL:
-                index+=1
-                continue
-            char_token = TOKENIZE(char)
-            if char_token[0][0] == 'OP':
-                list_cur_line = list(LAST_MATRICE[i])
-                list_cur_line[index] = char
-                LAST_MATRICE[i] = ''.join(map(str,list_cur_line)) + (max_length - len(list_cur_line)) * NULL
-                list_next_line = list(LAST_MATRICE[i+1])
-                list_next_line[index] = NULL
-                LAST_MATRICE[i+1] = ''.join(map(str,list_next_line)) + (max_length - len(list_next_line)) * NULL
-            index+=1
-        FINAL_MATRICE.append(list(LAST_MATRICE[i]))
-    #print("FINAL_MATRICE: ",FINAL_MATRICE)
-
-    # Remove cells that are empty on same index for every row (remove empty columns)
-    columns_to_ignore = []
-    for i in range(len(FINAL_MATRICE[0])):  # number of columns
-        are_all_empty = True
-        for j in range(len(FINAL_MATRICE)): # number of raws
-            if i >= len(FINAL_MATRICE[j]):continue
-            if FINAL_MATRICE[j][i] != NULL :
-                are_all_empty = False
+    #For columns, populate by length of non-empty value
+    for j in range(cols):
+        length = -1
+        for i in range(len(TREE)):
+            if TREE[i][j] != []:
+                length = len(TREE[i][j])
                 break
-        if not are_all_empty : continue
-        else : # remove all cells on that column i
-            columns_to_ignore.append(i)
+        if length >= 0:
+            for i in range(len(TREE)):
+                if TREE[i][j] == []:
+                    #TREE[i][j] = int(length)
+                    TREE[i][j] = NULL * length
 
-    # Rebuild MATRICE
-    ULTIMATE_MATRICE = []
-    for i in range(len(FINAL_MATRICE)): # raws
-        STRING = ""
-        for j in range(len(FINAL_MATRICE[0])):
-            if j in columns_to_ignore:
-                continue
-            STRING += FINAL_MATRICE[i][j]
-        if STRING.replace(' ','') != "" : ULTIMATE_MATRICE.append(STRING)
+    ## Replace lists by strings : if [] = "", elif isinstance(x,int) = NULL*x, else = str(x)
+    for i in range(len(TREE)):
+        for j in range(cols):
+            if   TREE[i][j] == []: TREE[i][j] = ""
 
-    # Display tree
-    index = len(FINAL_MATRICE)-1
-    for line in ULTIMATE_MATRICE:
-        print("{} |".format(index) + bcolors.OKGREEN + " {}".format(line) + bcolors.ENDC)
-        index-=1
+    # Print tree
+    index = 0
+    for line in TREE:
+        line_string = ''.join(map(str,[x for x in line]))
+        print(f"{index}| {bcolors.OKGREEN}{line_string}{bcolors.ENDC}")
+        index+=1
+    return
 
 def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
     '''Temporary function to show possible rewritable
@@ -175,26 +87,27 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
                 return
             RULE_TO_MATCH = RULE_TO_MATCH.replace('R','').replace('r','')
     # Check if token is valid (is that useful? too many checks before I guess)
-    token = TOKENIZE(INPUT)
-    parse = PARSE(token)
-    if not parse[0] :
-        print("Invalid proposition")
+    parse = PARSE(INPUT,ERROR_LOG = False)
+    CHAIN = parse.tokens
+    if not parse.validity :
+        print(bcolors.FAIL + "Invalid proposition" + bcolors.ENDC)
         return
     # Grab rewritable parts!
     if RULE_TO_MATCH != None:
         if MATCH_INDEX != None :
-            REWRITES = token_rewritable_parts(token,RULE_INDEX=RULE_TO_MATCH,MATCH_INDEX=MATCH_INDEX)
+            REWRITES = token_rewritable_parts(CHAIN,RULE_INDEX=RULE_TO_MATCH,MATCH_INDEX=MATCH_INDEX)
         else :
-            REWRITES = token_rewritable_parts(token,RULE_INDEX=RULE_TO_MATCH)
+            REWRITES = token_rewritable_parts(CHAIN,RULE_INDEX=RULE_TO_MATCH)
         if not REWRITES[0]: return
         REWRITES = REWRITES[1]
     else :
         if MATCH_INDEX != None :
-            REWRITES = token_all_rewritable_parts(token,MATCH_INDEX=MATCH_INDEX)
+            REWRITES = token_all_rewritable_parts(CHAIN,MATCH_INDEX=MATCH_INDEX)
         else :
-            REWRITES = token_all_rewritable_parts(token)
+            REWRITES = token_all_rewritable_parts(CHAIN)
     if len(REWRITES) == 0 :
-        print("No matching pattern.")
+        #print("No matching pattern.")
+        print(bcolors.DIM + "No matching pattern." + bcolors.ENDC)
         return
     counter = 0
     redundant = 0
@@ -211,20 +124,20 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
             continue
         indexes_in_part = []
         for i in range(len(rew)):
-            indexes_in_part.append(rew[i][3])
+            indexes_in_part.append(rew[i].index)
         beautiful_rewrite = ""
-        for i in range(len(parse[1])):
-            if parse[1][i][3] in indexes_in_part :
-                if parse[1][i][3] == indexes_in_part[len(indexes_in_part)-1]:
+        for i in range(len(CHAIN)):
+            if CHAIN[i].index in indexes_in_part :
+                if CHAIN[i].index == indexes_in_part[len(indexes_in_part)-1]:
                     if indexes_in_part[0] == 0 :
                         beautiful_rewrite = bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
                     else :
                         beautiful_rewrite = beautiful_rewrite + NULL + bcolors.BOLD + bcolors.OKGREEN + human_readable(str_rewrite) + bcolors.ENDC
             else :
                 if i == 0:
-                    beautiful_rewrite = str(parse[1][i][1])
+                    beautiful_rewrite = str(CHAIN[i].symbol)
                 else :
-                    beautiful_rewrite = beautiful_rewrite + NULL + str(parse[1][i][1])
+                    beautiful_rewrite = beautiful_rewrite + NULL + str(CHAIN[i].symbol)
         for i in range(len(RULES['REWRITE_RULES'])):
             if rule_name_general == RULES['REWRITE_RULES'][i]:
                 # test
@@ -245,8 +158,8 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
         if MATCH_INDEX != None and MATCH_INDEX != counter :
             counter+=1
             continue
-        symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
-        rewrite = str_rewrites_given_a_rule(token,RULE_INDEX=i,MATCH_INDEX=rule_counter)
+        symbol_prop_id = SYMBOLS['OP'][SYMBOLS['OP NAMES'].index("PROP_ID")]
+        rewrite = str_rewrites_given_a_rule(CHAIN,RULE_INDEX=i,MATCH_INDEX=rule_counter)
         if len(rewrite) == 1:
             rewrite = rewrite[0]
         elif len(rewrite) == 0:
@@ -258,19 +171,21 @@ def display_rewritable_parts(INPUT,RULE_TO_MATCH=None,MATCH_INDEX=None):
             cur_rule_name_length = len(rule_name)
             print("{} | ".format(counter) + beautiful_rewrite + "\t" + bcolors.OKBLUE +"(" + rule_name_general + " " + str(symbol_prop_id) + " " + rule_name + ")" +bcolors.ENDC+ NULL * (max_rule_name_length - cur_rule_name_length) + "\t {}". format(symbol_prop_id) + bcolors.FAIL + " {}".format(rewrite) + bcolors.ENDC)
         counter+=1
+    if counter == 0 :
+        print(bcolors.DIM + "No matching pattern." + bcolors.ENDC)
 
 # rewrite full
 def display_all_possible_rewritings(INPUT,MATCH_INDEX=None):
     '''Temporary function to show ALL possible rewrites
      for an INPUT (proposition) given the set of RULES'''
-    token = TOKENIZE(INPUT)
-    parse = PARSE(token)
-    if not parse[0] :
-        print("Invalid proposition")
+    parse = PARSE(INPUT,ERROR_LOG = False)
+    CHAIN = parse.tokens
+    if not parse.validity :
+        print(bcolors.FAIL + "Invalid proposition" + bcolors.ENDC)
         return
-    check = combine_all_possible_rewrites(token,MATCH_INDEX=MATCH_INDEX)
+    check = combine_all_possible_rewrites(CHAIN,MATCH_INDEX=MATCH_INDEX)
     if not check[0] :
-        print("No matching pattern.")
+        print(bcolors.DIM + "No matching pattern." + bcolors.ENDC)
         return
     REWRITES = check[1] # Storing tokens of possible rewritings
     counter = 0
@@ -285,11 +200,17 @@ def display_all_possible_rewritings(INPUT,MATCH_INDEX=None):
             continue
         print(str_rewrite)
         counter+=1
+    if counter == 0:
+        print(bcolors.DIM + "No matching pattern." + bcolors.ENDC)
 
 def display_given_a_rule(INPUT,RULE_INDEX=None,MATCH_INDEX=None):
-    token = TOKENIZE(INPUT)
-    for rew in str_rewrites_given_a_rule(token,RULE_INDEX,MATCH_INDEX):
+    CHAIN = PARSE(INPUT,ERROR_LOG = False).tokens
+    counter = 0
+    for rew in str_rewrites_given_a_rule(CHAIN,RULE_INDEX,MATCH_INDEX):
         print(rew)
+        counter+=1
+    if counter == 0:
+        print(bcolors.DIM + "No matching pattern." + bcolors.ENDC)
 
 def display_axioms_and_rules(choice=False):
     if choice == False or choice == "axioms":
@@ -298,26 +219,34 @@ def display_axioms_and_rules(choice=False):
             axiom_name = RULES['AXIOMS_NAMES'][i]
             max_axiom_name_length = max(map(int,(len(x) for x in RULES['AXIOMS_NAMES'])))
             cur_axiom_name_length = len(axiom_name)
-            axiom = NULL.join(map(str,[x[1] for x in RULES['AXIOMS'][i]]))
-            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
+            axiom = NULL.join(map(str,[x.symbol for x in RULES['AXIOMS'][i]]))
+            symbol_prop_id = SYMBOLS['OP'][SYMBOLS['OP NAMES'].index("PROP_ID")]
             if axiom_name == "" :
-                print("\t(A{})".format(index) + NULL * max_axiom_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(axiom))
+                #print("\t(A{})".format(index) + NULL * max_axiom_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(axiom))
+                print(bcolors.OKBLUE + "\tA{}  ".format(index) + NULL * max_axiom_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(axiom) + bcolors.ENDC)
             else :
-                print("\t(A{} ".format(index) + str(symbol_prop_id) + " {})".format(axiom_name) + NULL * (max_axiom_name_length - cur_axiom_name_length) + "\t {}".format(axiom))
+                #print("\t(A{} ".format(index) + str(symbol_prop_id) + " {})".format(axiom_name) + NULL * (max_axiom_name_length - cur_axiom_name_length) + "\t {}".format(axiom))
+                print(bcolors.OKBLUE + "\tA{} ".format(index) + str(symbol_prop_id) + " {}".format(axiom_name) + NULL * (max_axiom_name_length - cur_axiom_name_length) + " \t{}".format(axiom) + bcolors.ENDC)
             index += 1
+        if index == 0:
+            print(bcolors.DIM + "No axioms in memory." + bcolors.ENDC)
     if choice == False or choice == "rules":
         index = 0
         for i in range(len(RULES['REWRITE_RULES'])):
             rule_name = RULES['REWRITE_RULES_NAMES'][i]
             max_rule_name_length = max(map(int,(len(x) for x in RULES['REWRITE_RULES_NAMES'])))
             cur_rule_name_length = len(rule_name)
-            rule = NULL.join(map(str,[x[1] for x in RULES['REWRITE_RULES'][i]]))
-            symbol_prop_id = SYMBOLS['OPERATORS'][SYMBOLS['OPERATORS NAMES'].index("PROP_ID")]
+            rule = NULL.join(map(str,[x.symbol for x in RULES['REWRITE_RULES'][i]]))
+            symbol_prop_id = SYMBOLS['OP'][SYMBOLS['OP NAMES'].index("PROP_ID")]
             if rule_name == "" :
-                print("\t(R{})".format(index) + NULL * max_rule_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(rule))
+                #print("\t(R{})".format(index) + NULL * max_rule_name_length + NULL * len(symbol_prop_id) + "  \t {}".format(rule))
+                print(bcolors.OKBLUE + "\tR{}  ".format(index) + NULL * max_rule_name_length + NULL * len(symbol_prop_id) + "  \t{}".format(rule) + bcolors.ENDC)
             else :
-                print("\t(R{} ".format(index) + str(symbol_prop_id) + " {})".format(rule_name) + NULL * (max_rule_name_length - cur_rule_name_length) + "\t {}".format(rule))
+                #print("\t(R{} ".format(index) + str(symbol_prop_id) + " {})".format(rule_name) + NULL * (max_rule_name_length - cur_rule_name_length) + "\t {}".format(rule))
+                print(bcolors.OKBLUE + "\tR{} ".format(index) + str(symbol_prop_id) + " {}".format(rule_name) + NULL * (max_rule_name_length - cur_rule_name_length) + " \t{}".format(rule) + bcolors.ENDC)
             index += 1
+        if index == 0:
+            print(bcolors.DIM + "No rules in memory." + bcolors.ENDC)
 
-def human_readable(TOKEN):
-    return NULL.join(map(str,[x[1] for x in TOKEN]))
+def human_readable(CHAIN):
+    return NULL.join(map(str,[x.symbol for x in CHAIN]))

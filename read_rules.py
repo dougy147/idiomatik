@@ -34,48 +34,52 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                 I=I[1:]
             if I[0:len(COMMENT)] == COMMENT: continue
             else:
-                RULE = PARSE(TOKENIZE(I))
-                if RULE[0]:
+                #RULE = PARSE(TOKENIZE(I))
+                RULE = PARSE(I)
+                if RULE.validity:
                     invalid = False
                     # Grab name of rule
                     NAME = ""
                     naming_counter = 0
-                    for i in range(len(RULE[1])):
-                        if RULE[1][i][1] in SYMBOLS['OPERATORS']:
-                            if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(RULE[1][i][1])] == "PROP_ID":
-                                naming_counter += 1
-                                for j in range(0,i):
-                                    #if j > 0 : NAME += NULL
-                                    NAME += str(RULE[1][j][1])
+                    #for i in range(len(RULE[1])):
+                    for token in RULE.tokens:
+                        #if is_operator(token):
+                        #if SYMBOLS['OP NAMES'][SYMBOLS['OP'].index(RULE[1][i][1])] == "PROP_ID":
+                        if token.name == "PROP_ID":
+                            naming_counter += 1
+                            #NAME = NULL.join(map(str,[x.symbol for x in token.operands[0]]))
+                            NAME = ''.join(map(str,[x.symbol for x in token.operands[0]]))
                     if naming_counter > 1 : invalid = True # it means more than 1 PROP_ID : so multiple names
                     if NAME != "" and invalid == False : # it means that 'PROP_ID' operator was in the expression, so remove it from expression
-                        for i in range(len(RULE[1])):
-                            if RULE[1][i][1] in SYMBOLS['OPERATORS']:
-                                if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(RULE[1][i][1])] == "PROP_ID":
+                        #for i in range(len(RULE[1])):
+                        for i in range(len(RULE.tokens)):
+                            if is_operator(RULE.tokens[i]) and RULE.tokens[i].name == "PROP_ID":
+                                #if SYMBOLS['OP NAMES'][SYMBOLS['OP'].index(RULE[1][i][1])] == "PROP_ID":
                                     for j in range(0,i+1):
-                                        RULE[1].pop(0)   # pop FIRST element each time!
+                                        RULE.tokens.pop(0)   # pop FIRST element each time!
                                     break
                     # Grab type of rule
                     rewrite = False
                     rewrite_counter = 0
-                    for token in RULE[1]:
-                        if token[1] in SYMBOLS['OPERATORS']:
-                            if SYMBOLS['OPERATORS NAMES'][SYMBOLS['OPERATORS'].index(token[1])] == "REWRITE_AS":
-                                rewrite = True
-                                rewrite_counter += 1
-                            if rewrite_counter > 1:
-                                invalid = True
-                                break
+                    for token in RULE.tokens:
+                        #if is_operator(token):
+                        if token.name == "REWRITE_AS":
+                        #if SYMBOLS['OP NAMES'][SYMBOLS['OP'].index(token[1])] == "REWRITE_AS":
+                            rewrite = True
+                            rewrite_counter += 1
+                        if rewrite_counter > 1:
+                            invalid = True
+                            break
                     if   invalid :
                         print(bcolors.WARNING + "WARNING: invalid rule (too many names or 'rewrite' symbols in file '{}': '{}'".format(RULES_FILE,I) + bcolors.ENDC)
                     elif not rewrite :
                         if add_axioms == False:
                             print(bcolors.FAIL + "ERROR: rules need the rewrite symbol." + bcolors.ENDC)
                             continue
-                        if RULE[1] in RULES['AXIOMS'] :
+                        if RULE.tokens in RULES['AXIOMS'] :
                             print(bcolors.OKBLUE + "INFO: axiom '{}' already stored.".format(I) + bcolors.ENDC)
                             continue
-                        RULES['AXIOMS'].append(RULE[1])
+                        RULES['AXIOMS'].append(RULE.tokens)
                         name_exist = False
                         FNAME = NAME
                         while NAME in RULES['AXIOMS_NAMES'] and NAME != "" : # ignore if name is empty
@@ -86,18 +90,18 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                                 RENAME = NAME + "0"
                             NAME = RENAME
                         if name_exist == True:
-                            print(bcolors.WARNING + "INFO: axiom '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
+                            print(bcolors.DIM + bcolors.WARNING + "INFO: axiom '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
                         RULES['AXIOMS_NAMES'].append(NAME)
-                        print(bcolors.OKBLUE + "INFO: imported axiom '{}'.".format(I) + bcolors.ENDC)
+                        print(bcolors.DIM + bcolors.OKBLUE + "INFO: imported axiom '{}'.".format(I) + bcolors.ENDC)
                         #counter_rewrite_axioms += 1
                     else :
                         if add_rules == False:
                             print(bcolors.FAIL + "ERROR: rules are not considered axioms. Correct or not? Time to think about it..." + bcolors.ENDC)
                             continue
-                        if RULE[1] in RULES['REWRITE_RULES'] :
-                            print(bcolors.OKBLUE + "INFO: rule '{}' already stored.".format(I) + bcolors.ENDC)
+                        if RULE.tokens in RULES['REWRITE_RULES'] :
+                            print(bcolors.DIM + bcolors.OKBLUE + "INFO: rule '{}' already stored.".format(I) + bcolors.ENDC)
                             continue
-                        RULES['REWRITE_RULES'].append(RULE[1])
+                        RULES['REWRITE_RULES'].append(RULE.tokens)
                         name_exist = False
                         FNAME = NAME
                         while NAME in RULES['REWRITE_RULES_NAMES'] and NAME != "" : # ignore if name is empty
@@ -108,9 +112,9 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                                 RENAME = NAME + "0"
                             NAME = RENAME
                         if name_exist == True:
-                            print(bcolors.WARNING + "INFO: rule '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
+                            print(bcolors.DIM + bcolors.WARNING + "INFO: rule '{}', name '{}' exists. Renamed '{}'.".format(I,FNAME,RENAME) + bcolors.ENDC)
                         RULES['REWRITE_RULES_NAMES'].append(NAME)
-                        print(bcolors.OKBLUE + "INFO: imported rule '{}'.".format(I) + bcolors.ENDC)
+                        print(bcolors.DIM + bcolors.OKBLUE + "INFO: imported rule '{}'.".format(I) + bcolors.ENDC)
                         #counter_rewrite_rules += 1
                 else:
                     if RULES_FILE == None:
@@ -118,4 +122,8 @@ def IMPORT_RULES(STREAM,RULES_FILE = None,add_rules=True,add_axioms=True):
                     else :
                         print(bcolors.WARNING + "WARNING: invalid rule from file '{}': '{}'".format(RULES_FILE,I,i) + bcolors.ENDC)
 
-#IMPORT_RULES(STREAM,RULES_FILE = "RULES")
+#IMPORT_RULES(STREAM,RULES_FILE = "./rules/logic")
+#print(SYMBOLS)
+#print(RULES)
+#for r in RULES['REWRITE_RULES']:
+#    print(' '.join(map(str,[x.symbol for x in r])))
